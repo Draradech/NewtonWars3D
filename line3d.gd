@@ -2,7 +2,7 @@ class_name Line3D
 extends Node3D
 
 const sides: int = 8
-const radius: float = .02
+const radius: float = .5
 const seg_limit: int = 1000 / sides
 
 var material: BaseMaterial3D
