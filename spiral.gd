@@ -1,8 +1,6 @@
-@tool
 extends Node3D
 
 @export var mat_shot: BaseMaterial3D
-@export var mat_planet: BaseMaterial3D
 
 var tpnext: float = 0.0
 var ppnext: Vector3 = Vector3(0, 50. * sin(0), 50. * cos(0))
@@ -21,10 +19,6 @@ func _ready():
 	line = Line3D.new()
 	line.material = mat_shot
 	add_child(line)
-	for i in range(24):
-		var sph = BeamSphere.new(Vector3(randf_range(-1000, 1000), randf_range(-500, 500), randf_range(-500, 500)), randf_range(20, 40), .5)
-		sph.mesh.surface_set_material(0, mat_planet)
-		add_child(sph)
 
 var stop = 0
 func _process(delta: float):
@@ -40,7 +34,7 @@ func _process(delta: float):
 	line.tmpEnd(rplast + (rpnext - rplast) * (rt - rtplast) / (rtpnext - rtplast))
 
 var i: int = 0
-var slowdown: int = 100
+var slowdown: int = 10
 func _physics_process(delta: float):
 	i += 1
 	if i % slowdown == 0:
