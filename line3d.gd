@@ -38,14 +38,21 @@ func tmpEnd(p: Vector3):
 		
 		# calc verts at last known point in line
 		dir = (p - points[-2]).normalized()
-		right = dir.cross(Vector3.UP).normalized()
+		var last_vert0 = tmpverts[0]
+		var last_right = points[-2] - last_vert0
+		var new_up = dir.cross(last_right.normalized()).normalized()
+		right = dir.cross(new_up).normalized()
 		vert0 = right * radius
 		for i in range(sides):
 			tmpverts.append(vert0.rotated(dir, i * 2 * PI / sides) + points[-1])
 		
 		# calc verts at temp point
 		dir = (p - points[-1]).normalized()
-		right = dir.cross(Vector3.UP).normalized()
+		if dir.length() < 0.1:
+			dir = (p - points[-2]).normalized() # use previous orientation
+		last_right = -right
+		new_up = dir.cross(last_right.normalized()).normalized()
+		right = dir.cross(new_up).normalized()
 		vert0 = right * radius
 		for i in range(sides):
 			tmpverts.append(vert0.rotated(dir, i * 2 * PI / sides) + p)
@@ -76,14 +83,18 @@ func tmpEnd(p: Vector3):
 		
 		# calc verts at point 1
 		dir = (p - points[-2]).normalized()
-		right = dir.cross(Vector3.UP).normalized()
+		var last_right = -right
+		var new_up = dir.cross(last_right.normalized()).normalized()
+		right = dir.cross(new_up).normalized()
 		vert0 = right * radius
 		for i in range(sides):
 			tmpverts.append(vert0.rotated(dir, i * 2 * PI / sides) + points[-1])
 		
 		# calc verts at temp point
 		dir = (p - points[-1]).normalized()
-		right = dir.cross(Vector3.UP).normalized()
+		last_right = -right
+		new_up = dir.cross(last_right.normalized()).normalized()
+		right = dir.cross(new_up).normalized()
 		vert0 = right * radius
 		for i in range(sides):
 			tmpverts.append(vert0.rotated(dir, i * 2 * PI / sides) + p)
@@ -177,7 +188,10 @@ func addPoint(p: Vector3):
 				verts.append(oldverts[-sides + i])
 	
 	dir = (points[-1] - points[-3]).normalized()
-	right = dir.cross(Vector3.UP).normalized()
+	var last_vert0 = verts[seg_in_surf * sides]
+	var last_right = points[-3] - last_vert0
+	var new_up = dir.cross(last_right.normalized()).normalized()
+	right = dir.cross(new_up).normalized()
 	vert0 = right * radius
 	for i in range(sides):
 		verts.append(vert0.rotated(dir, i * 2 * PI / sides) + points[-2])
@@ -213,7 +227,10 @@ func finalize():
 	var vert0: Vector3
 	
 	dir = (points[-1] - points[-2]).normalized()
-	right = dir.cross(Vector3.UP).normalized()
+	var last_vert0 = verts[seg_in_surf * sides]
+	var last_right = points[-2] - last_vert0
+	var new_up = dir.cross(last_right.normalized()).normalized()
+	right = dir.cross(new_up).normalized()
 	vert0 = right * radius
 	
 	if seg_in_surf == 0:
@@ -258,6 +275,7 @@ func finalize():
 	mesh.mesh.clear_surfaces()
 	mesh.mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surface)
 	mesh.mesh.surface_set_material(0, material)
+	remove_child(tmpmesh)
 
 func _init():
 	surface.resize(Mesh.ARRAY_MAX)

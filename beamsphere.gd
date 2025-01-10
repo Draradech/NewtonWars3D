@@ -66,12 +66,12 @@ func addCylinder(p1: Vector3, p2: Vector3, r: float):
 	var vo = verts.size()
 	
 	# calc verts at point 1
-	var dir = (p2 - p1).normalized()
-	var right = dir.cross(Vector3.UP)
+	var dir: = (p2 - p1).normalized()
+	var right: = dir.cross(Vector3.UP)
 	if right.length_squared() < .1:
 		right = dir.cross(Vector3.FORWARD)
 	right = right.normalized()
-	var vert0 = right * r
+	var vert0: = right * r
 	for i in range(sides):
 		verts.append(vert0.rotated(dir, i * 2 * PI / sides) + p1)
 	
@@ -100,7 +100,6 @@ func addCylinder(p1: Vector3, p2: Vector3, r: float):
 		indices.append(vo + sides + i + 2)
 		indices.append(vo + sides + i + 1)
 
-	
 func _init(center: Vector3, r1: float, r2: float):
 	surface.resize(Mesh.ARRAY_MAX)
 	surface[Mesh.ARRAY_VERTEX] = verts
@@ -109,7 +108,7 @@ func _init(center: Vector3, r1: float, r2: float):
 	for edge in ddedge:
 		addCylinder(ddvert[edge[0]].normalized() * r1 + center, ddvert[edge[1]].normalized() * r1 + center , r2)
 	for face in ddface:
-		var vcenter = Vector3.ZERO
+		var vcenter: = Vector3.ZERO
 		for corner in face:
 			vcenter += ddvert[corner]
 		vcenter = vcenter.normalized() * r1
@@ -118,4 +117,3 @@ func _init(center: Vector3, r1: float, r2: float):
 	
 	mesh = ArrayMesh.new()
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surface)
-	

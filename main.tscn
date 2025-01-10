@@ -1,10 +1,9 @@
-[gd_scene load_steps=10 format=3 uid="uid://dmv0ts0ud224g"]
+[gd_scene load_steps=15 format=3 uid="uid://dmv0ts0ud224g"]
 
-[ext_resource type="Script" path="res://camera.gd" id="1_0xm2m"]
-[ext_resource type="Script" uid="uid://cxgelu4nsk3dv" path="res://spiral.gd" id="2_0xm2m"]
+[ext_resource type="Script" uid="uid://yxomh7mqixt" path="res://camera.gd" id="1_0xm2m"]
 [ext_resource type="Script" uid="uid://dh81qfh33pl13" path="res://debug_info.gd" id="3_1bvp3"]
-[ext_resource type="Script" uid="uid://rpfes1hbfskp" path="res://planets.gd" id="3_h2yge"]
-[ext_resource type="Script" uid="uid://b21fg0h6ou5qv" path="res://shots.gd" id="5_lquwl"]
+[ext_resource type="Script" uid="uid://cus7i5stapq74" path="res://game_test.gd" id="3_h2yge"]
+[ext_resource type="FontFile" uid="uid://b0eeea1mkogse" path="res://JetBrainsMono-Bold.ttf" id="4_1bvp3"]
 
 [sub_resource type="Environment" id="Environment_0xm2m"]
 background_mode = 1
@@ -17,17 +16,41 @@ glow_bloom = 0.2
 glow_blend_mode = 1
 glow_hdr_threshold = 1.2
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h2yge"]
+shading_mode = 0
+albedo_color = Color(0, 0.498039, 1, 1)
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1bvp3"]
 shading_mode = 0
 albedo_color = Color(0, 0.498039, 1, 1)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h2yge"]
-shading_mode = 0
-albedo_color = Color(0.25098, 0.25098, 0.25098, 1)
-
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lquwl"]
 shading_mode = 0
-albedo_color = Color(1, 0.498039, 0, 1)
+albedo_color = Color(0.313726, 0.313726, 0.313726, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7mycd"]
+shading_mode = 0
+albedo_color = Color(0, 0.74902, 0, 1)
+billboard_mode = 1
+
+[sub_resource type="QuadMesh" id="QuadMesh_272bh"]
+material = SubResource("StandardMaterial3D_7mycd")
+
+[sub_resource type="MultiMesh" id="MultiMesh_5vw27"]
+transform_format = 1
+mesh = SubResource("QuadMesh_272bh")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_272bh"]
+shading_mode = 0
+albedo_color = Color(0.74902, 0, 0, 1)
+billboard_mode = 1
+
+[sub_resource type="QuadMesh" id="QuadMesh_5vw27"]
+material = SubResource("StandardMaterial3D_272bh")
+
+[sub_resource type="MultiMesh" id="MultiMesh_kek77"]
+transform_format = 1
+mesh = SubResource("QuadMesh_5vw27")
 
 [node name="main" type="Node3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0197263, 0.00709414, 0.0119233)
@@ -36,27 +59,48 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0197263, 0.00709414, 0.0119
 environment = SubResource("Environment_0xm2m")
 
 [node name="Camera3D" type="Camera3D" parent="."]
+fov = 60.0
+near = 0.1
+far = 6000.0
 script = ExtResource("1_0xm2m")
-
-[node name="Spiral" type="Node3D" parent="."]
-script = ExtResource("2_0xm2m")
-mat_shot = SubResource("StandardMaterial3D_1bvp3")
-
-[node name="Planets" type="Node3D" parent="."]
-script = ExtResource("3_h2yge")
-material = SubResource("StandardMaterial3D_h2yge")
 
 [node name="DebugInfo" type="Label" parent="."]
 offset_left = 10.0
 offset_top = 10.0
 offset_right = 57.0
 offset_bottom = 111.0
-text = "FPS:
-MSPF:
-CPU:
-GPU:"
+theme_override_fonts/font = ExtResource("4_1bvp3")
+theme_override_font_sizes/font_size = 16
 script = ExtResource("3_1bvp3")
 
-[node name="Shots" type="Node3D" parent="."]
-script = ExtResource("5_lquwl")
-material = SubResource("StandardMaterial3D_lquwl")
+[node name="GameTest" type="Node3D" parent="."]
+script = ExtResource("3_h2yge")
+mat_shot = SubResource("StandardMaterial3D_h2yge")
+mat_player = SubResource("StandardMaterial3D_1bvp3")
+mat_planet = SubResource("StandardMaterial3D_lquwl")
+
+[node name="GPotBandAllow" type="MultiMeshInstance3D" parent="GameTest"]
+visible = false
+multimesh = SubResource("MultiMesh_5vw27")
+
+[node name="GPotBandDisallow" type="MultiMeshInstance3D" parent="GameTest"]
+visible = false
+multimesh = SubResource("MultiMesh_kek77")
+
+[node name="RichTextLabel" type="RichTextLabel" parent="GameTest"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -153.0
+offset_top = -20.0
+offset_right = 154.0
+offset_bottom = -11.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_fonts/normal_font = ExtResource("4_1bvp3")
+theme_override_font_sizes/normal_font_size = 20
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
