@@ -18,7 +18,6 @@ var tmpsurface: Array
 var tmpverts: PackedVector3Array
 var tmpindices: PackedInt32Array
 
-# todo needs cleanup, unneccessary duplicated code
 func tmpEnd(p: Vector3):
 	var dir: Vector3
 	var right: Vector3
@@ -227,10 +226,7 @@ func finalize():
 	var vert0: Vector3
 	
 	dir = (points[-1] - points[-2]).normalized()
-	var last_vert0 = verts[seg_in_surf * sides]
-	var last_right = points[-2] - last_vert0
-	var new_up = dir.cross(last_right.normalized()).normalized()
-	right = dir.cross(new_up).normalized()
+	right = dir.cross(Vector3.UP).normalized()
 	vert0 = right * radius
 	
 	if seg_in_surf == 0:
@@ -247,6 +243,12 @@ func finalize():
 		else:
 			for i in range(sides):
 				verts.append(oldverts[-sides + i])
+	
+	var last_vert0 = verts[seg_in_surf * sides]
+	var last_right = points[-2] - last_vert0
+	var new_up = dir.cross(last_right.normalized()).normalized()
+	right = dir.cross(new_up).normalized()
+	vert0 = right * radius
 	
 	for i in range(sides):
 		verts.append(vert0.rotated(dir, i * 2 * PI / sides) + points[-1])
@@ -275,9 +277,10 @@ func finalize():
 	mesh.mesh.clear_surfaces()
 	mesh.mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surface)
 	mesh.mesh.surface_set_material(0, material)
-	remove_child(tmpmesh)
+	if tmpmesh: remove_child(tmpmesh)
 
-func _init():
+func _init(mat: StandardMaterial3D):
+	material = mat
 	surface.resize(Mesh.ARRAY_MAX)
 	surface[Mesh.ARRAY_VERTEX] = verts
 	surface[Mesh.ARRAY_INDEX] = indices

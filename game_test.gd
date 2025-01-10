@@ -11,9 +11,6 @@ var sim_time: float = 0
 var render_time: float = 0
 var pmin: float = 0
 var pmax: float = 0
-var speed: float = 8
-var pitch: float = 0
-var yaw: float = 0
 
 func gpot(loc: Vector3) -> float:
 	var pot: float = 0
@@ -126,20 +123,20 @@ func _process(delta: float) -> void:
 var which: int = 0
 var digit: int = 0
 func updateLabel(delta: float):
-	var pitchstring: = "%15.10f" % pitch
-	var yawstring: = "%15.10f" % yaw
-	var speedstring: = "%15.10f" % speed
+	var pitchstring: = "%9.4f" % players[0].pitch
+	var yawstring: = "%9.4f" % players[0].yaw
+	var speedstring: = "%9.4f" % players[0].speed
 	if which == 0:
-		pitch += delta
-		pitchstring = ("%15.10f" % pitch).insert((5 if digit < 0 else 4) - digit, "[/color]")
+		players[0].pitch += delta
+		pitchstring = ("%9.4f" % players[0].pitch).insert((5 if digit < 0 else 4) - digit, "[/color]")
 		pitchstring = pitchstring.insert((4 if digit < 0 else 3) - digit, "[color=007fff]")
 	if which == 1:
-		yaw += delta
-		yawstring = ("%15.10f" % yaw).insert((5 if digit < 0 else 4) - digit, "[/color]")
+		players[0].yaw += delta
+		yawstring = ("%9.4f" % players[0].yaw).insert((5 if digit < 0 else 4) - digit, "[/color]")
 		yawstring = yawstring.insert((4 if digit < 0 else 3) - digit, "[color=007fff]")
 	if which == 2:
-		speed += delta
-		speedstring = ("%15.10f" % speed).insert((5 if digit < 0 else 4) - digit, "[/color]")
+		players[0].speed += delta
+		speedstring = ("%9.4f" % players[0].speed).insert((5 if digit < 0 else 4) - digit, "[/color]")
 		speedstring = speedstring.insert((4 if digit < 0 else 3) - digit, "[color=007fff]")
 	var bbstring: = "[center]"
 	bbstring += "Pitch: "
@@ -168,7 +165,12 @@ func _input(event: InputEvent) -> void:
 
 var step: int = 0
 const slow_factor: int = 1
+var next_mode: DisplayServer.WindowMode = DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN
 func _physics_process(delta: float) -> void:
+	if Input.is_action_just_pressed("fullscreen"):
+		var switch_to = next_mode
+		next_mode = DisplayServer.window_get_mode()
+		DisplayServer.window_set_mode(switch_to)
 	if Input.is_action_just_pressed("fire"):
 		if shots.size() > 5:
 			var rem: Shot = shots.pop_front()
@@ -176,9 +178,9 @@ func _physics_process(delta: float) -> void:
 		for shot in shots:
 			shot.material.albedo_color *= .7
 		var loc = players[0].location
-		var vel = Vector3.RIGHT * speed
-		vel = vel.rotated(Vector3.FORWARD, deg_to_rad(-pitch))
-		vel = vel.rotated(Vector3.UP, deg_to_rad(-yaw))
+		var vel = Vector3.RIGHT * players[0].speed
+		vel = vel.rotated(Vector3.FORWARD, deg_to_rad(-players[0].pitch))
+		vel = vel.rotated(Vector3.UP, deg_to_rad(-players[0].yaw))
 		var shot = Shot.new(loc, vel, sim_time, planets, players, mat_shot)
 		shots.append(shot)
 		add_child(shot)
@@ -187,9 +189,9 @@ func _physics_process(delta: float) -> void:
 			remove_child(shot)
 		shots.clear()
 	if Input.is_action_just_pressed("reset"):
-		pitch = 0
-		yaw = 0
-		speed = 5
+		players[0].pitch = 0
+		players[0].yaw = 0
+		players[0].speed = 8
 		updateLabel(0)
 	if Input.is_action_just_pressed("wire"):
 		if get_tree().root.get_viewport().debug_draw == Viewport.DEBUG_DRAW_DISABLED:

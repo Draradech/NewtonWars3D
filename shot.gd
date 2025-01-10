@@ -12,6 +12,7 @@ var acceleration: = Vector3.ZERO
 var line: Line3D
 var line_time: float
 var material: StandardMaterial3D
+var steps: int = 0
 
 const segmentSteps: = 25
 
@@ -40,9 +41,8 @@ func _init(loc: Vector3, vel: Vector3, sim_time: float, plan: Array[Planet], pla
 	location = loc
 	velocity = vel
 	acceleration = acc(loc)
-	line = Line3D.new()
+	line = Line3D.new(material)
 	timed_locations.append([sim_time, loc])
-	line.material = material
 	sim_live = true
 	render_live = true
 	add_child(line)
@@ -80,3 +80,5 @@ func simulate(sim_time: float, delta: float):
 		if (players[1].location - location).length_squared() < players[1].radius_sq: sim_live = false
 		if (players[2].location - location).length_squared() < players[2].radius_sq: sim_live = false
 	timed_locations.append([t, location])
+	steps += 1
+	if steps > 1000: sim_live = false

@@ -16,8 +16,7 @@ var rt: float = 0.0
 var line: Line3D
 
 func _ready():
-	line = Line3D.new()
-	line.material = mat_shot
+	line = Line3D.new(mat_shot)
 	add_child(line)
 
 var stop = 0
