@@ -62,7 +62,7 @@ var ddface = [
 	[ 6, 10, 11,  7, 15],
 ]
 
-func addCylinder(p1: Vector3, p2: Vector3, r: float):
+func add_cylinder(p1: Vector3, p2: Vector3, r: float):
 	var vo = verts.size()
 	
 	# calc verts at point 1
@@ -106,14 +106,14 @@ func _init(center: Vector3, r1: float, r2: float):
 	surface[Mesh.ARRAY_INDEX] = indices
 	
 	for edge in ddedge:
-		addCylinder(ddvert[edge[0]].normalized() * r1 + center, ddvert[edge[1]].normalized() * r1 + center , r2)
+		add_cylinder(ddvert[edge[0]].normalized() * r1 + center, ddvert[edge[1]].normalized() * r1 + center , r2)
 	for face in ddface:
 		var vcenter: = Vector3.ZERO
 		for corner in face:
 			vcenter += ddvert[corner]
 		vcenter = vcenter.normalized() * r1
 		for corner in face:
-			addCylinder(vcenter + center, ddvert[corner].normalized() * r1 + center, r2)
+			add_cylinder(vcenter + center, ddvert[corner].normalized() * r1 + center, r2)
 	
 	mesh = ArrayMesh.new()
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surface)

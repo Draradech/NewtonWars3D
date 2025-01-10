@@ -172,11 +172,11 @@ func _physics_process(delta: float) -> void:
 		next_mode = DisplayServer.window_get_mode()
 		DisplayServer.window_set_mode(switch_to)
 	if Input.is_action_just_pressed("fire"):
-		if shots.size() > 5:
+		while shots.size() > 5:
 			var rem: Shot = shots.pop_front()
-			remove_child(rem)
+			rem.queue_free()
 		for shot in shots:
-			shot.material.albedo_color *= .7
+			shot.material.albedo_color *= .8
 		var loc = players[0].location
 		var vel = Vector3.RIGHT * players[0].speed
 		vel = vel.rotated(Vector3.FORWARD, deg_to_rad(-players[0].pitch))
@@ -186,7 +186,7 @@ func _physics_process(delta: float) -> void:
 		add_child(shot)
 	if Input.is_action_just_pressed("clear"):
 		for shot in shots:
-			remove_child(shot)
+			shot.queue_free()
 		shots.clear()
 	if Input.is_action_just_pressed("reset"):
 		players[0].pitch = 0

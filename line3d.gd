@@ -2,8 +2,9 @@ class_name Line3D
 extends Node3D
 
 const sides: int = 8
-const radius: float = .5
 const seg_limit: int = 1000 / sides
+
+var radius: float
 
 var material: BaseMaterial3D
 var points: PackedVector3Array
@@ -155,7 +156,6 @@ func tmpEnd(p: Vector3):
 	tmpmesh.mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, tmpsurface)
 	tmpmesh.mesh.surface_set_material(0, material)
 
-
 func addPoint(p: Vector3):
 	points.push_back(p)
 	var point_num: int = points.size() - 1
@@ -253,8 +253,8 @@ func finalize():
 	for i in range(sides):
 		verts.append(vert0.rotated(dir, i * 2 * PI / sides) + points[-1])
 	
-	# cap start point
 	if point_num == 2:
+		# cap start point
 		for i in range(sides - 2):
 			indices.append(0)
 			indices.append(i + 1)
@@ -277,9 +277,10 @@ func finalize():
 	mesh.mesh.clear_surfaces()
 	mesh.mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surface)
 	mesh.mesh.surface_set_material(0, material)
-	if tmpmesh: remove_child(tmpmesh)
+	if tmpmesh: tmpmesh.queue_free()
 
-func _init(mat: StandardMaterial3D):
+func _init(rad: float, mat: StandardMaterial3D):
+	radius = rad
 	material = mat
 	surface.resize(Mesh.ARRAY_MAX)
 	surface[Mesh.ARRAY_VERTEX] = verts

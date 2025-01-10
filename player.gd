@@ -18,7 +18,7 @@ var pointer: Line3D
 var sphere: MeshInstance3D
 
 func update_pointer():
-	var vel = Vector3.RIGHT * 200
+	var vel = Vector3.RIGHT * 50
 	vel = vel.rotated(Vector3.FORWARD, deg_to_rad(-pitch))
 	vel = vel.rotated(Vector3.UP, deg_to_rad(-yaw))
 	pointer.tmpEnd(location + vel)
@@ -39,6 +39,6 @@ func _init(loc: Vector3, rad: float, mat: StandardMaterial3D):
 	
 	var pointermat: StandardMaterial3D = mat.duplicate()
 	pointermat.albedo_color = Color.WHITE
-	pointer = Line3D.new(pointermat)
+	pointer = Line3D.new(0.5, pointermat)
 	pointer.addPoint(loc)
 	add_child(pointer)

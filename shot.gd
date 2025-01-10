@@ -41,7 +41,7 @@ func _init(loc: Vector3, vel: Vector3, sim_time: float, plan: Array[Planet], pla
 	location = loc
 	velocity = vel
 	acceleration = acc(loc)
-	line = Line3D.new(material)
+	line = Line3D.new(0.5, material)
 	timed_locations.append([sim_time, loc])
 	sim_live = true
 	render_live = true
@@ -81,4 +81,4 @@ func simulate(sim_time: float, delta: float):
 		if (players[2].location - location).length_squared() < players[2].radius_sq: sim_live = false
 	timed_locations.append([t, location])
 	steps += 1
-	if steps > 1000: sim_live = false
+	if steps >= 1000: sim_live = false
