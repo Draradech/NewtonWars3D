@@ -1,0 +1,14 @@
+server -> client
+OWN_ID       ts:f64 id:u32                         len: 16
+PLAYER_POS   ts:f64 id:u32 x:f32 y:f32 z:f32 r:f32 len: 32
+PLANET_POS   ts:f64 id:u32 x:f32 y:f32 z:f32 r:f32 len: 32
+SHOT_POS     ts:f64 id:u32 x:f32 y:f32 z:f32       len: 28
+PLAYER_DEL   ts:f64 id:u32                         len: 16
+SHOT_FIN     ts:f64 id:u32                         len: 16
+SIM_TIME     ts:f64                                len: 12
+PLAYER_NAME  ts:f64 id:u32 name:c8x16              len: 32
+PLAYER_COLOR ts:f64 id:u32 rgbx:u8x4               len: 20
+
+client -> server
+PLAYER_NAME  name:c8x16                            len: 20
+SHOOT        pitch:f64 yaw:f64 speed:f64           len: 28
