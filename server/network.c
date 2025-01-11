@@ -1,0 +1,514 @@
+#include "network.h"
+
+#include <stdio.h>
+#include <ctype.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <errno.h>
+#include <limits.h>
+#include <string.h>
+#include <sys/types.h>
+
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#else
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+#endif
+
+#include "config.h"
+#include "simulation.h"
+
+#ifdef _WIN32
+#define close closesocket
+#ifndef IPV6_V6ONLY
+#define IPV6_V6ONLY 27
+#endif
+typedef SOCKET fd_socket_t;
+#else
+#define INVALID_SOCKET -1
+#endif
+
+#define PORT "3490"
+#define BACKLOG 4
+
+typedef struct
+{
+   fd_socket_t socket;
+   char msgbuf[64];
+   int msgbufindex;
+   int echo;
+   int bot;
+   int local;
+   int limit;
+   int controller;
+   char ip[INET6_ADDRSTRLEN];
+   int timeout;
+} connection_t;
+
+typedef struct
+{
+   char ip[INET6_ADDRSTRLEN];
+   int time;
+} block_entry_t;
+
+static fd_set master, readfds;
+static fd_socket_t sockmax, listener;
+static char buf[64];
+//static char sendbuf[5000];
+static block_entry_t block_list[16];
+static connection_t* connection;
+
+static void print_error(const char* msg)
+{
+   #if _WIN32
+   LPVOID lpMsgBuf;
+   FormatMessage(
+      FORMAT_MESSAGE_ALLOCATE_BUFFER |
+      FORMAT_MESSAGE_FROM_SYSTEM |
+      FORMAT_MESSAGE_IGNORE_INSERTS,
+      NULL,
+      GetLastError(),
+      MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US),
+      (LPTSTR) &lpMsgBuf,
+      0,
+      NULL
+   );
+   fprintf(stderr, "%s: %s", msg, (LPCTSTR)lpMsgBuf);
+   LocalFree( lpMsgBuf );
+   #else
+   perror(msg);
+   #endif
+}
+
+static void snd(int socket, int len, char* msg)
+{
+   int flags;
+   #if defined __APPLE__ || defined _WIN32
+   flags = 0;
+   #else
+   flags = MSG_NOSIGNAL | MSG_DONTWAIT;
+   #endif
+   if(send(socket, msg, len, flags) == -1)
+   {
+      print_error("send");
+   }
+}
+
+static int is_blocked(char* ip, double delta)
+{
+   int entry_min_time = -1;
+   int min_time = INT_MAX;
+   int i;
+
+   for(i = 0; i < 16; ++i)
+   {
+      if(strcmp(ip, block_list[i].ip) == 0)
+      {
+         int time = block_list[i].time;
+         block_list[i].time = 30 / delta;
+         return time;
+      }
+      if(block_list[i].time < min_time)
+      {
+         min_time = block_list[i].time;
+         entry_min_time = i;
+      }
+   }
+   strncpy_s(block_list[entry_min_time].ip, INET6_ADDRSTRLEN, ip, INET6_ADDRSTRLEN);
+   block_list[entry_min_time].time =  30 / delta;
+   return 0;
+}
+
+static int is_connected(char* ip)
+{
+   int k;
+   for(k = 0; k < conf.maxPlayers; ++k)
+   {
+      if(connection[k].socket)
+      {
+         if(strcmp(ip, connection[k].ip) == 0)
+         {
+            return 1;
+         }
+      }
+   }
+   return 0;
+}
+
+static void update_block_list(void)
+{
+   int i;
+
+   for(i = 0; i < 16; ++i)
+   {
+      if(block_list[i].time)
+      {
+         block_list[i].time--;
+         if(block_list[i].time == 0)
+         {
+            block_list[i].ip[0] = '\0';
+         }
+      }
+   }
+}
+
+static void update_limits(void)
+{
+   static int counter;
+   int k;
+
+   counter++;
+   if(counter % 3 != 0) return;
+
+   for(k = 0; k < conf.maxPlayers; ++k)
+   {
+      if(connection[k].socket)
+      {
+         connection[k].limit += 1;
+         if(connection[k].limit > 512)
+         {
+            connection[k].limit = 512;
+         }
+      }
+   }
+}
+
+static void update_timeouts(void)
+{
+   int k;
+
+   for(k = 0; k < conf.maxPlayers; ++k)
+   {
+      if(connection[k].socket)
+      {
+         if(connection[k].timeout)
+         {
+            connection[k].timeout--;
+         }
+      }
+   }
+}
+
+void initNetwork(void)
+{
+   struct addrinfo hints, *ai, *p;
+   int yes = 1;
+   int no = 0;
+   int rv;
+
+   #ifdef _WIN32
+   WSADATA wsaData;
+   if(WSAStartup(MAKEWORD(2, 0), &wsaData) != 0)
+   {
+      fprintf(stderr, "WSAStartup failed.\n");
+      exit(1);
+   }
+   #endif
+
+   connection = malloc(conf.maxPlayers * sizeof(connection_t));
+   memset(connection, 0, conf.maxPlayers * sizeof(connection_t));
+
+   FD_ZERO(&master);
+   FD_ZERO(&readfds);
+
+   memset(&hints, 0, sizeof hints);
+   hints.ai_family = AF_UNSPEC;
+   hints.ai_socktype = SOCK_STREAM;
+   hints.ai_flags = AI_PASSIVE;
+   if ((rv = getaddrinfo(NULL, PORT, &hints, &ai)) != 0)
+   {
+      fprintf(stderr, "getaddrinfo: %s", gai_strerror(rv));
+      exit(2);
+   }
+
+   // loop through all the results and bind to the first IPv6 we can
+   for(p = ai; p != NULL; p = p->ai_next)
+   {
+      if(p->ai_family != AF_INET6)
+      {
+         continue;
+      }
+
+      if ((listener = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == INVALID_SOCKET)
+      {
+         print_error("socket");
+         continue;
+      }
+
+      if (setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, (void *)&yes, sizeof(yes)) == -1)
+      {
+         print_error("setsockopt reuse");
+         close(listener);
+         continue;
+      }
+
+      // only interested if dualstack
+      if (setsockopt(listener, IPPROTO_IPV6, IPV6_V6ONLY, (void *)&no, sizeof(no)) == -1)
+      {
+         print_error("setsockopt dualstack");
+         close(listener);
+         continue;
+      }
+
+      if (bind(listener, p->ai_addr, p->ai_addrlen) == -1)
+      {
+         print_error("bind");
+         close(listener);
+         continue;
+      }
+
+      break; // success
+   }
+
+   if (p == NULL) // IPv6 dualstack failed
+   {
+      // loop through all the results and bind to the first IPv4 we can
+      for(p = ai; p != NULL; p = p->ai_next)
+      {
+         if(p->ai_family != AF_INET)
+         {
+            continue;
+         }
+
+         if ((listener = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == INVALID_SOCKET)
+         {
+            print_error("socket");
+            continue;
+         }
+
+         if (setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, (void *)&yes, sizeof(yes)) == -1)
+         {
+            print_error("setsockopt reuse");
+            close(listener);
+            continue;
+         }
+
+         if (bind(listener, p->ai_addr, p->ai_addrlen) == -1)
+         {
+            print_error("bind");
+            close(listener);
+            continue;
+         }
+
+         break; // success
+      }
+
+      if (p == NULL) // IPv4 failed as well
+      {
+         fprintf(stderr, "failed to bind\n");
+         exit(3);
+      }
+   }
+
+   freeaddrinfo(ai);
+
+   if (listen(listener, BACKLOG) == -1)
+   {
+      print_error("listen");
+      exit(4);
+   }
+
+   FD_SET(listener, &master);
+   sockmax = listener;
+   printf("waiting for connections...\n");
+}
+
+void disconnectPlayer(int p)
+{
+   int socket = connection[p].socket;
+   connection[p].echo = 0;
+   playerLeave(p);
+   close(connection[p].socket);
+   FD_CLR(connection[p].socket, &master);
+   connection[p].socket = 0;
+   connection[p].bot = 0;
+   printf("socket %d closed\n", socket);
+}
+
+void stepNetwork(double t, double delta)
+{
+   int k, pi, nbytes;
+   fd_socket_t i, newfd;
+   (void) t;
+   char remoteIP[INET6_ADDRSTRLEN];
+   struct sockaddr_storage remoteaddr;
+   socklen_t addrlen;
+   struct timeval tv;
+
+   update_block_list();
+   update_limits();
+   update_timeouts();
+
+   tv.tv_sec = 0;
+   tv.tv_usec = 1;
+   readfds = master;
+   if(select(sockmax + 1, &readfds, NULL, NULL, &tv) == -1)
+   {
+      print_error("select");
+      exit(5);
+   }
+
+   for(i = 0; i <= sockmax; ++i)
+   {
+      if(FD_ISSET(i, &readfds))
+      {
+         if(i == listener)
+         {
+            addrlen = sizeof remoteaddr;
+            newfd = accept(listener, (struct sockaddr *)&remoteaddr, &addrlen);
+            if(newfd == INVALID_SOCKET)
+            {
+               print_error("accept");
+            }
+            else
+            {
+               int blocked, connected, local;
+               getnameinfo((struct sockaddr *)&remoteaddr, addrlen, remoteIP, sizeof remoteIP, NULL, 0, NI_NUMERICHOST | NI_NUMERICSERV);
+               local =   (  (strcmp(remoteIP,"127.0.0.1") == 0)
+                         || (strcmp(remoteIP,"::ffff:127.0.0.1") == 0)
+                         || (strcmp(remoteIP,"::1") == 0)
+                         );
+               blocked = local ? 0 : is_blocked(remoteIP, delta);
+               connected = local ? 0 : is_connected(remoteIP);
+               if(blocked)
+               {
+                  close(newfd);
+                  printf("new connection from %s on socket %d refused: blocked for %lfs\n", remoteIP, (unsigned int)newfd, blocked * delta);
+               }
+               else if(connected)
+               {
+                  close(newfd);
+                  printf("new connection from %s on socket %d refused: already connected\n", remoteIP, (unsigned int)newfd);
+               }
+               else
+               {
+                  for(k = 0; k < conf.maxPlayers; ++k)
+                  {
+                     if(connection[k].socket == 0)
+                     {
+                        connection[k].socket = newfd;
+                        connection[k].local = local;
+                        connection[k].limit = 512;
+                        connection[k].timeout = 5 * 60 / delta;
+                        strncpy_s(connection[k].ip, INET6_ADDRSTRLEN, remoteIP, INET6_ADDRSTRLEN);
+                        playerJoin(k);
+                        FD_SET(newfd, &master);
+                        if(newfd > sockmax)
+                        {
+                           sockmax = newfd;
+                        }
+                        printf("new connection from %s on socket %d accepted\n", remoteIP, (unsigned int)newfd);
+                        break;
+                     }
+                  }
+                  if(k == conf.maxPlayers)
+                  {
+                     close(newfd);
+                     printf("new connection from %s on socket %d refused: max connections\n", remoteIP, (unsigned int)newfd);
+                  }
+               }
+            }
+         }
+         else
+         {
+            pi = -1;
+            for(k = 0; k < conf.maxPlayers; ++k)
+            {
+               if(connection[k].socket == i)
+               {
+                  pi = k;
+                  break;
+               }
+            }
+            nbytes = recv(i, buf, sizeof buf, 0);
+            connection[pi].limit -= connection[pi].local ? 0 : nbytes;
+            if (  (nbytes <= 0)
+               || (connection[pi].limit < 0)
+               )
+            {
+               if(connection[pi].limit < 0)
+               {
+                  printf("socket %d exceeded rate limit\n", (unsigned int)i);
+               }
+               else if(nbytes == 0)
+               {
+                  printf("socket %d hung up\n", (unsigned int)i);
+               }
+               else
+               {
+                  print_error("recv");
+               }
+               disconnectPlayer(pi);
+               close(i);
+               FD_CLR(i, &master);
+            }
+            else
+            {
+               connection[pi].timeout = 5 * 60 / delta;
+               for(k = 0; k < nbytes && pi >= 0; ++k)
+               {
+                  unsigned char c = buf[k];
+                  if(c != '\r' && c != '\n')
+                  {
+                     if(isprint(c) && connection[pi].msgbufindex < 128 - 2)
+                     {
+                        connection[pi].msgbuf[connection[pi].msgbufindex++] = c;
+                     }
+                  }
+                  else
+                  {
+                     if(connection[pi].msgbufindex == 0)
+                     {
+                        continue;
+                     }
+                     connection[pi].msgbuf[connection[pi].msgbufindex] = '\0';
+                     connection[pi].msgbuf[connection[pi].msgbufindex + 1] = '\0';
+                     connection[pi].msgbufindex = 0;
+                     if(connection[pi].echo)
+                     {
+                        snd(i, strlen(connection[pi].msgbuf), connection[pi].msgbuf);
+                        snd(i, 2, "\r\n");
+                     }
+                     if(1)
+                     {
+                        printf("%16s (%d): \"%s\"\n", getPlayer(pi)->name, pi, connection[pi].msgbuf);
+                     }
+                     switch(connection[pi].msgbuf[0])
+                     {
+                        // parse and handle incoming packets
+                        case 0:
+                        {
+                           // ...
+                           break;
+                        }
+                        default:
+                        {
+                           // ...
+                           break;
+                        }
+                     }
+
+                     if(connection[pi].socket && !connection[pi].bot && !connection[pi].controller)
+                     {
+                        snd(i, 2, "> ");
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   for(k = 0; k < conf.maxPlayers; ++k)
+   {
+      if(connection[k].socket && connection[k].timeout == 0)
+      {
+         disconnectPlayer(k);
+      }
+   }
+   // build outgoing packet collection and send to everybody
+}

@@ -1,14 +1,16 @@
 server -> client
-OWN_ID       ts:f64 id:u32                         len: 16
-PLAYER_POS   ts:f64 id:u32 x:f32 y:f32 z:f32 r:f32 len: 32
-PLANET_POS   ts:f64 id:u32 x:f32 y:f32 z:f32 r:f32 len: 32
-SHOT_POS     ts:f64 id:u32 x:f32 y:f32 z:f32       len: 28
-PLAYER_DEL   ts:f64 id:u32                         len: 16
-SHOT_FIN     ts:f64 id:u32                         len: 16
-SIM_TIME     ts:f64                                len: 12
-PLAYER_NAME  ts:f64 id:u32 name:c8x16              len: 32
-PLAYER_COLOR ts:f64 id:u32 rgbx:u8x4               len: 20
+
+MSG_SIM_TIME     ts:f64                                     len: 12
+MSG_OWN_ID       pyid:u32                                   len: 8
+MSG_PLAYER_POS   pyid:u32 x:f32 y:f32 z:f32 r:f32           len: 24
+MSG_PLANET_POS   pnid:u32 x:f32 y:f32 z:f32 r:f32           len: 24
+MSG_NEW_MISS     pyid:u32 mid:u32                           len: 12
+MSG_MISS_POS     ts:f64 mid:u32 x:f32 y:f32 z:f32           len: 28
+MSG_MISS_END     mid:u32                                    len: 8
+MSG_PLAYER_DEL   pyid:u32                                   len: 8
+MSG_PLAYER_NAME  pyid:u32 name:c8x16                        len: 24
 
 client -> server
-PLAYER_NAME  name:c8x16                            len: 20
-SHOOT        pitch:f64 yaw:f64 speed:f64           len: 28
+
+MSG_SET_NAME     name:c8x16                            len: 20
+MSG_SHOOT        pitch:f64 yaw:f64 speed:f64           len: 28
