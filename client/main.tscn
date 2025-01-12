@@ -1,9 +1,10 @@
-[gd_scene load_steps=15 format=3 uid="uid://dmv0ts0ud224g"]
+[gd_scene load_steps=16 format=3 uid="uid://dmv0ts0ud224g"]
 
 [ext_resource type="Script" uid="uid://yxomh7mqixt" path="res://camera.gd" id="1_0xm2m"]
 [ext_resource type="Script" uid="uid://dh81qfh33pl13" path="res://debug_info.gd" id="3_1bvp3"]
 [ext_resource type="Script" uid="uid://cus7i5stapq74" path="res://game_test.gd" id="3_h2yge"]
 [ext_resource type="FontFile" uid="uid://b0eeea1mkogse" path="res://JetBrainsMono-Bold.ttf" id="4_1bvp3"]
+[ext_resource type="Script" uid="uid://hhrkbw011mml" path="res://net_test.gd" id="5_lquwl"]
 
 [sub_resource type="Environment" id="Environment_0xm2m"]
 background_mode = 1
@@ -103,3 +104,6 @@ theme_override_fonts/normal_font = ExtResource("4_1bvp3")
 theme_override_font_sizes/normal_font_size = 20
 bbcode_enabled = true
 fit_content = true
+
+[node name="NetTest" type="Node3D" parent="."]
+script = ExtResource("5_lquwl")

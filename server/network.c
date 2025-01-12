@@ -35,6 +35,7 @@ typedef SOCKET fd_socket_t;
 
 #define PORT "3490"
 #define BACKLOG 4
+#define MAX_SEND_BUFFER_SIZE (64 * 1024) // 64 KB buffer for all packets
 
 typedef struct
 {
@@ -56,12 +57,18 @@ typedef struct
    int time;
 } block_entry_t;
 
+static const int yes = 1;
+static const int no = 0;
+
 static fd_set master, readfds;
 static fd_socket_t sockmax, listener;
 static char buf[64];
-//static char sendbuf[5000];
+static char sendBuffer[MAX_SEND_BUFFER_SIZE];
+static int sendBufferOffset = 0;
 static block_entry_t block_list[16];
 static connection_t* connection;
+
+void sendFrameData(double t);
 
 static void print_error(const char* msg)
 {
@@ -197,8 +204,6 @@ static void update_timeouts(void)
 void initNetwork(void)
 {
    struct addrinfo hints, *ai, *p;
-   int yes = 1;
-   int no = 0;
    int rv;
 
    #ifdef _WIN32
@@ -391,6 +396,14 @@ void stepNetwork(double t, double delta)
                   {
                      if(connection[k].socket == 0)
                      {
+                        if (setsockopt(newfd, IPPROTO_TCP, TCP_NODELAY, (void *)&yes, sizeof(yes)) == -1)
+                        {
+                           printf("new connection from %s on socket %d refused:\n", remoteIP, (unsigned int)newfd);
+                           print_error("setsockopt nodelay");
+                           close(newfd);
+                           break;
+                        }
+
                         connection[k].socket = newfd;
                         connection[k].local = local;
                         connection[k].limit = 512;
@@ -425,6 +438,11 @@ void stepNetwork(double t, double delta)
                   break;
                }
             }
+            if(pi == -1)
+            {
+               fprintf(stderr, "socket without player\n");
+               exit(6);
+            }
             nbytes = recv(i, buf, sizeof buf, 0);
             connection[pi].limit -= connection[pi].local ? 0 : nbytes;
             if (  (nbytes <= 0)
@@ -444,8 +462,6 @@ void stepNetwork(double t, double delta)
                   print_error("recv");
                }
                disconnectPlayer(pi);
-               close(i);
-               FD_CLR(i, &master);
             }
             else
             {
@@ -510,5 +526,45 @@ void stepNetwork(double t, double delta)
          disconnectPlayer(k);
       }
    }
-   // build outgoing packet collection and send to everybody
+   sendFrameData(t);
+}
+
+void addToSendBuffer(const char* data, int size)
+{
+   if (sendBufferOffset + size > MAX_SEND_BUFFER_SIZE)
+   {
+      fprintf(stderr, "Send buffer overflow!\n");
+      return;
+   }
+   memcpy(sendBuffer + sendBufferOffset, data, size);
+   sendBufferOffset += size;
+}
+
+void sendAll(void)
+{
+   for (int i = 0; i < conf.maxPlayers; ++i)
+   {
+      if (connection[i].socket)
+      {
+         snd(connection[i].socket, sendBufferOffset, sendBuffer);
+      }
+   }
+   sendBufferOffset = 0;
+}
+
+void addSimTime(double t)
+{
+   unsigned char buf[12];
+   uint32_t packetId = MSG_SIM_TIME;
+
+   memcpy(buf, &packetId, sizeof(uint32_t));
+   memcpy(buf + sizeof(uint32_t), &t, sizeof(double));
+
+   addToSendBuffer((char*)buf, sizeof(buf));
+}
+
+void sendFrameData(double t)
+{
+   addSimTime(t);
+   sendAll();
 }
