@@ -3,6 +3,11 @@
 
 #include "vector.h"
 
+#define DIRTY_POS  0x01 // includes radius, mass, etc
+#define DIRTY_LIVE 0x02
+#define DIRTY_NAME 0x04
+#define DIRTY_DATA 0x08 // kills, deaths
+
 typedef struct
 {
    Vec3d position;

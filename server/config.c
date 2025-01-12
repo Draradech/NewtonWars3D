@@ -37,12 +37,16 @@ void config(int* argc, char** argv)
    conf.numPlanets = 25;
    conf.numShots = 6 + 1;
    conf.playerSize = 5;
+   conf.blockMultiCon = 0;
+   conf.blockConTime = 0;
+   conf.timeout = 0;
 
    //fixed
    conf.maxSegments = 2000;
    conf.segmentSteps = 25;
    conf.battlefieldRadius = 900;
    conf.battlefieldHeight = 500;
+   conf.playerSpacing = 400;
 
    for(i = 1; i < *argc; ++i)
    {

@@ -161,26 +161,28 @@ static void initPlanets(void)
 
       for(i = 0; i < conf.numPlanets; i++)
       {
+         Planet* p = &(planets[i]);
          int nok;
          do
          {
-            planets[i].radius = 20.0 + (double)rand() / RAND_MAX * 20.0;
-            planets[i].mass = planets[i].radius * planets[i].radius * planets[i].radius / 10.0;
-            planets[i].position.x = (double)rand() / RAND_MAX * conf.battlefieldRadius * 2 - conf.battlefieldRadius;
-            planets[i].position.y = (double)rand() / RAND_MAX * conf.battlefieldHeight * 2 - conf.battlefieldHeight;
-            planets[i].position.z = (double)rand() / RAND_MAX * conf.battlefieldRadius * 2 - conf.battlefieldRadius;
+            p->radius = 20.0 + (double)rand() / RAND_MAX * 20.0;
+            p->mass = p->radius * p->radius * p->radius / 10.0;
+            p->position.x = (double)rand() / RAND_MAX * conf.battlefieldRadius * 2 - conf.battlefieldRadius;
+            p->position.y = (double)rand() / RAND_MAX * conf.battlefieldHeight * 2 - conf.battlefieldHeight;
+            p->position.z = (double)rand() / RAND_MAX * conf.battlefieldRadius * 2 - conf.battlefieldRadius;
             nok = 0;
-            Vec3d xz = planets[i].position;
+            Vec3d xz = p->position;
             xz.y = 0;
             if(length(xz) > conf.battlefieldRadius) nok = 1;
             for(j = 0; j < i && nok == 0; ++j)
             {
-               if(distance(planets[i].position, planets[j].position) <= (planets[i].radius + planets[j].radius))
+               if(distance(p->position, planets[j].position) <= (p->radius + planets[j].radius))
                {
                   nok = 1;
                }
             }
          } while (nok);
+         p->dirty |= DIRTY_POS;
       }
 
       tries++;
@@ -190,51 +192,55 @@ static void initPlanets(void)
    printf("pmin: %.2lf pmax: %.2lf (%d tries)\n", pmin, pmax, tries);
 }
 
-static void initPlayer(int p)
+static void initPlayer(Player* p)
 {
    int i, nok;
 
    do
    {
-      players[p].position.x = (double)rand() / RAND_MAX * conf.battlefieldRadius * 2 - conf.battlefieldRadius;
-      players[p].position.y = (double)rand() / RAND_MAX * conf.battlefieldHeight * 2 - conf.battlefieldHeight;
-      players[p].position.z = (double)rand() / RAND_MAX * conf.battlefieldRadius * 2 - conf.battlefieldRadius;
+      p->position.x = (double)rand() / RAND_MAX * conf.battlefieldRadius * 2 - conf.battlefieldRadius;
+      p->position.y = (double)rand() / RAND_MAX * conf.battlefieldHeight * 2 - conf.battlefieldHeight;
+      p->position.z = (double)rand() / RAND_MAX * conf.battlefieldRadius * 2 - conf.battlefieldRadius;
 
       nok = 0;
-      if(calcGPot(players[p].position) > pmax || calcGPot(players[p].position) < pmin)
+      if(calcGPot(p->position) > pmax || calcGPot(p->position) < pmin)
       {
          nok = 1;
       }
       for(i = 0; i < conf.maxPlayers; ++i)
       {
-         if(i == p || !players[i].live) continue;
-         if(distance(players[p].position, players[i].position) <= 400.0) /* players distance from other playerss */
+         if(&players[i] == p || !players[i].live) continue;
+         if(distance(p->position, players[i].position) <= conf.playerSpacing) /* players distance from other playerss */
          {
             nok = 1;
          }
       }
       for(i = 0; i < conf.numPlanets; ++i)
       {
-         if(distance(players[p].position, planets[i].position) <= (planets[i].radius + conf.playerSize)) /* players distance from planetss */
+         if(distance(p->position, planets[i].position) <= (planets[i].radius + conf.playerSize)) /* players distance from planetss */
          {
             nok = 1;
          }
       }
    } while (nok);
+   p->dirty |= DIRTY_POS;
 }
 
 static void playerHit(int p, int p2)
 {
    if(p == p2)
    {
-     players[p].deaths++;
+      players[p].deaths++;
+      players[p].dirty |= DIRTY_DATA;
    }
    else
    {
-     players[p].kills++;
-     players[p2].deaths++;
+      players[p].kills++;
+      players[p].dirty |= DIRTY_DATA;
+      players[p2].deaths++;
+      players[p2].dirty |= DIRTY_DATA;
    }
-   initPlayer(p2);
+   initPlayer(&players[p2]);
 }
 
 Vec3d acc(Vec3d pos)
@@ -270,6 +276,7 @@ void stepIntegrate(Missile* m)
    m->position = new_pos;
    m->velocity = new_velocity;
    m->acceleration = new_acc;
+   m->dirty |= DIRTY_POS;
 }
 
 void stepSimulation(double t, double delta)
@@ -301,6 +308,7 @@ void stepSimulation(double t, double delta)
                {
                   m->live = 0;
                   m->diedAt = fractTs;
+                  m->dirty |= DIRTY_LIVE;
                }
             }
 
@@ -316,6 +324,7 @@ void stepSimulation(double t, double delta)
                   playerHit(pl, pl2);
                   m->live = 0;
                   m->diedAt = fractTs;
+                  m->dirty |= DIRTY_LIVE;
                }
 
                if (  (l > (conf.playerSize + 1.0))
@@ -332,6 +341,7 @@ void stepSimulation(double t, double delta)
          {
             m->live = 0;
             m->diedAt = fractTs;
+            m->dirty |= DIRTY_LIVE;
          }
       }
    }
@@ -352,31 +362,45 @@ void initSimulation(void)
       {
          Missile* m = &(p->missiles[mi]);
          m->live = 0;
+         m->dirty = 0;
       }
       p->live = 0;
    }
 }
 
-void playerJoin(int p)
+void playerJoin(int pl)
 {
+   Player* p = &(players[pl]);
    initPlayer(p);
-   players[p].deaths = 0;
-   players[p].kills = 0;
-   players[p].currentMissile = 0;
-   players[p].live = 1;
-   strncpy_s(players[p].name, 16, "Anonymous", 15);
+
+   p->deaths = 0;
+   p->kills = 0;
+   p->currentMissile = 0;
+   p->live = 1;
+   strncpy_s(p->name, 16, "Anonymous", 15);
+   p->dirty |= DIRTY_NAME | DIRTY_DATA | DIRTY_LIVE;
 }
 
-void playerLeave(int p)
+void playerLeave(int pl)
 {
-   players[p].live = 0;
+   Player* p = &(players[pl]);
+   p->live = 0;
+   p->dirty |= DIRTY_LIVE;
+   for(int mi = 0; mi < conf.numShots; ++mi)
+   {
+      Missile* m = &(p->missiles[mi]);
+      m->live = 0;
+      m->dirty = 0;
+   }
 }
 
 void playerShoot(int pl, double yaw, double pitch, double speed)
 {
-   Player*  p = &(players[pl]);
+   Player* p = &(players[pl]);
    p->currentMissile = (p->currentMissile + 1) % conf.numShots;
    Missile* m = &(p->missiles[p->currentMissile]);
+
+   printf("shoot %d, %lf, %lf, %lf\n", pl, yaw, pitch, speed);
 
    m->id = mid++;
    m->position = p->position;
@@ -386,15 +410,20 @@ void playerShoot(int pl, double yaw, double pitch, double speed)
    m->acceleration = acc(m->position);
    m->live = 1;
    m->leftSource = 0;
+   m->age = 0;
+   m->dirty = DIRTY_LIVE | DIRTY_POS;
 
    int nextM = (p->currentMissile + 1) % conf.numShots;
    m = &(p->missiles[nextM]);
    m->live = 0;
+   m->dirty = DIRTY_LIVE;
 }
 
-void playerName(int p, char* n)
+void playerName(int pl, char* n)
 {
-   strncpy_s(players[p].name, 16, n, 15);
+   Player* p = &(players[pl]);
+   strncpy_s(p->name, 16, n, 15);
+   p->dirty = DIRTY_NAME;
 }
 
 Missile* getMissile(int p, int s)

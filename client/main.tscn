@@ -1,31 +1,13 @@
-[gd_scene load_steps=16 format=3 uid="uid://dmv0ts0ud224g"]
+[gd_scene load_steps=15 format=3 uid="uid://dmv0ts0ud224g"]
 
 [ext_resource type="Script" uid="uid://yxomh7mqixt" path="res://camera.gd" id="1_0xm2m"]
+[ext_resource type="Script" uid="uid://betr7x1j01hy3" path="res://main.gd" id="1_7mycd"]
+[ext_resource type="Script" uid="uid://c46kby0xqkod5" path="res://network.gd" id="2_272bh"]
 [ext_resource type="Script" uid="uid://dh81qfh33pl13" path="res://debug_info.gd" id="3_1bvp3"]
-[ext_resource type="Script" uid="uid://cus7i5stapq74" path="res://game_test.gd" id="3_h2yge"]
+[ext_resource type="Script" uid="uid://gn16w5grc8wm" path="res://display.gd" id="3_5vw27"]
 [ext_resource type="FontFile" uid="uid://b0eeea1mkogse" path="res://JetBrainsMono-Bold.ttf" id="4_1bvp3"]
-[ext_resource type="Script" uid="uid://hhrkbw011mml" path="res://net_test.gd" id="5_lquwl"]
 
-[sub_resource type="Environment" id="Environment_0xm2m"]
-background_mode = 1
-glow_levels/1 = 2.0
-glow_levels/2 = 1.5
-glow_levels/4 = 0.5
-glow_levels/5 = 0.0
-glow_intensity = 1.5
-glow_bloom = 0.2
-glow_blend_mode = 1
-glow_hdr_threshold = 1.2
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h2yge"]
-shading_mode = 0
-albedo_color = Color(0, 0.498039, 1, 1)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1bvp3"]
-shading_mode = 0
-albedo_color = Color(0, 0.498039, 1, 1)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lquwl"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5vw27"]
 shading_mode = 0
 albedo_color = Color(0.313726, 0.313726, 0.313726, 1)
 
@@ -53,19 +35,54 @@ material = SubResource("StandardMaterial3D_272bh")
 transform_format = 1
 mesh = SubResource("QuadMesh_5vw27")
 
+[sub_resource type="Environment" id="Environment_0xm2m"]
+background_mode = 1
+glow_levels/1 = 2.0
+glow_levels/2 = 1.5
+glow_levels/4 = 0.5
+glow_levels/5 = 0.0
+glow_intensity = 1.5
+glow_bloom = 0.2
+glow_blend_mode = 1
+glow_hdr_threshold = 1.2
+
 [node name="main" type="Node3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0197263, 0.00709414, 0.0119233)
+script = ExtResource("1_7mycd")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("Environment_0xm2m")
+[node name="Network" type="Node3D" parent="."]
+script = ExtResource("2_272bh")
 
-[node name="Camera3D" type="Camera3D" parent="."]
-fov = 60.0
-near = 0.1
-far = 6000.0
-script = ExtResource("1_0xm2m")
+[node name="Display" type="Node3D" parent="."]
+script = ExtResource("3_5vw27")
+material = SubResource("StandardMaterial3D_5vw27")
 
-[node name="DebugInfo" type="Label" parent="."]
+[node name="GPotBandAllow" type="MultiMeshInstance3D" parent="Display"]
+visible = false
+multimesh = SubResource("MultiMesh_5vw27")
+
+[node name="GPotBandDisallow" type="MultiMeshInstance3D" parent="Display"]
+visible = false
+multimesh = SubResource("MultiMesh_kek77")
+
+[node name="MissileInput" type="RichTextLabel" parent="Display"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -300.0
+offset_top = -30.0
+offset_right = 300.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_fonts/normal_font = ExtResource("4_1bvp3")
+theme_override_font_sizes/normal_font_size = 20
+bbcode_enabled = true
+fit_content = true
+
+[node name="DebugInfo" type="Label" parent="Display"]
 offset_left = 10.0
 offset_top = 10.0
 offset_right = 57.0
@@ -74,36 +91,11 @@ theme_override_fonts/font = ExtResource("4_1bvp3")
 theme_override_font_sizes/font_size = 16
 script = ExtResource("3_1bvp3")
 
-[node name="GameTest" type="Node3D" parent="."]
-script = ExtResource("3_h2yge")
-mat_shot = SubResource("StandardMaterial3D_h2yge")
-mat_player = SubResource("StandardMaterial3D_1bvp3")
-mat_planet = SubResource("StandardMaterial3D_lquwl")
+[node name="Camera3D" type="Camera3D" parent="Display"]
+fov = 60.0
+near = 0.1
+far = 6000.0
+script = ExtResource("1_0xm2m")
 
-[node name="GPotBandAllow" type="MultiMeshInstance3D" parent="GameTest"]
-visible = false
-multimesh = SubResource("MultiMesh_5vw27")
-
-[node name="GPotBandDisallow" type="MultiMeshInstance3D" parent="GameTest"]
-visible = false
-multimesh = SubResource("MultiMesh_kek77")
-
-[node name="RichTextLabel" type="RichTextLabel" parent="GameTest"]
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -153.0
-offset_top = -20.0
-offset_right = 154.0
-offset_bottom = -11.0
-grow_horizontal = 2
-grow_vertical = 0
-theme_override_fonts/normal_font = ExtResource("4_1bvp3")
-theme_override_font_sizes/normal_font_size = 20
-bbcode_enabled = true
-fit_content = true
-
-[node name="NetTest" type="Node3D" parent="."]
-script = ExtResource("5_lquwl")
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Display"]
+environment = SubResource("Environment_0xm2m")

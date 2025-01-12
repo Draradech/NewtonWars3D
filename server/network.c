@@ -42,11 +42,10 @@ typedef struct
    fd_socket_t socket;
    char msgbuf[64];
    int msgbufindex;
-   int echo;
-   int bot;
+   int msgID;
+   int inMsg;
    int local;
    int limit;
-   int controller;
    char ip[INET6_ADDRSTRLEN];
    int timeout;
 } connection_t;
@@ -69,6 +68,7 @@ static block_entry_t block_list[16];
 static connection_t* connection;
 
 void sendFrameData(double t);
+void sendStartPacket(int pl, double t);
 
 static void print_error(const char* msg)
 {
@@ -117,7 +117,7 @@ static int is_blocked(char* ip, double delta)
       if(strcmp(ip, block_list[i].ip) == 0)
       {
          int time = block_list[i].time;
-         block_list[i].time = 30 / delta;
+         block_list[i].time = conf.blockConTime / delta;
          return time;
       }
       if(block_list[i].time < min_time)
@@ -127,7 +127,7 @@ static int is_blocked(char* ip, double delta)
       }
    }
    strncpy_s(block_list[entry_min_time].ip, INET6_ADDRSTRLEN, ip, INET6_ADDRSTRLEN);
-   block_list[entry_min_time].time =  30 / delta;
+   block_list[entry_min_time].time =  conf.blockConTime / delta;
    return 0;
 }
 
@@ -326,12 +326,10 @@ void initNetwork(void)
 void disconnectPlayer(int p)
 {
    int socket = connection[p].socket;
-   connection[p].echo = 0;
    playerLeave(p);
    close(connection[p].socket);
    FD_CLR(connection[p].socket, &master);
    connection[p].socket = 0;
-   connection[p].bot = 0;
    printf("socket %d closed\n", socket);
 }
 
@@ -385,7 +383,7 @@ void stepNetwork(double t, double delta)
                   close(newfd);
                   printf("new connection from %s on socket %d refused: blocked for %lfs\n", remoteIP, (unsigned int)newfd, blocked * delta);
                }
-               else if(connected)
+               else if(connected && conf.blockMultiCon)
                {
                   close(newfd);
                   printf("new connection from %s on socket %d refused: already connected\n", remoteIP, (unsigned int)newfd);
@@ -407,7 +405,7 @@ void stepNetwork(double t, double delta)
                         connection[k].socket = newfd;
                         connection[k].local = local;
                         connection[k].limit = 512;
-                        connection[k].timeout = 5 * 60 / delta;
+                        connection[k].timeout = conf.timeout / delta;
                         strncpy_s(connection[k].ip, INET6_ADDRSTRLEN, remoteIP, INET6_ADDRSTRLEN);
                         playerJoin(k);
                         FD_SET(newfd, &master);
@@ -416,6 +414,7 @@ void stepNetwork(double t, double delta)
                            sockmax = newfd;
                         }
                         printf("new connection from %s on socket %d accepted\n", remoteIP, (unsigned int)newfd);
+                        sendStartPacket(k, t);
                         break;
                      }
                   }
@@ -465,53 +464,45 @@ void stepNetwork(double t, double delta)
             }
             else
             {
-               connection[pi].timeout = 5 * 60 / delta;
-               for(k = 0; k < nbytes && pi >= 0; ++k)
+               connection_t* con = &(connection[pi]);
+               con->timeout = conf.timeout / delta;
+               int cancel = 0;
+               for(k = 0; k < nbytes && pi >= 0 && !cancel; ++k)
                {
-                  unsigned char c = buf[k];
-                  if(c != '\r' && c != '\n')
+                  con->msgbuf[con->msgbufindex++] = buf[k];
+                  if(!con->inMsg)
                   {
-                     if(isprint(c) && connection[pi].msgbufindex < 128 - 2)
+                     if(con->msgbufindex == 4)
                      {
-                        connection[pi].msgbuf[connection[pi].msgbufindex++] = c;
+                        con->msgID = *((int*)(con->msgbuf));
+                        con->inMsg = 1;
+                        con->msgbufindex = 0;
                      }
                   }
                   else
                   {
-                     if(connection[pi].msgbufindex == 0)
+                     switch(con->msgID)
                      {
-                        continue;
-                     }
-                     connection[pi].msgbuf[connection[pi].msgbufindex] = '\0';
-                     connection[pi].msgbuf[connection[pi].msgbufindex + 1] = '\0';
-                     connection[pi].msgbufindex = 0;
-                     if(connection[pi].echo)
-                     {
-                        snd(i, strlen(connection[pi].msgbuf), connection[pi].msgbuf);
-                        snd(i, 2, "\r\n");
-                     }
-                     if(1)
-                     {
-                        printf("%16s (%d): \"%s\"\n", getPlayer(pi)->name, pi, connection[pi].msgbuf);
-                     }
-                     switch(connection[pi].msgbuf[0])
-                     {
-                        // parse and handle incoming packets
-                        case 0:
+                        case MSG_SHOOT:
                         {
-                           // ...
+                           if(con->msgbufindex == 24)
+                           {
+                              double pitch, yaw, speed;
+                              pitch = *((double*)(con->msgbuf));
+                              yaw = *((double*)(con->msgbuf + 8));
+                              speed = *((double*)(con->msgbuf + 16));
+                              playerShoot(pi, yaw, pitch, speed);
+                              con->inMsg = 0;
+                              con->msgbufindex = 0;
+                           }
                            break;
                         }
                         default:
                         {
-                           // ...
-                           break;
+                           printf("player %d sent unknown message %d.\n", pi, con->msgID);
+                           disconnectPlayer(pi);
+                           cancel = 1;
                         }
-                     }
-
-                     if(connection[pi].socket && !connection[pi].bot && !connection[pi].controller)
-                     {
-                        snd(i, 2, "> ");
                      }
                   }
                }
@@ -521,7 +512,7 @@ void stepNetwork(double t, double delta)
    }
    for(k = 0; k < conf.maxPlayers; ++k)
    {
-      if(connection[k].socket && connection[k].timeout == 0)
+      if(conf.timeout && connection[k].socket && connection[k].timeout == 0)
       {
          disconnectPlayer(k);
       }
@@ -552,19 +543,199 @@ void sendAll(void)
    sendBufferOffset = 0;
 }
 
+void sendOne(int pl)
+{
+   snd(connection[pl].socket, sendBufferOffset, sendBuffer);
+   sendBufferOffset = 0;
+}
+
 void addSimTime(double t)
 {
    unsigned char buf[12];
    uint32_t packetId = MSG_SIM_TIME;
 
-   memcpy(buf, &packetId, sizeof(uint32_t));
-   memcpy(buf + sizeof(uint32_t), &t, sizeof(double));
+   memcpy(buf, &packetId, 4);
+   memcpy(buf + 4, &t, 8);
 
    addToSendBuffer((char*)buf, sizeof(buf));
 }
 
+void addPlanets(int dirtyOnly)
+{
+   unsigned char buf[24];
+   uint32_t packetId = MSG_PLANET;
+   float f;
+
+   for(int i = 0; i < conf.numPlanets; i++)
+   {
+      Planet* p = getPlanet(i);
+      if(p->dirty || !dirtyOnly)
+      {
+         memcpy(buf, &packetId, 4);
+         memcpy(buf + 4, &i, 4);
+         f = p->position.x;
+         memcpy(buf + 8, &f, 4);
+         f = p->position.y;
+         memcpy(buf + 12, &f, 4);
+         f = p->position.z;
+         memcpy(buf + 16, &f, 4);
+         f = p->radius;
+         memcpy(buf + 20, &f, 4);
+         addToSendBuffer((char*)buf, sizeof(buf));
+         if(dirtyOnly) p->dirty = 0;
+      }
+   }
+}
+
+void addPlayerPos(int dirtyOnly)
+{
+   unsigned char buf[24];
+   uint32_t packetId = MSG_PLAYER_POS;
+   float f;
+
+   for(int i = 0; i < conf.maxPlayers; i++)
+   {
+      Player* p = getPlayer(i);
+      if(p->live && ((p->dirty & DIRTY_POS) || !dirtyOnly))
+      {
+         memcpy(buf, &packetId, 4);
+         memcpy(buf + 4, &i, 4);
+         f = p->position.x;
+         memcpy(buf + 8, &f, 4);
+         f = p->position.y;
+         memcpy(buf + 12, &f, 4);
+         f = p->position.z;
+         memcpy(buf + 16, &f, 4);
+         f = conf.playerSize;
+         memcpy(buf + 20, &f, 4);
+         addToSendBuffer((char*)buf, sizeof(buf));
+         if(dirtyOnly) p->dirty &= ~DIRTY_POS;
+      }
+   }
+}
+
+void addPlayerDel(void)
+{
+   unsigned char buf[8];
+   uint32_t packetId = MSG_PLAYER_DEL;
+
+   for(int i = 0; i < conf.maxPlayers; i++)
+   {
+      Player* p = getPlayer(i);
+      if(!p->live && p->dirty & DIRTY_LIVE)
+      {
+         memcpy(buf, &packetId, 4);
+         memcpy(buf + 4, &i, 4);
+         addToSendBuffer((char*)buf, sizeof(buf));
+         p->dirty &= ~DIRTY_LIVE;
+      }
+   }
+}
+
+void addOwnId(int pl)
+{
+   unsigned char buf[8];
+   uint32_t packetId = MSG_OWN_ID;
+
+   memcpy(buf, &packetId, 4);
+   memcpy(buf + 4, &pl, 4);
+   addToSendBuffer((char*)buf, sizeof(buf));
+}
+
+void addNewMissiles(void)
+{
+   unsigned char buf[12];
+   uint32_t packetId = MSG_NEW_MISS;
+
+   for(int pl = 0; pl < conf.maxPlayers; ++pl)
+   {
+      if(!getPlayer(pl)->live) continue;
+      for(int mi = 0; mi < conf.numShots; ++mi)
+      {
+         Missile* m = getMissile(pl, mi);
+         if(m->live && m->dirty & DIRTY_LIVE)
+         {
+            memcpy(buf, &packetId, 4);
+            memcpy(buf + 4, &pl, 4);
+            memcpy(buf + 8, &m->id, 4);
+            addToSendBuffer((char*)buf, sizeof(buf));
+            m->dirty &= ~DIRTY_LIVE;
+         }
+      }
+   }
+}
+
+void addMissilePos(double t)
+{
+   unsigned char buf[28];
+   uint32_t packetId = MSG_MISS_POS;
+   double ts;
+   float f;
+
+   for(int pl = 0; pl < conf.maxPlayers; ++pl)
+   {
+      if(!getPlayer(pl)->live) continue;
+      for(int mi = 0; mi < conf.numShots; ++mi)
+      {
+         Missile* m = getMissile(pl, mi);
+         if(m->dirty & DIRTY_POS)
+         {
+            memcpy(buf, &packetId, 4);
+            memcpy(buf + 4, &m->id, 4);
+            ts = m->live ? t : m->diedAt;
+            memcpy(buf + 8, &ts, 8);
+            f = m->position.x;
+            memcpy(buf + 16, &f, 4);
+            f = m->position.y;
+            memcpy(buf + 20, &f, 4);
+            f = m->position.z;
+            memcpy(buf + 24, &f, 4);
+            addToSendBuffer((char*)buf, sizeof(buf));
+            m->dirty &= ~DIRTY_POS;
+         }
+      }
+   }
+}
+
+void addMissileEnd(void)
+{
+   unsigned char buf[8];
+   uint32_t packetId = MSG_MISS_END;
+
+   for(int pl = 0; pl < conf.maxPlayers; ++pl)
+   {
+      if(!getPlayer(pl)->live) continue;
+      for(int mi = 0; mi < conf.numShots; ++mi)
+      {
+         Missile* m = getMissile(pl, mi);
+         if(!m->live && m->dirty & DIRTY_LIVE)
+         {
+            memcpy(buf, &packetId, 4);
+            memcpy(buf + 4, &m->id, 4);
+            addToSendBuffer((char*)buf, sizeof(buf));
+            m->dirty &= ~DIRTY_LIVE;
+         }
+      }
+   }
+}
+
 void sendFrameData(double t)
 {
+   addPlanets(1);
+   addPlayerPos(1);
+   addPlayerDel();
+   addNewMissiles();
+   addMissilePos(t);
+   addMissileEnd();
    addSimTime(t);
    sendAll();
+}
+
+void sendStartPacket(int pl, double t)
+{
+   addOwnId(pl);
+   addPlanets(0);
+   addPlayerPos(0);
+   addSimTime(t);
+   sendOne(pl);
 }
