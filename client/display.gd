@@ -155,7 +155,7 @@ func update_player_pos(pyid: int, loc: Vector3, rad: float):
 	if not players.has(pyid):
 		var ply_mat: StandardMaterial3D = material.duplicate()
 		ply_mat.albedo_color = Color(1, .5, 0) if pyid == player_id else Color(0, .5, 1)
-		players.set(pyid, Player.new(loc, rad, ply_mat))
+		players.set(pyid, Player.new(loc, rad, pyid == player_id, ply_mat))
 		add_child(players[pyid])
 		if pyid == player_id: updateLabel(0)
 	else:
@@ -188,3 +188,32 @@ func update_shot_pos(mid: int, ts: float, loc: Vector3):
 
 func shot_die(_mid: int):
 	pass
+
+func ray_sphere_intersection(ray_origin: Vector3, ray_dir: Vector3, sphere_center: Vector3, sphere_radius: float) -> float:
+	var oc: = ray_origin - sphere_center
+	var a: = ray_dir.dot(ray_dir)
+	var b: = 2.0 * oc.dot(ray_dir)
+	var c: = oc.dot(oc) - sphere_radius * sphere_radius
+	var discriminant: = b * b - 4 * a * c
+	if discriminant < 0.0:
+		return -1.0
+	var t1: = (-b - sqrt(discriminant)) / (2.0 * a)
+	var t2: = (-b + sqrt(discriminant)) / (2.0 * a)
+	return min(t1, t2) if t1 >= 0 else (t2 if t2 >= 0 else -1.0)
+
+func find_closest_intersection(ray_origin: Vector3, ray_dir: Vector3) -> Vector3:
+	var closest_dist: float = INF
+	var closest_object_center: = Vector3.INF
+	# Check planets
+	for planet: Planet in planets.values():
+		var t = ray_sphere_intersection(ray_origin, ray_dir, planet.location, planet.radius + 1)
+		if t > 0.0 and t < closest_dist:
+			closest_dist = t
+			closest_object_center = planet.location
+	# Check players
+	for player: Player in players.values():
+		var t = ray_sphere_intersection(ray_origin, ray_dir, player.location, player.radius + 10)
+		if t > 0.0 and t < closest_dist:
+			closest_dist = t
+			closest_object_center = player.location
+	return closest_object_center

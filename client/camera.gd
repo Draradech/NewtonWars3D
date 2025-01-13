@@ -17,9 +17,16 @@ func _input(event):
 				Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED if event.pressed else Input.MOUSE_MODE_VISIBLE)
 				mouse_move = Vector2(0, 0)
 			MOUSE_BUTTON_WHEEL_UP:
-				distance = clamp(distance / 1.05, 100, 3000)
+				distance = clamp(distance / 1.05, 10, 3000)
 			MOUSE_BUTTON_WHEEL_DOWN:
-				distance = clamp(distance * 1.05, 100, 3000)
+				distance = clamp(distance * 1.05, 10, 3000)
+			MOUSE_BUTTON_LEFT:
+				if event.double_click:
+					var ray_dir = project_ray_normal(get_viewport().get_mouse_position())
+					var display: Display = get_parent()
+					var target_pos = display.find_closest_intersection(position, ray_dir)
+					if target_pos.x < 10000.0:
+						create_tween().tween_method(func(value): poff = value, poff, target_pos, .5).set_trans(Tween.TRANS_SINE)
 
 func _process(_delta):
 	if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:

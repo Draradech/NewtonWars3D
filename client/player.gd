@@ -27,12 +27,20 @@ var sphere: MeshInstance3D
 var shots: Array[Shot]
 
 func update_pointer():
-	var vel = Vector3.RIGHT * 50
-	vel = vel.rotated(Vector3.FORWARD, deg_to_rad(-pitch))
-	vel = vel.rotated(Vector3.UP, deg_to_rad(-yaw))
-	pointer.tmpEnd(location + vel)
+	if pointer:
+		var vel = Vector3.RIGHT * 50
+		vel = vel.rotated(Vector3.FORWARD, deg_to_rad(-pitch))
+		vel = vel.rotated(Vector3.UP, deg_to_rad(-yaw))
+		pointer.points[0] = location
+		pointer.tmpEnd(location + vel)
 
-func _init(loc: Vector3, rad: float, mat: StandardMaterial3D):
+func _init(loc: Vector3, rad: float, do_pointer: bool, mat: StandardMaterial3D):
+	if do_pointer:
+		var pointermat: StandardMaterial3D = mat.duplicate()
+		pointermat.albedo_color = Color.WHITE
+		pointer = Line3D.new(0.5, pointermat)
+		pointer.addPoint(loc)
+		add_child(pointer)
 	material = mat.duplicate()
 	sphere = MeshInstance3D.new()
 	sphere.mesh = SphereMesh.new()
@@ -42,9 +50,3 @@ func _init(loc: Vector3, rad: float, mat: StandardMaterial3D):
 	location = loc
 	sphere.mesh.surface_set_material(0, material)
 	add_child(sphere)
-	
-	var pointermat: StandardMaterial3D = mat.duplicate()
-	pointermat.albedo_color = Color.WHITE
-	pointer = Line3D.new(0.5, pointermat)
-	pointer.addPoint(loc)
-	add_child(pointer)
