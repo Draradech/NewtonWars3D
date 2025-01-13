@@ -61,3 +61,6 @@ func get_other_shots() -> int:
 
 func input_blocked() -> bool:
 	return $MenuContainer.visible or $DisconnectMessage.visible
+
+func _on_spin_box_value_changed(value: float) -> void:
+	get_tree().root.content_scale_factor = value

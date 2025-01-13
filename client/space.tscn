@@ -116,7 +116,7 @@ anchor_bottom = 0.5
 offset_left = -195.0
 offset_top = -95.0
 offset_right = 195.0
-offset_bottom = 95.0
+offset_bottom = 138.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_w5eul")
@@ -161,6 +161,17 @@ layout_mode = 2
 min_value = 1.0
 max_value = 20.0
 value = 2.0
+
+[node name="Label" type="Label" parent="MenuContainer/Background/VBox/GridContainer"]
+layout_mode = 2
+text = "UI scale"
+
+[node name="SpinBox" type="SpinBox" parent="MenuContainer/Background/VBox/GridContainer"]
+layout_mode = 2
+min_value = 0.5
+max_value = 2.0
+step = 0.1
+value = 1.0
 
 [node name="Disconnect" type="Button" parent="MenuContainer/Background/VBox"]
 layout_mode = 2
@@ -228,6 +239,7 @@ horizontal_alignment = 1
 layout_mode = 2
 text = "OK"
 
+[connection signal="value_changed" from="MenuContainer/Background/VBox/GridContainer/SpinBox" to="." method="_on_spin_box_value_changed"]
 [connection signal="pressed" from="MenuContainer/Background/VBox/Disconnect" to="." method="_on_disconnect_pressed"]
 [connection signal="pressed" from="MenuContainer/Background/VBox/Continue" to="." method="_on_continue_pressed"]
 [connection signal="pressed" from="DisconnectMessage/Background/VBox/Disconnect" to="." method="_on_disconnect_pressed"]
