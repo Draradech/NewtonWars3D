@@ -1,10 +1,10 @@
-[gd_scene load_steps=15 format=3 uid="uid://dmv0ts0ud224g"]
+[gd_scene load_steps=17 format=3 uid="uid://dmv0ts0ud224g"]
 
 [ext_resource type="Script" uid="uid://betr7x1j01hy3" path="res://space.gd" id="1_w5eul"]
 [ext_resource type="Script" uid="uid://c46kby0xqkod5" path="res://network.gd" id="2_b5fhv"]
 [ext_resource type="Script" uid="uid://gn16w5grc8wm" path="res://display.gd" id="3_4fhbr"]
 [ext_resource type="FontFile" uid="uid://b0eeea1mkogse" path="res://JetBrainsMono-Bold.ttf" id="4_1vxpe"]
-[ext_resource type="Script" uid="uid://dh81qfh33pl13" path="res://debug_info.gd" id="5_4hog4"]
+[ext_resource type="Script" uid="uid://dh81qfh33pl13" path="res://stats.gd" id="5_4hog4"]
 [ext_resource type="Script" uid="uid://yxomh7mqixt" path="res://camera.gd" id="6_myilm"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5vw27"]
@@ -46,6 +46,12 @@ glow_bloom = 0.2
 glow_blend_mode = 1
 glow_hdr_threshold = 1.2
 
+[sub_resource type="Theme" id="Theme_w5eul"]
+default_font = ExtResource("4_1vxpe")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_w5eul"]
+bg_color = Color(0.301961, 0.301961, 0.301961, 1)
+
 [node name="Space" type="Node3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0197263, 0.00709414, 0.0119233)
 script = ExtResource("1_w5eul")
@@ -82,15 +88,6 @@ theme_override_font_sizes/normal_font_size = 20
 bbcode_enabled = true
 fit_content = true
 
-[node name="DebugInfo" type="Label" parent="Display"]
-offset_left = 10.0
-offset_top = 10.0
-offset_right = 57.0
-offset_bottom = 111.0
-theme_override_fonts/font = ExtResource("4_1vxpe")
-theme_override_font_sizes/font_size = 16
-script = ExtResource("5_4hog4")
-
 [node name="Camera3D" type="Camera3D" parent="Display"]
 fov = 60.0
 near = 0.1
@@ -99,3 +96,139 @@ script = ExtResource("6_myilm")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="Display"]
 environment = SubResource("Environment_0xm2m")
+
+[node name="MenuContainer" type="Control" parent="."]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = SubResource("Theme_w5eul")
+
+[node name="Background" type="Panel" parent="MenuContainer"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -195.0
+offset_top = -95.0
+offset_right = 195.0
+offset_bottom = 95.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_w5eul")
+
+[node name="VBox" type="VBoxContainer" parent="MenuContainer/Background"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -177.5
+offset_top = -57.0
+offset_right = 177.5
+offset_bottom = 57.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+
+[node name="GridContainer" type="GridContainer" parent="MenuContainer/Background/VBox"]
+layout_mode = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 12
+columns = 2
+
+[node name="ShotsSelfLbl" type="Label" parent="MenuContainer/Background/VBox/GridContainer"]
+layout_mode = 2
+text = "Number of shots drawn (self)"
+
+[node name="ShotsSelf" type="SpinBox" parent="MenuContainer/Background/VBox/GridContainer"]
+layout_mode = 2
+min_value = 1.0
+max_value = 20.0
+value = 6.0
+
+[node name="ShotsOtherLbl" type="Label" parent="MenuContainer/Background/VBox/GridContainer"]
+layout_mode = 2
+text = "Number of shots drawn (other)"
+
+[node name="ShotsOther" type="SpinBox" parent="MenuContainer/Background/VBox/GridContainer"]
+layout_mode = 2
+min_value = 1.0
+max_value = 20.0
+value = 2.0
+
+[node name="Disconnect" type="Button" parent="MenuContainer/Background/VBox"]
+layout_mode = 2
+text = "Disconnect"
+
+[node name="Continue" type="Button" parent="MenuContainer/Background/VBox"]
+layout_mode = 2
+text = "Continue"
+
+[node name="Stats" type="Label" parent="."]
+visible = false
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 57.0
+offset_bottom = 111.0
+theme = SubResource("Theme_w5eul")
+script = ExtResource("5_4hog4")
+
+[node name="DisconnectMessage" type="Control" parent="."]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = SubResource("Theme_w5eul")
+
+[node name="Background" type="Panel" parent="DisconnectMessage"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -195.0
+offset_top = -95.0
+offset_right = 195.0
+offset_bottom = 95.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_w5eul")
+
+[node name="VBox" type="VBoxContainer" parent="DisconnectMessage/Background"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -58.0
+offset_top = -32.0
+offset_right = 58.0
+offset_bottom = 32.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+
+[node name="Label" type="Label" parent="DisconnectMessage/Background/VBox"]
+layout_mode = 2
+text = "Disconnected"
+horizontal_alignment = 1
+
+[node name="Disconnect" type="Button" parent="DisconnectMessage/Background/VBox"]
+layout_mode = 2
+text = "OK"
+
+[connection signal="pressed" from="MenuContainer/Background/VBox/Disconnect" to="." method="_on_disconnect_pressed"]
+[connection signal="pressed" from="MenuContainer/Background/VBox/Continue" to="." method="_on_continue_pressed"]
+[connection signal="pressed" from="DisconnectMessage/Background/VBox/Disconnect" to="." method="_on_disconnect_pressed"]

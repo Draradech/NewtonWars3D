@@ -32,7 +32,7 @@ void usleep(int usec)
 }
 #else
 #include <unistd.h> // usleep
-#include <sys/time.h>
+#include <time.h>
 double seconds(void)
 {
     struct timespec ts;

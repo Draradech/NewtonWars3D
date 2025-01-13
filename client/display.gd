@@ -72,14 +72,17 @@ func updateLabel(delta: float):
 	var speedstring: = "%13.8f" % players[player_id].speed
 	if which == 1:
 		players[player_id].pitch += delta
+		if absf(players[player_id].pitch) < 1e-10: players[player_id].pitch = 0.0
 		pitchstring = ("%13.8f" % players[player_id].pitch).insert((5 if digit < 0 else 4) - digit, "[/color]")
 		pitchstring = pitchstring.insert((4 if digit < 0 else 3) - digit, "[color=ff7f00]")
 	if which == 0:
 		players[player_id].yaw += delta
+		if absf(players[player_id].yaw) < 1e-10: players[player_id].yaw = 0.0
 		yawstring = ("%13.8f" % players[player_id].yaw).insert((5 if digit < 0 else 4) - digit, "[/color]")
 		yawstring = yawstring.insert((4 if digit < 0 else 3) - digit, "[color=ff7f00]")
 	if which == 2:
 		players[player_id].speed += delta
+		if absf(players[player_id].speed) < 1e-10: players[player_id].speed = 0.0
 		speedstring = ("%13.8f" % players[player_id].speed).insert((5 if digit < 0 else 4) - digit, "[/color]")
 		speedstring = speedstring.insert((4 if digit < 0 else 3) - digit, "[color=ff7f00]")
 	var bbstring: = "[center]"
@@ -93,6 +96,7 @@ func updateLabel(delta: float):
 	$MissileInput.text = bbstring
 
 func _input(event: InputEvent) -> void:
+	if get_parent().get_node("MenuContainer").visible: return
 	if event is InputEventKey and event.is_pressed():
 		var delta: float = 0
 		if event.keycode == KEY_TAB:
@@ -107,12 +111,8 @@ func _input(event: InputEvent) -> void:
 			digit -= 1
 		updateLabel(delta)
 
-var next_mode: DisplayServer.WindowMode = DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN
 func _process(_delta: float) -> void:
-	if Input.is_action_just_pressed("fullscreen"):
-		var switch_to = next_mode
-		next_mode = DisplayServer.window_get_mode()
-		DisplayServer.window_set_mode(switch_to)
+	if get_parent().get_node("MenuContainer").visible: return
 	if Input.is_action_just_pressed("clear"):
 		for player: Player in players.values():
 			for shot: Shot in player.shots:
@@ -172,7 +172,7 @@ func player_disconnect(pyid: int):
 func new_shot(pyid: int, mid: int):
 	var s = Shot.new(mid, players[pyid].material)
 	if pyid != player_id: s.material.albedo_color *= .5
-	if players[pyid].shots.size() > (5 if pyid == player_id else 1):
+	if players[pyid].shots.size() > (get_parent().get_self_shots() if pyid == player_id else get_parent().get_other_shots()) - 1:
 		var os = players[pyid].shots.pop_front()
 		shots.erase(os.mid)
 		os.queue_free()

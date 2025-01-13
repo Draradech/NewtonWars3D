@@ -1,0 +1,85 @@
+[gd_scene load_steps=5 format=3 uid="uid://3175is5fn7wn"]
+
+[ext_resource type="Script" uid="uid://coh8hfv4bo5gv" path="res://main_menu.gd" id="1_06t4h"]
+[ext_resource type="FontFile" uid="uid://b0eeea1mkogse" path="res://JetBrainsMono-Bold.ttf" id="1_7vrkn"]
+
+[sub_resource type="Theme" id="Theme_w5eul"]
+default_font = ExtResource("1_7vrkn")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7vrkn"]
+bg_color = Color(0.301961, 0.301961, 0.301961, 1)
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme = SubResource("Theme_w5eul")
+script = ExtResource("1_06t4h")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_7vrkn")
+
+[node name="VBox" type="VBoxContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -138.0
+offset_top = -78.0
+offset_right = 138.0
+offset_bottom = 78.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_constants/separation = 12
+
+[node name="Grid" type="GridContainer" parent="Panel/VBox"]
+layout_mode = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 12
+columns = 2
+
+[node name="HostLbl" type="Label" parent="Panel/VBox/Grid"]
+layout_mode = 2
+text = "Host"
+
+[node name="Host" type="LineEdit" parent="Panel/VBox/Grid"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "localhost"
+
+[node name="PortLbl" type="Label" parent="Panel/VBox/Grid"]
+layout_mode = 2
+size_flags_horizontal = 8
+text = "Port"
+
+[node name="Port" type="LineEdit" parent="Panel/VBox/Grid"]
+layout_mode = 2
+text = "3490"
+
+[node name="Connect" type="Button" parent="Panel/VBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Connect"
+
+[node name="Quit" type="Button" parent="Panel/VBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Quit"
+
+[connection signal="pressed" from="Panel/VBox/Connect" to="." method="_on_connect_pressed"]
+[connection signal="pressed" from="Panel/VBox/Quit" to="." method="_on_quit_pressed"]

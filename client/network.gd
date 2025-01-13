@@ -14,10 +14,8 @@ const MSG_MISS_POS: int = 9
 const MSG_MISS_END: int = 10
 const MSG_SHOOT: int = 51
 
-func _ready():
-	var address = "192.168.0.149"
-	var port = 3490
-	tcp_client.connect_to_host(address, port)
+func tcp_connect(host, port):
+	tcp_client.connect_to_host(host, port)
 	tcp_client.set_no_delay(true)
 
 var in_packet: = false
@@ -107,13 +105,13 @@ func read_network(display: Display) -> bool:
 					in_packet = true
 				else:
 					done = true
-		if Input.is_action_just_pressed("fire"):
+		if !get_parent().get_node("MenuContainer").visible and Input.is_action_just_pressed("fire"):
 			tcp_client.put_u32(MSG_SHOOT)
 			tcp_client.put_double(display.players[display.player_id].pitch)
 			tcp_client.put_double(display.players[display.player_id].yaw)
 			tcp_client.put_double(display.players[display.player_id].speed)
 		return true
 	if discon_notify:
-		print("Disconnected.")
+		get_parent().get_node("DisconnectMessage").visible = true
 		discon_notify = false
 	return false

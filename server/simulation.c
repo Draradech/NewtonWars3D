@@ -66,7 +66,7 @@ static void floodfill(int x, int y, int z)
       l = len();
       if(l > 0.9 * blen)
       {
-         printf("buffer too full\n");
+         printf("SIM: floodfill buffer too full\n");
          exit(0);
       }
       if(l > maxlen) maxlen = l;
@@ -189,7 +189,7 @@ static void initPlanets(void)
    }
    while (!potentialEvaluation());
 
-   printf("pmin: %.2lf pmax: %.2lf (%d tries)\n", pmin, pmax, tries);
+   printf("SIM: pmin: %.2lf pmax: %.2lf (%d tries)\n", pmin, pmax, tries);
 }
 
 static void initPlayer(Player* p)
@@ -365,6 +365,7 @@ void initSimulation(void)
          m->dirty = 0;
       }
       p->live = 0;
+      p->name[15] = 0;
    }
 }
 
@@ -377,7 +378,7 @@ void playerJoin(int pl)
    p->kills = 0;
    p->currentMissile = 0;
    p->live = 1;
-   strncpy_s(p->name, 16, "Anonymous", 15);
+   strncpy(p->name, "Anonymous", 15);
    p->dirty |= DIRTY_NAME | DIRTY_DATA | DIRTY_LIVE;
 }
 
@@ -400,7 +401,7 @@ void playerShoot(int pl, double yaw, double pitch, double speed)
    p->currentMissile = (p->currentMissile + 1) % conf.numShots;
    Missile* m = &(p->missiles[p->currentMissile]);
 
-   printf("shoot %d, %lf, %lf, %lf\n", pl, yaw, pitch, speed);
+   printf("SIM: shoot from player %d: %.9lf, %.9lf, %.9lf\n", pl, yaw, pitch, speed);
 
    m->id = mid++;
    m->position = p->position;
@@ -422,7 +423,7 @@ void playerShoot(int pl, double yaw, double pitch, double speed)
 void playerName(int pl, char* n)
 {
    Player* p = &(players[pl]);
-   strncpy_s(p->name, 16, n, 15);
+   strncpy(p->name, n, 15);
    p->dirty = DIRTY_NAME;
 }
 
