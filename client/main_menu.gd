@@ -1,8 +1,8 @@
 extends Control
 
 func _on_connect_pressed() -> void:
-	var host = $Panel/VBox/Grid/Host.text
-	var port = int($Panel/VBox/Grid/Port.text)
+	var host = $VBox/Grid/Host.text
+	var port = int($VBox/Grid/Port.text)
 	var space = load("res://space.tscn").instantiate()
 	space.menu_data(host, port, self)
 	get_tree().root.add_child(space)

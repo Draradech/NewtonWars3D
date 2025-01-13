@@ -167,6 +167,9 @@ func set_my_pyid(pyid: int):
 
 func player_disconnect(pyid: int):
 	players[pyid].queue_free()
+	for os: Shot in players[pyid].shots:
+		shots.erase(os.mid)
+		os.queue_free()
 	players.erase(pyid)
 
 func new_shot(pyid: int, mid: int):

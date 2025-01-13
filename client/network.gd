@@ -18,6 +18,9 @@ func tcp_connect(host, port):
 	tcp_client.connect_to_host(host, port)
 	tcp_client.set_no_delay(true)
 
+func tcp_disconnect():
+	tcp_client.disconnect_from_host()
+
 var in_packet: = false
 var packet_id: int
 var discon_notify = true
@@ -111,7 +114,7 @@ func read_network(display: Display) -> bool:
 			tcp_client.put_double(display.players[display.player_id].yaw)
 			tcp_client.put_double(display.players[display.player_id].speed)
 		return true
-	if discon_notify:
+	if discon_notify and tcp_client.get_status() != StreamPeerTCP.STATUS_CONNECTING:
 		get_parent().get_node("DisconnectMessage").visible = true
 		discon_notify = false
 	return false

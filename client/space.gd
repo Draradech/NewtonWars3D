@@ -47,6 +47,7 @@ func _process(delta: float) -> void:
 func _on_disconnect_pressed() -> void:
 	get_tree().root.add_child(menu)
 	get_tree().root.remove_child(self)
+	network.tcp_disconnect()
 	queue_free()
 
 func _on_continue_pressed() -> void:

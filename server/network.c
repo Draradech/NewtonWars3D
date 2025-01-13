@@ -71,6 +71,7 @@ static connection_t* connection;
 
 void sendFrameData(double t);
 void sendStartPacket(int pl, double t);
+void disconnectPlayer(int p);
 
 static void print_error(const char* msg)
 {
@@ -90,11 +91,12 @@ static void print_error(const char* msg)
    fprintf(stderr, "NET: %s: %s", msg, (LPCTSTR)lpMsgBuf);
    LocalFree( lpMsgBuf );
    #else
+   fprintf(stderr, "NET: ");
    perror(msg);
    #endif
 }
 
-static void snd(int socket, int len, char* msg)
+static void snd(int pl, int len, char* msg)
 {
    int flags;
    #if defined __APPLE__ || defined _WIN32
@@ -102,9 +104,10 @@ static void snd(int socket, int len, char* msg)
    #else
    flags = MSG_NOSIGNAL | MSG_DONTWAIT;
    #endif
-   if(send(socket, msg, len, flags) == -1)
+   if(send(connection[pl].socket, msg, len, flags) == -1)
    {
       print_error("send");
+      disconnectPlayer(pl);
    }
 }
 
@@ -540,7 +543,7 @@ void sendAll(void)
    {
       if (connection[i].socket)
       {
-         snd(connection[i].socket, sendBufferOffset, sendBuffer);
+         snd(i, sendBufferOffset, sendBuffer);
       }
    }
    sendBufferOffset = 0;
@@ -548,7 +551,7 @@ void sendAll(void)
 
 void sendOne(int pl)
 {
-   snd(connection[pl].socket, sendBufferOffset, sendBuffer);
+   snd(pl, sendBufferOffset, sendBuffer);
    sendBufferOffset = 0;
 }
 
