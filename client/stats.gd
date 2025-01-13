@@ -8,9 +8,9 @@ func _ready():
 func _process(delta):
 	if visible:
 		text = "\
-		mspf: %.1f (%.0f fps)
-		cpu: %.1f
-		gpu: %.1f
+		frame: %.1fms (%.0f fps)
+		cpu:   %.1fms
+		gpu:   %.1fms
 		triangles: %.1fk
 		draw calls: %d" % [
 			delta * 1000, 1.0 / delta,

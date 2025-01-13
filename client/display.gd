@@ -73,16 +73,19 @@ func updateLabel(delta: float):
 	if which == 1:
 		players[player_id].pitch += delta
 		if absf(players[player_id].pitch) < 1e-10: players[player_id].pitch = 0.0
+		players[player_id].pitch = clampf(players[player_id].pitch, -999, 999)
 		pitchstring = ("%13.8f" % players[player_id].pitch).insert((5 if digit < 0 else 4) - digit, "[/color]")
 		pitchstring = pitchstring.insert((4 if digit < 0 else 3) - digit, "[color=ff7f00]")
 	if which == 0:
 		players[player_id].yaw += delta
 		if absf(players[player_id].yaw) < 1e-10: players[player_id].yaw = 0.0
+		players[player_id].yaw = clampf(players[player_id].yaw, -999, 999)
 		yawstring = ("%13.8f" % players[player_id].yaw).insert((5 if digit < 0 else 4) - digit, "[/color]")
 		yawstring = yawstring.insert((4 if digit < 0 else 3) - digit, "[color=ff7f00]")
 	if which == 2:
 		players[player_id].speed += delta
 		if absf(players[player_id].speed) < 1e-10: players[player_id].speed = 0.0
+		players[player_id].speed = clampf(players[player_id].speed, 0, 999)
 		speedstring = ("%13.8f" % players[player_id].speed).insert((5 if digit < 0 else 4) - digit, "[/color]")
 		speedstring = speedstring.insert((4 if digit < 0 else 3) - digit, "[color=ff7f00]")
 	var bbstring: = "[center]"
@@ -109,6 +112,7 @@ func _input(event: InputEvent) -> void:
 			digit += 1
 		if event.keycode == KEY_RIGHT:
 			digit -= 1
+		digit = clampi(digit, -8, 2)
 		updateLabel(delta)
 
 func _process(_delta: float) -> void:
@@ -188,9 +192,6 @@ func new_shot(pyid: int, mid: int):
 func update_shot_pos(mid: int, ts: float, loc: Vector3):
 	if shots.has(mid):
 		shots[mid].timed_locations.append([ts, loc])
-
-func shot_die(_mid: int):
-	pass
 
 func ray_sphere_intersection(ray_origin: Vector3, ray_dir: Vector3, sphere_center: Vector3, sphere_radius: float) -> float:
 	var oc: = ray_origin - sphere_center

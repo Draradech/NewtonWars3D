@@ -12,23 +12,25 @@ const MSG_PLAYER_DEL: int = 6
 const MSG_PLANET: int = 7
 const MSG_NEW_MISS: int = 8
 const MSG_MISS_POS: int = 9
-const MSG_MISS_END: int = 10
 const MSG_SHOOT: int = 51
 
 func tcp_connect(host, port):
 	tcp_client.connect_to_host(host, port)
-	tcp_client.set_no_delay(true)
-	timeout = 1
+	timeout = 1.0
 
 func tcp_disconnect():
 	tcp_client.disconnect_from_host()
 
 var in_packet: = false
 var packet_id: int
-var discon_notify = true
+var discon_notify: = true
+var nodelay: = false
 func read_network(display: Display, delta: float) -> bool:
 	tcp_client.poll()
 	if tcp_client.get_status() == StreamPeerTCP.STATUS_CONNECTED:
+		if not nodelay:
+			tcp_client.set_no_delay(true)
+			nodelay = true
 		var done: = false
 		while not done:
 			if in_packet:
@@ -90,13 +92,6 @@ func read_network(display: Display, delta: float) -> bool:
 						var y: = tcp_client.get_float()
 						var z: = tcp_client.get_float()
 						display.update_shot_pos(mid, ts, Vector3(x, y, z))
-						in_packet = false
-					else:
-						done = true
-				elif packet_id == MSG_MISS_END:
-					if tcp_client.get_available_bytes() >= 4:
-						var mid: = tcp_client.get_u32()
-						display.shot_die(mid)
 						in_packet = false
 					else:
 						done = true

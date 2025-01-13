@@ -411,6 +411,8 @@ void stepNetwork(double t, double delta)
                         connection[k].local = local;
                         connection[k].limit = 512;
                         connection[k].timeout = conf.timeout / delta;
+                        connection[k].msgbufindex = 0;
+                        connection[k].inMsg = 0;
                         strncpy(connection[k].ip, remoteIP, INET6_ADDRSTRLEN);
                         playerJoin(k);
                         FD_SET(newfd, &master);

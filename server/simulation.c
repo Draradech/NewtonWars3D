@@ -343,6 +343,12 @@ void stepSimulation(double t, double delta)
             m->diedAt = fractTs;
             m->dirty |= DIRTY_LIVE;
          }
+         if(length(m->position) >= 1e4)
+         {
+            m->live = 0;
+            m->diedAt = fractTs;
+            m->dirty |= DIRTY_LIVE;
+         }
       }
    }
 }
