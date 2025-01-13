@@ -2,6 +2,7 @@ class_name Network
 extends Node3D
 
 var time: float = -1
+var timeout: float = 0
 
 var tcp_client: StreamPeerTCP = StreamPeerTCP.new()
 const MSG_SIM_TIME: int = 1
@@ -17,6 +18,7 @@ const MSG_SHOOT: int = 51
 func tcp_connect(host, port):
 	tcp_client.connect_to_host(host, port)
 	tcp_client.set_no_delay(true)
+	timeout = 1
 
 func tcp_disconnect():
 	tcp_client.disconnect_from_host()
@@ -24,7 +26,7 @@ func tcp_disconnect():
 var in_packet: = false
 var packet_id: int
 var discon_notify = true
-func read_network(display: Display) -> bool:
+func read_network(display: Display, delta: float) -> bool:
 	tcp_client.poll()
 	if tcp_client.get_status() == StreamPeerTCP.STATUS_CONNECTED:
 		var done: = false
@@ -108,13 +110,15 @@ func read_network(display: Display) -> bool:
 					in_packet = true
 				else:
 					done = true
-		if !get_parent().get_node("MenuContainer").visible and Input.is_action_just_pressed("fire"):
+		if !get_parent().input_blocked() and Input.is_action_just_pressed("fire"):
 			tcp_client.put_u32(MSG_SHOOT)
 			tcp_client.put_double(display.players[display.player_id].pitch)
 			tcp_client.put_double(display.players[display.player_id].yaw)
 			tcp_client.put_double(display.players[display.player_id].speed)
 		return true
-	if discon_notify and tcp_client.get_status() != StreamPeerTCP.STATUS_CONNECTING:
+	timeout -= delta
+	if discon_notify and (tcp_client.get_status() != StreamPeerTCP.STATUS_CONNECTING or timeout < 0):
+		tcp_client.disconnect_from_host()
 		get_parent().get_node("DisconnectMessage").visible = true
 		discon_notify = false
 	return false

@@ -96,7 +96,7 @@ func updateLabel(delta: float):
 	$MissileInput.text = bbstring
 
 func _input(event: InputEvent) -> void:
-	if get_parent().get_node("MenuContainer").visible: return
+	if get_parent().input_blocked(): return
 	if event is InputEventKey and event.is_pressed():
 		var delta: float = 0
 		if event.keycode == KEY_TAB:
@@ -112,7 +112,7 @@ func _input(event: InputEvent) -> void:
 		updateLabel(delta)
 
 func _process(_delta: float) -> void:
-	if get_parent().get_node("MenuContainer").visible: return
+	if get_parent().input_blocked(): return
 	if Input.is_action_just_pressed("clear"):
 		for player: Player in players.values():
 			for shot: Shot in player.shots:

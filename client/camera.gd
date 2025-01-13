@@ -7,6 +7,7 @@ var yaw: = 0.0
 var poff: = Vector3.ZERO
 
 func _input(event):
+	if get_parent().get_parent().input_blocked(): return
 	if event is InputEventMouseMotion:
 		mouse_move = event.relative
 	

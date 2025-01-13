@@ -38,7 +38,7 @@ func _process(delta: float) -> void:
 		$MenuContainer.visible = !$MenuContainer.visible
 	if Input.is_action_just_pressed("stats"):
 		$Stats.visible = !$Stats.visible
-	if network.read_network(display):
+	if network.read_network(display, delta):
 		if synchronize(delta):
 			display.prepare_frame()
 	var end: = Time.get_ticks_usec()
@@ -58,3 +58,6 @@ func get_self_shots() -> int:
 
 func get_other_shots() -> int:
 	return $MenuContainer/Background/VBox/GridContainer/ShotsOther.value
+
+func input_blocked() -> bool:
+	return $MenuContainer.visible or $DisconnectMessage.visible
