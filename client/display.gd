@@ -5,7 +5,7 @@ extends Node3D
 var material: StandardMaterial3D
 
 var time: float = -1
-var player_id: int
+var player_id: int = -1
 var planets: Dictionary[int, Planet]
 var players: Dictionary[int, Player]
 var shots: Dictionary[int, Shot]

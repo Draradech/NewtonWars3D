@@ -24,6 +24,9 @@
 #include "config.h"
 #include "simulation.h"
 
+#define LOG_SYS "NET "
+#include "log.h"
+
 #ifdef _WIN32
 #define close closesocket
 #ifndef IPV6_V6ONLY
@@ -65,6 +68,7 @@ static fd_set master, readfds;
 static fd_socket_t sockmax, listener;
 static char buf[64];
 static char sendBuffer[MAX_SEND_BUFFER_SIZE];
+static char scratch[1024];
 static int sendBufferOffset = 0;
 static block_entry_t block_list[16];
 static connection_t* connection;
@@ -72,29 +76,6 @@ static connection_t* connection;
 void sendFrameData(double t);
 void sendStartPacket(int pl, double t);
 void disconnectPlayer(int p);
-
-static void print_error(const char* msg)
-{
-   #if _WIN32
-   LPVOID lpMsgBuf;
-   FormatMessage(
-      FORMAT_MESSAGE_ALLOCATE_BUFFER |
-      FORMAT_MESSAGE_FROM_SYSTEM |
-      FORMAT_MESSAGE_IGNORE_INSERTS,
-      NULL,
-      GetLastError(),
-      MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US),
-      (LPTSTR) &lpMsgBuf,
-      0,
-      NULL
-   );
-   fprintf(stderr, "NET: %s: %s", msg, (LPCTSTR)lpMsgBuf);
-   LocalFree( lpMsgBuf );
-   #else
-   fprintf(stderr, "NET: ");
-   perror(msg);
-   #endif
-}
 
 static void snd(int pl, int len, char* msg)
 {
@@ -106,7 +87,7 @@ static void snd(int pl, int len, char* msg)
    #endif
    if(send(connection[pl].socket, msg, len, flags) == -1)
    {
-      print_error("send");
+      log_errno("send error:");
       disconnectPlayer(pl);
    }
 }
@@ -215,7 +196,7 @@ void initNetwork(void)
    WSADATA wsaData;
    if(WSAStartup(MAKEWORD(2, 0), &wsaData) != 0)
    {
-      fprintf(stderr, "NET: WSAStartup failed.\n");
+      log("WSAStartup failed");
       exit(1);
    }
    #endif
@@ -232,7 +213,9 @@ void initNetwork(void)
    hints.ai_flags = AI_PASSIVE;
    if ((rv = getaddrinfo(NULL, PORT, &hints, &ai)) != 0)
    {
-      fprintf(stderr, "NET: getaddrinfo: %s", gai_strerror(rv));
+      sprintf(scratch, "getaddrinfo error: %s", gai_strerror(rv));
+      scratch[strlen(scratch) - 1] = 0; // remove newline
+      log(scratch);
       exit(2);
    }
 
@@ -246,13 +229,13 @@ void initNetwork(void)
 
       if ((listener = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == INVALID_SOCKET)
       {
-         print_error("socket");
+         log_errno("socket error (v6):");
          continue;
       }
 
       if (setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, (void *)&yes, sizeof(yes)) == -1)
       {
-         print_error("setsockopt reuse");
+         log_errno("setsockopt reuse (v6):");
          close(listener);
          continue;
       }
@@ -260,14 +243,14 @@ void initNetwork(void)
       // only interested if dualstack
       if (setsockopt(listener, IPPROTO_IPV6, IPV6_V6ONLY, (void *)&no, sizeof(no)) == -1)
       {
-         print_error("setsockopt dualstack");
+         log_errno("setsockopt dualstack (v6):");
          close(listener);
          continue;
       }
 
       if (bind(listener, p->ai_addr, p->ai_addrlen) == -1)
       {
-         print_error("bind");
+         log_errno("bind (v6):");
          close(listener);
          continue;
       }
@@ -287,20 +270,20 @@ void initNetwork(void)
 
          if ((listener = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == INVALID_SOCKET)
          {
-            print_error("socket");
+            log_errno("socket (v4):");
             continue;
          }
 
          if (setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, (void *)&yes, sizeof(yes)) == -1)
          {
-            print_error("setsockopt reuse");
+            log_errno("setsockopt reuse (v4):");
             close(listener);
             continue;
          }
 
          if (bind(listener, p->ai_addr, p->ai_addrlen) == -1)
          {
-            print_error("bind");
+            log_errno("bind (v4):");
             close(listener);
             continue;
          }
@@ -310,7 +293,7 @@ void initNetwork(void)
 
       if (p == NULL) // IPv4 failed as well
       {
-         fprintf(stderr, "NET: failed to bind\n");
+         log("failed to bind");
          exit(3);
       }
    }
@@ -319,13 +302,13 @@ void initNetwork(void)
 
    if (listen(listener, BACKLOG) == -1)
    {
-      print_error("listen");
+      log_errno("listen:");
       exit(4);
    }
 
    FD_SET(listener, &master);
    sockmax = listener;
-   printf("NET: waiting for connections...\n");
+   log("waiting for connections...");
 }
 
 void disconnectPlayer(int p)
@@ -335,7 +318,8 @@ void disconnectPlayer(int p)
    close(connection[p].socket);
    FD_CLR(connection[p].socket, &master);
    connection[p].socket = 0;
-   printf("NET: socket %d (player %d) closed\n", socket, p);
+   sprintf(scratch, "socket %d (player %d) closed", socket, p);
+   log(scratch);
 }
 
 void stepNetwork(double t, double delta)
@@ -357,7 +341,7 @@ void stepNetwork(double t, double delta)
    readfds = master;
    if(select(sockmax + 1, &readfds, NULL, NULL, &tv) == -1)
    {
-      print_error("select");
+      log_errno("select:");
       exit(5);
    }
 
@@ -371,7 +355,7 @@ void stepNetwork(double t, double delta)
             newfd = accept(listener, (struct sockaddr *)&remoteaddr, &addrlen);
             if(newfd == INVALID_SOCKET)
             {
-               print_error("accept");
+               log_errno("accept:");
             }
             else
             {
@@ -386,12 +370,14 @@ void stepNetwork(double t, double delta)
                if(blocked)
                {
                   close(newfd);
-                  printf("NET: new connection from %s on socket %d refused: blocked for %lfs\n", remoteIP, (unsigned int)newfd, blocked * delta);
+                  sprintf(scratch, "new connection from %s on socket %d refused: blocked for %lfs", remoteIP, (unsigned int)newfd, blocked * delta);
+                  log(scratch);
                }
                else if(connected && conf.blockMultiCon)
                {
                   close(newfd);
-                  printf("NET: new connection from %s on socket %d refused: already connected\n", remoteIP, (unsigned int)newfd);
+                  sprintf(scratch, "new connection from %s on socket %d refused: already connected", remoteIP, (unsigned int)newfd);
+                  log(scratch);
                }
                else
                {
@@ -401,8 +387,8 @@ void stepNetwork(double t, double delta)
                      {
                         if (setsockopt(newfd, IPPROTO_TCP, TCP_NODELAY, (void *)&yes, sizeof(yes)) == -1)
                         {
-                           printf("NET: new connection from %s on socket %d refused:\n", remoteIP, (unsigned int)newfd);
-                           print_error("setsockopt nodelay");
+                           sprintf(scratch, "new connection from %s on socket %d refused: setsockopt nodelay error:", remoteIP, (unsigned int)newfd);
+                           log_errno(scratch);
                            close(newfd);
                            break;
                         }
@@ -420,7 +406,8 @@ void stepNetwork(double t, double delta)
                         {
                            sockmax = newfd;
                         }
-                        printf("NET: new connection from %s on socket %d accepted (player %d)\n", remoteIP, (unsigned int)newfd, k);
+                        sprintf(scratch, "new connection from %s on socket %d accepted (player %d)", remoteIP, (unsigned int)newfd, k);
+                        log(scratch);
                         sendStartPacket(k, t);
                         break;
                      }
@@ -428,7 +415,8 @@ void stepNetwork(double t, double delta)
                   if(k == conf.maxPlayers)
                   {
                      close(newfd);
-                     printf("NET: new connection from %s on socket %d refused: max connections\n", remoteIP, (unsigned int)newfd);
+                     sprintf(scratch, "new connection from %s on socket %d refused: max connections", remoteIP, (unsigned int)newfd);
+                     log(scratch);
                   }
                }
             }
@@ -446,7 +434,8 @@ void stepNetwork(double t, double delta)
             }
             if(pi == -1)
             {
-               fprintf(stderr, "NET: socket %d without player\n", (unsigned int)i);
+               sprintf(scratch, "socket %d without player", (unsigned int)i);
+               log(scratch);
                exit(6);
             }
             nbytes = recv(i, buf, sizeof buf, 0);
@@ -457,16 +446,18 @@ void stepNetwork(double t, double delta)
             {
                if(connection[pi].limit < 0)
                {
-                  printf("NET: socket %d (player %d) exceeded rate limit\n", (unsigned int)i, pi);
+                  sprintf(scratch, "socket %d (player %d) exceeded rate limit", (unsigned int)i, pi);
+                  log(scratch);
                }
                else if(nbytes == 0)
                {
-                  printf("NET: socket %d (player %d) hung up\n", (unsigned int)i, pi);
+                  sprintf(scratch, "socket %d (player %d) hung up", (unsigned int)i, pi);
+                  log(scratch);
                }
                else
                {
-                  fprintf(stderr, "NET: recv error on socket %d (player %d):\n", (unsigned int)i, pi);
-                  print_error("recv");
+                  sprintf(scratch, "NET: recv error on socket %d (player %d):", (unsigned int)i, pi);
+                  log_errno(scratch);
                }
                disconnectPlayer(pi);
             }
@@ -507,7 +498,8 @@ void stepNetwork(double t, double delta)
                         }
                         default:
                         {
-                           printf("NET: unknown message %d (player %d)\n", con->msgID, pi);
+                           sprintf(scratch, "unknown message %d (player %d)", con->msgID, pi);
+                           log(scratch);
                            disconnectPlayer(pi);
                            cancel = 1;
                         }
@@ -532,7 +524,7 @@ void addToSendBuffer(const char* data, int size)
 {
    if (sendBufferOffset + size > MAX_SEND_BUFFER_SIZE)
    {
-      fprintf(stderr, "NET: Send buffer overflow!\n");
+      log("Send buffer overflow");
       return;
    }
    memcpy(sendBuffer + sendBufferOffset, data, size);

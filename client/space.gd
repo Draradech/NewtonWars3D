@@ -38,9 +38,11 @@ func _process(delta: float) -> void:
 		$MenuContainer.visible = !$MenuContainer.visible
 	if Input.is_action_just_pressed("stats"):
 		$Stats.visible = !$Stats.visible
+	
 	if network.read_network(display, delta):
 		if synchronize(delta):
 			display.prepare_frame()
+	
 	var end: = Time.get_ticks_usec()
 	$Stats.cpu = (end - start) * 1e-3
 
@@ -60,7 +62,10 @@ func get_other_shots() -> int:
 	return $MenuContainer/Background/VBox/GridContainer/ShotsOther.value
 
 func input_blocked() -> bool:
-	return $MenuContainer.visible or $DisconnectMessage.visible
+	return \
+		$MenuContainer.visible \
+		or $DisconnectMessage.visible \
+		or display.player_id == -1
 
 func _on_spin_box_value_changed(value: float) -> void:
 	get_tree().root.content_scale_factor = value

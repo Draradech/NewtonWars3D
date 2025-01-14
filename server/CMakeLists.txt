@@ -6,7 +6,7 @@ set(CMAKE_C_STANDARD 17)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_executable(nw3d_server main.c config.c network.c simulation.c vector.c seconds.c)
+add_executable(nw3d_server main.c config.c network.c simulation.c vector.c seconds.c log.c)
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
     target_compile_options(nw3d_server PRIVATE -march=x86-64-v3 -Wall -Wextra -Wpedantic)

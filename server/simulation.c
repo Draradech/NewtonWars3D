@@ -7,14 +7,18 @@
 #include <math.h>
 #include "config.h"
 
+#define LOG_SYS "SIM "
+#include "log.h"
+
 #define LIMIT(x, min, max) (((x) < (min)) ? (min) : ((x) > (max)) ? (max) : (x))
 
 static Planet* planets;
 static Player* players;
 static double pmin, pmax;
 static int mid = 0;
-double potential[80][50][80];
-char area[80][50][80];
+static double potential[80][50][80];
+static char area[80][50][80];
+static char scratch[1024];
 
 typedef struct
 {
@@ -23,10 +27,10 @@ typedef struct
    unsigned char z;
 } fillpos_t;
 
-int head = 0;
-int tail = 0;
+static int head = 0;
+static int tail = 0;
 #define blen 20000
-fillpos_t ringbuffer[blen] = {0};
+static fillpos_t ringbuffer[blen] = {0};
 
 static void push(fillpos_t pos)
 {
@@ -66,7 +70,7 @@ static void floodfill(int x, int y, int z)
       l = len();
       if(l > 0.9 * blen)
       {
-         printf("SIM: floodfill buffer too full\n");
+         log("floodfill buffer overflow");
          exit(0);
       }
       if(l > maxlen) maxlen = l;
@@ -189,7 +193,8 @@ static void initPlanets(void)
    }
    while (!potentialEvaluation());
 
-   printf("SIM: pmin: %.2lf pmax: %.2lf (%d tries)\n", pmin, pmax, tries);
+   sprintf(scratch, "pmin: %.2lf pmax: %.2lf (%d tries)", pmin, pmax, tries);
+   log(scratch);
 }
 
 static void initPlayer(Player* p)
@@ -407,7 +412,8 @@ void playerShoot(int pl, double yaw, double pitch, double speed)
    p->currentMissile = (p->currentMissile + 1) % conf.numShots;
    Missile* m = &(p->missiles[p->currentMissile]);
 
-   printf("SIM: shoot from player %d: %.9lf, %.9lf, %.9lf\n", pl, yaw, pitch, speed);
+   sprintf(scratch, "shot (player %d): %13.8lf, %13.8lf, %13.8lf", pl, yaw, pitch, speed);
+   log(scratch);
 
    m->id = mid++;
    m->position = p->position;

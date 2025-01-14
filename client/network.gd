@@ -22,9 +22,10 @@ func tcp_disconnect():
 	tcp_client.disconnect_from_host()
 
 var in_packet: = false
-var packet_id: int
+var packet_id: = -1
 var discon_notify: = true
 var nodelay: = false
+var player_id: = -1
 func read_network(display: Display, delta: float) -> bool:
 	tcp_client.poll()
 	if tcp_client.get_status() == StreamPeerTCP.STATUS_CONNECTED:
@@ -44,6 +45,7 @@ func read_network(display: Display, delta: float) -> bool:
 					if tcp_client.get_available_bytes() >= 4:
 						var pyid = tcp_client.get_u32()
 						display.set_my_pyid(pyid)
+						player_id = pyid
 						in_packet = false
 					else:
 						done = true
@@ -110,9 +112,9 @@ func read_network(display: Display, delta: float) -> bool:
 			tcp_client.put_double(display.players[display.player_id].pitch)
 			tcp_client.put_double(display.players[display.player_id].yaw)
 			tcp_client.put_double(display.players[display.player_id].speed)
-		return true
+		if player_id != -1: return true
 	timeout -= delta
-	if discon_notify and (tcp_client.get_status() != StreamPeerTCP.STATUS_CONNECTING or timeout < 0):
+	if discon_notify and ((tcp_client.get_status() != StreamPeerTCP.STATUS_CONNECTING and tcp_client.get_status() != StreamPeerTCP.STATUS_CONNECTED) or timeout < 0):
 		tcp_client.disconnect_from_host()
 		get_parent().get_node("DisconnectMessage").visible = true
 		discon_notify = false
