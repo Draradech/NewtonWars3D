@@ -10,6 +10,8 @@
 #define LOG_SYS "SIM "
 #include "log.h"
 
+#define SHOT_LOG 1
+
 #define LIMIT(x, min, max) (((x) < (min)) ? (min) : ((x) > (max)) ? (max) : (x))
 
 static Planet* planets;
@@ -314,6 +316,10 @@ void stepSimulation(double t, double delta)
                   m->live = 0;
                   m->diedAt = fractTs;
                   m->dirty |= DIRTY_LIVE;
+                  #if SHOT_LOG
+                  sprintf(scratch, "shot (id %d) died (hit planet)", m->id);
+                  log(scratch);
+                  #endif
                }
             }
 
@@ -330,6 +336,10 @@ void stepSimulation(double t, double delta)
                   m->live = 0;
                   m->diedAt = fractTs;
                   m->dirty |= DIRTY_LIVE;
+                  #if SHOT_LOG
+                  sprintf(scratch, "shot (id %d) died (hit player)", m->id);
+                  log(scratch);
+                  #endif
                }
 
                if (  (l > (conf.playerSize + 1.0))
@@ -347,12 +357,20 @@ void stepSimulation(double t, double delta)
             m->live = 0;
             m->diedAt = fractTs;
             m->dirty |= DIRTY_LIVE;
+            #if SHOT_LOG
+            sprintf(scratch, "shot (id %d) died (old age)", m->id);
+            log(scratch);
+            #endif
          }
          if(length(m->position) >= 1e4)
          {
             m->live = 0;
             m->diedAt = fractTs;
             m->dirty |= DIRTY_LIVE;
+            #if SHOT_LOG
+            sprintf(scratch, "shot (id %d) died (out of bounds)", m->id);
+            log(scratch);
+            #endif
          }
       }
    }
@@ -412,8 +430,10 @@ void playerShoot(int pl, double yaw, double pitch, double speed)
    p->currentMissile = (p->currentMissile + 1) % conf.numShots;
    Missile* m = &(p->missiles[p->currentMissile]);
 
-   sprintf(scratch, "shot (player %d): %13.8lf, %13.8lf, %13.8lf", pl, yaw, pitch, speed);
+   #if SHOT_LOG
+   sprintf(scratch, "shot (id %d) (player %d): %13.8lf, %13.8lf, %13.8lf", mid, pl, yaw, pitch, speed);
    log(scratch);
+   #endif
 
    m->id = mid++;
    m->position = p->position;
@@ -428,8 +448,15 @@ void playerShoot(int pl, double yaw, double pitch, double speed)
 
    int nextM = (p->currentMissile + 1) % conf.numShots;
    m = &(p->missiles[nextM]);
-   m->live = 0;
-   m->dirty = DIRTY_LIVE;
+   if(m->live)
+   {
+      m->live = 0;
+      m->dirty = DIRTY_LIVE;
+      #if SHOT_LOG
+      sprintf(scratch, "shot (id %d) died (superceded)", m->id);
+      log(scratch);
+      #endif
+   }
 }
 
 void playerName(int pl, char* n)
