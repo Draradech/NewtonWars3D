@@ -4,6 +4,9 @@
 #include <stdio.h>
 #if _WIN32
 #include <windows.h>
+#else
+#include <errno.h>
+#include <string.h>
 #endif
 
 static void emit(const char* sys, const char* msg, const char* msg2)
