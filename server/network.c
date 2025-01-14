@@ -162,7 +162,7 @@ static void update_limits(void)
    {
       if(connection[k].socket)
       {
-         connection[k].limit += 1;
+         connection[k].limit += 4;
          if(connection[k].limit > 512)
          {
             connection[k].limit = 512;
