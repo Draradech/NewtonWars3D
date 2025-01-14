@@ -44,5 +44,6 @@ void log_sys_errno(const char* sys, const char* msg)
    LocalFree( lpMsgBuf );
    #else
    emit(sys, msg, strerror(errno));
+   printf("\n");
    #endif
 }

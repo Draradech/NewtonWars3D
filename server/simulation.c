@@ -419,6 +419,13 @@ void playerLeave(int pl)
    for(int mi = 0; mi < conf.numShots; ++mi)
    {
       Missile* m = &(p->missiles[mi]);
+      #if SHOT_LOG
+      if(m->live)
+      {
+         sprintf(scratch, "shot (id %d) died (player left)", m->id);
+         log(scratch);
+      }
+      #endif
       m->live = 0;
       m->dirty = 0;
    }

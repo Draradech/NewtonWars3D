@@ -214,7 +214,6 @@ void initNetwork(void)
    if ((rv = getaddrinfo(NULL, PORT, &hints, &ai)) != 0)
    {
       sprintf(scratch, "getaddrinfo error: %s", gai_strerror(rv));
-      scratch[strlen(scratch) - 1] = 0; // remove newline
       log(scratch);
       exit(2);
    }
@@ -456,7 +455,7 @@ void stepNetwork(double t, double delta)
                }
                else
                {
-                  sprintf(scratch, "NET: recv error on socket %d (player %d):", (unsigned int)i, pi);
+                  sprintf(scratch, "recv error on socket %d (player %d):", (unsigned int)i, pi);
                   log_errno(scratch);
                }
                disconnectPlayer(pi);
