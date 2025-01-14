@@ -30,6 +30,7 @@ func tmpEnd(p: Vector3):
 		tmpmesh = MeshInstance3D.new()
 		tmpmesh.mesh = ArrayMesh.new()
 		add_child(tmpmesh)
+	tmpmesh.mesh.clear_surfaces()
 	
 	if points.size() > 2:
 		# copy end vertices of last drawn segment
@@ -123,6 +124,8 @@ func tmpEnd(p: Vector3):
 	elif points.size() == 1:
 		# calc verts at point 0
 		dir = (p - points[-1]).normalized()
+		if dir.length() < 0.1:
+			return
 		right = dir.cross(Vector3.UP)
 		if right.length() < 0.01:
 			right = dir.cross(Vector3.FORWARD)
@@ -155,7 +158,6 @@ func tmpEnd(p: Vector3):
 			tmpindices.append(sides + i + 2)
 			tmpindices.append(sides + i + 1)
 	
-	tmpmesh.mesh.clear_surfaces()
 	tmpmesh.mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, tmpsurface)
 	tmpmesh.mesh.surface_set_material(0, material)
 
