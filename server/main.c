@@ -9,8 +9,6 @@
 #define LOG_SYS "MAIN"
 #include "log.h"
 
-static char scratch[1024];
-
 int main(int argc, char** argv)
 {
    srand(seconds());
@@ -31,12 +29,7 @@ int main(int argc, char** argv)
          alive = now;
       }
       double remain = (t + delta) - now;
-      if(remain > delta)
-      {
-         sprintf(scratch, "time error: t = %lf, now = %lf, delta = %lf", t, now, delta);
-         log(scratch);
-      }
-      wait(remain);
+      if(remain > 0) wait(remain);
       t += delta;
       stepSimulation(t, delta);
       stepNetwork(t, delta);
