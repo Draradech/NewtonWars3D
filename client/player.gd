@@ -37,6 +37,7 @@ func update_pointer():
 		var vel_xz = Vector3(vel.x, 0, vel.z);
 		pointer.points[0] = location
 		pointer.tmpEnd(location + vel)
+		pointer_h.points[0] = location
 		pointer_h.tmpEnd(location + vel_xz)
 		pointer_v.points[0] = location + vel_xz
 		pointer_v.tmpEnd(location + vel)

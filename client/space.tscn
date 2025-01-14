@@ -57,7 +57,6 @@ script = ExtResource("1_w5eul")
 
 [node name="XROrigin3D" type="XROrigin3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1000, 0)
-world_scale = 1000.0
 
 [node name="XRCamera3D" type="XRCamera3D" parent="XROrigin3D"]
 near = 0.1
