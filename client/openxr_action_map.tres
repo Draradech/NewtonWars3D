@@ -1,7 +1,12 @@
-[gd_resource type="OpenXRActionMap" load_steps=2 format=3 uid="uid://csbybicexmux5"]
+[gd_resource type="OpenXRActionMap" load_steps=3 format=3 uid="uid://csbybicexmux5"]
+
+[sub_resource type="OpenXRActionSet" id="OpenXRActionSet_6ivru"]
+resource_name = "nw3d"
+localized_name = "Newton Wars 3D VR Input"
 
 [sub_resource type="OpenXRInteractionProfile" id="OpenXRInteractionProfile_vfhwq"]
 interaction_profile_path = "/interaction_profiles/oculus/touch_controller"
 
 [resource]
+action_sets = [SubResource("OpenXRActionSet_6ivru")]
 interaction_profiles = [SubResource("OpenXRInteractionProfile_vfhwq")]

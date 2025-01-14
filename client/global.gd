@@ -20,6 +20,10 @@ func _ready() -> void:
 					config[i] = data[i]
 		file.close()
 	get_tree().root.content_scale_factor = config["ui_scale"]
+	if config["fullscreen"]:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN)
+	else:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 
 func save_config() -> void:
 	var file = FileAccess.open(configPath, FileAccess.WRITE)
