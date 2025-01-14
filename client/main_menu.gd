@@ -7,6 +7,13 @@ func _on_connect_pressed() -> void:
 	space.menu_data(host, port, self)
 	get_tree().root.add_child(space)
 	get_tree().root.remove_child(self)
+	Global.config["host"] = $VBox/Grid/Host.text
+	Global.config["port"] = $VBox/Grid/Port.text
+	Global.save_config()
 
 func _on_quit_pressed() -> void:
 	get_tree().quit()
+
+func _ready() -> void:
+	$VBox/Grid/Host.text = Global.config["host"]
+	$VBox/Grid/Port.text = Global.config["port"]

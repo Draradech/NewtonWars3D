@@ -181,7 +181,7 @@ func player_disconnect(pyid: int):
 func new_shot(pyid: int, mid: int):
 	var s = Shot.new(mid, players[pyid].material)
 	if pyid != player_id: s.material.albedo_color *= .5
-	if players[pyid].shots.size() > (get_parent().get_self_shots() if pyid == player_id else get_parent().get_other_shots()) - 1:
+	if players[pyid].shots.size() > (Global.config["num_shots_self"] if pyid == player_id else Global.config["num_shots_other"]) - 1:
 		var os = players[pyid].shots.pop_front()
 		shots.erase(os.mid)
 		os.queue_free()

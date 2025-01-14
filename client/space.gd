@@ -15,6 +15,9 @@ func menu_data(h, p, m) -> void:
 
 var xr_interface: XRInterface
 func _ready():
+	$MenuContainer/Background/VBox/GridContainer/ShotsOther.value = Global.config["num_shots_other"]
+	$MenuContainer/Background/VBox/GridContainer/ShotsSelf.value = Global.config["num_shots_self"]
+	$MenuContainer/Background/VBox/GridContainer/UiScale.value = Global.config["ui_scale"]
 	xr_interface = XRServer.find_interface("OpenXR")
 	if xr_interface and xr_interface.is_initialized():
 		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
@@ -45,6 +48,8 @@ func _process(delta: float) -> void:
 	var start: = Time.get_ticks_usec()
 	if Input.is_action_just_pressed("menu"):
 		$MenuContainer.visible = !$MenuContainer.visible
+		if !$MenuContainer.visible:
+			Global.save_config()
 	if Input.is_action_just_pressed("stats"):
 		$Stats.visible = !$Stats.visible
 	
@@ -63,12 +68,7 @@ func _on_disconnect_pressed() -> void:
 
 func _on_continue_pressed() -> void:
 	$MenuContainer.visible = false
-
-func get_self_shots() -> int:
-	return $MenuContainer/Background/VBox/GridContainer/ShotsSelf.value
-
-func get_other_shots() -> int:
-	return $MenuContainer/Background/VBox/GridContainer/ShotsOther.value
+	Global.save_config()
 
 func input_blocked() -> bool:
 	return \
@@ -76,5 +76,12 @@ func input_blocked() -> bool:
 		or $DisconnectMessage.visible \
 		or display.player_id == -1
 
-func _on_spin_box_value_changed(value: float) -> void:
+func _on_ui_scale_value_changed(value: float) -> void:
 	get_tree().root.content_scale_factor = value
+	Global.config["ui_scale"] = value
+
+func _on_shots_other_value_changed(value: float) -> void:
+	Global.config["num_shots_other"] = value
+
+func _on_shots_self_value_changed(value: float) -> void:
+	Global.config["num_shots_self"] = value
