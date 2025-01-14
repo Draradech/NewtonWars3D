@@ -64,30 +64,26 @@ func pot_eval():
 	mmd.visible_instance_count = id
 	pot_init = true
 
-var which: int = 0
 var digit: int = 0
-func updateLabel(delta: float):
+func updateLabel():
 	var pitchstring: = "%13.8f" % players[player_id].pitch
+	if absf(players[player_id].pitch) < 1e-10: players[player_id].pitch = 0.0
+	players[player_id].pitch = clampf(players[player_id].pitch, -999, 999)
+	pitchstring = ("%13.8f" % players[player_id].pitch).insert((5 if digit < 0 else 4) - digit, "[/color]")
+	pitchstring = pitchstring.insert((4 if digit < 0 else 3) - digit, "[color=ff7f00]")
+	
 	var yawstring: = "%13.8f" % players[player_id].yaw
+	if absf(players[player_id].yaw) < 1e-10: players[player_id].yaw = 0.0
+	players[player_id].yaw = clampf(players[player_id].yaw, -999, 999)
+	yawstring = ("%13.8f" % players[player_id].yaw).insert((5 if digit < 0 else 4) - digit, "[/color]")
+	yawstring = yawstring.insert((4 if digit < 0 else 3) - digit, "[color=ff7f00]")
+	
 	var speedstring: = "%13.8f" % players[player_id].speed
-	if which == 1:
-		players[player_id].pitch += delta
-		if absf(players[player_id].pitch) < 1e-10: players[player_id].pitch = 0.0
-		players[player_id].pitch = clampf(players[player_id].pitch, -999, 999)
-		pitchstring = ("%13.8f" % players[player_id].pitch).insert((5 if digit < 0 else 4) - digit, "[/color]")
-		pitchstring = pitchstring.insert((4 if digit < 0 else 3) - digit, "[color=ff7f00]")
-	if which == 0:
-		players[player_id].yaw += delta
-		if absf(players[player_id].yaw) < 1e-10: players[player_id].yaw = 0.0
-		players[player_id].yaw = clampf(players[player_id].yaw, -999, 999)
-		yawstring = ("%13.8f" % players[player_id].yaw).insert((5 if digit < 0 else 4) - digit, "[/color]")
-		yawstring = yawstring.insert((4 if digit < 0 else 3) - digit, "[color=ff7f00]")
-	if which == 2:
-		players[player_id].speed += delta
-		if absf(players[player_id].speed) < 1e-10: players[player_id].speed = 0.0
-		players[player_id].speed = clampf(players[player_id].speed, 0, 999)
-		speedstring = ("%13.8f" % players[player_id].speed).insert((5 if digit < 0 else 4) - digit, "[/color]")
-		speedstring = speedstring.insert((4 if digit < 0 else 3) - digit, "[color=ff7f00]")
+	if absf(players[player_id].speed) < 1e-10: players[player_id].speed = 0.0
+	players[player_id].speed = clampf(players[player_id].speed, 0, 999)
+	speedstring = ("%13.8f" % players[player_id].speed).insert((5 if digit < 0 else 4) - digit, "[/color]")
+	speedstring = speedstring.insert((4 if digit < 0 else 3) - digit, "[color=ff7f00]")
+	
 	var bbstring: = "[center]"
 	bbstring += "Yaw:   "
 	bbstring += yawstring
@@ -101,19 +97,25 @@ func updateLabel(delta: float):
 func _input(event: InputEvent) -> void:
 	if get_parent().input_blocked(): return
 	if event is InputEventKey and event.is_pressed():
-		var delta: float = 0
-		if event.keycode == KEY_TAB:
-			which = (which + 1) % 3
-		if event.keycode == KEY_UP:
-			delta = pow(10, digit)
-		if event.keycode == KEY_DOWN:
-			delta = -pow(10, digit)
-		if event.keycode == KEY_LEFT:
-			digit += 1
-		if event.keycode == KEY_RIGHT:
-			digit -= 1
+		match(event.key_label):
+			KEY_PAGEUP:
+				digit += 1
+			KEY_PAGEDOWN:
+				digit -= 1
+			KEY_UP:
+				players[player_id].pitch += pow(10, digit)
+			KEY_DOWN:
+				players[player_id].pitch -= pow(10, digit)
+			KEY_RIGHT:
+				players[player_id].yaw += pow(10, digit)
+			KEY_LEFT:
+				players[player_id].yaw -= pow(10, digit)
+			KEY_PLUS:
+				players[player_id].speed += pow(10, digit)
+			KEY_MINUS:
+				players[player_id].speed -= pow(10, digit)
 		digit = clampi(digit, -8, 2)
-		updateLabel(delta)
+		updateLabel()
 
 func _process(_delta: float) -> void:
 	if get_parent().input_blocked(): return
@@ -127,7 +129,7 @@ func _process(_delta: float) -> void:
 		players[player_id].pitch = 0
 		players[player_id].yaw = 0
 		players[player_id].speed = 8
-		updateLabel(0)
+		updateLabel()
 	if Input.is_action_just_pressed("wire"):
 		if get_tree().root.get_viewport().debug_draw == Viewport.DEBUG_DRAW_DISABLED:
 			get_tree().root.get_viewport().debug_draw = Viewport.DEBUG_DRAW_WIREFRAME
@@ -161,7 +163,7 @@ func update_player_pos(pyid: int, loc: Vector3, rad: float):
 		ply_mat.albedo_color = Color(1, .5, 0) if pyid == player_id else Color(0, .5, 1)
 		players.set(pyid, Player.new(loc, rad, pyid == player_id, ply_mat))
 		add_child(players[pyid])
-		if pyid == player_id: updateLabel(0)
+		if pyid == player_id: updateLabel()
 	else:
 		players[pyid].location = loc
 		players[pyid].radius = rad

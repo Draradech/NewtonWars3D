@@ -123,7 +123,10 @@ func tmpEnd(p: Vector3):
 	elif points.size() == 1:
 		# calc verts at point 0
 		dir = (p - points[-1]).normalized()
-		right = dir.cross(Vector3.UP).normalized()
+		right = dir.cross(Vector3.UP)
+		if right.length() < 0.01:
+			right = dir.cross(Vector3.FORWARD)
+		right = right.normalized()
 		vert0 = right * radius
 		for i in range(sides):
 			tmpverts.append(vert0.rotated(dir, i * 2 * PI / sides) + points[-1])
