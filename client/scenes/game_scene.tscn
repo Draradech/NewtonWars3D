@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://dmv0ts0ud224g"]
+[gd_scene load_steps=16 format=3 uid="uid://dmv0ts0ud224g"]
 
 [ext_resource type="Script" uid="uid://betr7x1j01hy3" path="res://scenes/game_scene.gd" id="1_kdryc"]
 [ext_resource type="Script" uid="uid://c46kby0xqkod5" path="res://scripts/network.gd" id="3_e35lh"]
@@ -34,6 +34,19 @@ material = SubResource("StandardMaterial3D_272bh")
 transform_format = 1
 mesh = SubResource("QuadMesh_5vw27")
 
+[sub_resource type="ViewportTexture" id="ViewportTexture_y3j0m"]
+viewport_path = NodePath("ViewportVRUI")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kk2rg"]
+resource_local_to_scene = true
+shading_mode = 0
+albedo_texture = SubResource("ViewportTexture_y3j0m")
+
+[sub_resource type="QuadMesh" id="QuadMesh_b5spy"]
+resource_local_to_scene = true
+material = SubResource("StandardMaterial3D_kk2rg")
+size = Vector2(1920, 1080)
+
 [node name="GameScene" type="Node3D"]
 script = ExtResource("1_kdryc")
 
@@ -51,6 +64,14 @@ multimesh = SubResource("MultiMesh_5vw27")
 [node name="GPotBandDisallow" type="MultiMeshInstance3D" parent="Space"]
 visible = false
 multimesh = SubResource("MultiMesh_kek77")
+
+[node name="ViewportVRUI" type="SubViewport" parent="."]
+size = Vector2i(1920, 1080)
+
+[node name="MeshVRUI" type="MeshInstance3D" parent="."]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, -1300)
+visible = false
+mesh = SubResource("QuadMesh_b5spy")
 
 [node name="UI" type="Control" parent="."]
 layout_mode = 3

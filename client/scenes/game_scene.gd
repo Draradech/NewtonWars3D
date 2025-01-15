@@ -11,11 +11,17 @@ func set_server(h, p) -> void:
 	host = h
 	port = p
 
+var ui
 func _ready():
 	$UI/EscMenu/VBox/GridContainer/ShotsOther.value = Global.config["num_shots_other"]
 	$UI/EscMenu/VBox/GridContainer/ShotsSelf.value = Global.config["num_shots_self"]
 	$UI/EscMenu/VBox/GridContainer/UiScale.value = Global.config["ui_scale"]
 	network.tcp_connect(host, port)
+	ui = $UI
+	if get_parent().is_vr():
+		remove_child(ui)
+		$ViewportVRUI.add_child(ui)
+		$MeshVRUI.visible = true
 
 func synchronize(delta: float) -> bool:
 	if network.time < 0: return false
@@ -36,11 +42,11 @@ func synchronize(delta: float) -> bool:
 func _process(delta: float) -> void:
 	var start: = Time.get_ticks_usec()
 	if Input.is_action_just_pressed("menu"):
-		$UI/EscMenu.visible = !$UI/EscMenu.visible
-		if !$UI/EscMenu.visible:
+		ui.get_node("EscMenu").visible = !ui.get_node("EscMenu").visible
+		if !ui.get_node("EscMenu").visible:
 			Global.save_config()
 	if Input.is_action_just_pressed("stats"):
-		$UI/Stats.visible = !$UI/Stats.visible
+		ui.get_node("Stats").visible = !ui.get_node("Stats").visible
 	
 	######## main game loop here ########
 	if network.read_network(space, delta):
@@ -49,16 +55,16 @@ func _process(delta: float) -> void:
 	######## main game loop here ########
 	
 	var end: = Time.get_ticks_usec()
-	$UI/Stats.cpu = (end - start) * 1e-3
+	ui.get_node("Stats").cpu = (end - start) * 1e-3
 
 func is_menu_open() -> bool:
 	return \
-		$UI/EscMenu.visible \
-		or $UI/DisconnectMessage.visible \
+		ui.get_node("EscMenu").visible \
+		or ui.get_node("DisconnectMessage").visible \
 		or space.player_id == -1
 
 func _on_continue_pressed() -> void:
-	$UI/EscMenu.visible = false
+	ui.get_node("EscMenu").visible = false
 	Global.save_config()
 
 func _on_disconnect_pressed() -> void:

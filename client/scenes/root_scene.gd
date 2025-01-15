@@ -3,8 +3,8 @@ extends Node3D
 var game_scene = preload("res://scenes/game_scene.tscn")
 var main_menu_scene = preload("res://scenes/main_menu_scene.tscn")
 
-var main_menu
-var game
+var main_menu = null
+var game = null
 
 var xr_interface: XRInterface
 func _ready():
@@ -12,11 +12,18 @@ func _ready():
 	if xr_interface and xr_interface.is_initialized():
 		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 		get_viewport().use_xr = true
+		$XROrigin3D.world_scale = 1000
 		$XROrigin3D/XRCamera3D.make_current()
+		game = game_scene.instantiate()
+		game.set_server(Global.config["host"], Global.config["port"])
+		add_child(game)
 	else:
 		$Camera3D.make_current()
-	main_menu = main_menu_scene.instantiate()
-	add_child(main_menu)
+		main_menu = main_menu_scene.instantiate()
+		add_child(main_menu)
+
+func is_vr():
+	return xr_interface.is_initialized()
 
 func is_menu_open() -> bool:
 	if main_menu: return true

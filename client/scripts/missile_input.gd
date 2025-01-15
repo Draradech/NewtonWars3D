@@ -1,8 +1,7 @@
 extends RichTextLabel
 
 var player: Player
-var digit: int = 0
-func update_label(pl: Player):
+func update_label(pl: Player, digit):
 	player = pl
 	var pitchstring: = "%13.8f" % player.pitch
 	if absf(player.pitch) < 1e-10: player.pitch = 0.0
@@ -31,27 +30,3 @@ func update_label(pl: Player):
 	bbstring += speedstring
 	bbstring += "[/center]"
 	text = bbstring
-
-func _input(event: InputEvent) -> void:
-	if get_parent().get_parent().is_menu_open: return
-	if not player: return
-	if event is InputEventKey and event.is_pressed():
-		match(event.key_label):
-			KEY_PAGEUP:
-				digit += 1
-			KEY_PAGEDOWN:
-				digit -= 1
-			KEY_UP:
-				player.pitch += pow(10, digit)
-			KEY_DOWN:
-				player.pitch -= pow(10, digit)
-			KEY_RIGHT:
-				player.yaw += pow(10, digit)
-			KEY_LEFT:
-				player.yaw -= pow(10, digit)
-			KEY_PLUS:
-				player.speed += pow(10, digit)
-			KEY_MINUS:
-				player.speed -= pow(10, digit)
-		digit = clampi(digit, -8, 2)
-		update_label(player)

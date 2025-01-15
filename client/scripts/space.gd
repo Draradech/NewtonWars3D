@@ -1,7 +1,7 @@
 class_name Space
 extends Node3D
 
-signal update_label(player: Player)
+signal update_label(player: Player, digit: int)
 
 @export
 var material: StandardMaterial3D
@@ -107,13 +107,14 @@ func update_planet(pnid: int, loc: Vector3, rad: float):
 	$GPotBandAllow.visible = false
 	$GPotBandDisallow.visible = false
 
+var digit: int = 0
 func update_player_pos(pyid: int, loc: Vector3, rad: float):
 	if not players.has(pyid):
 		var ply_mat: StandardMaterial3D = material.duplicate()
 		ply_mat.albedo_color = Color(1, .5, 0) if pyid == player_id else Color(0, .5, 1)
 		players.set(pyid, Player.new(loc, rad, pyid == player_id, ply_mat))
 		add_child(players[pyid])
-		if pyid == player_id: emit_signal("update_label", players[pyid])
+		if pyid == player_id: emit_signal("update_label", players[pyid], digit)
 	else:
 		players[pyid].location = loc
 		players[pyid].radius = rad
@@ -173,3 +174,29 @@ func find_closest_intersection(ray_origin: Vector3, ray_dir: Vector3) -> Vector3
 			closest_dist = t
 			closest_object_center = player.location
 	return closest_object_center
+
+func _input(event: InputEvent) -> void:
+	if player_id == -1: return
+	var player = players[player_id]
+	if get_tree().root.get_node("RootScene").is_menu_open(): return
+	if not player: return
+	if event is InputEventKey and event.is_pressed():
+		match(event.key_label):
+			KEY_PAGEUP:
+				digit += 1
+			KEY_PAGEDOWN:
+				digit -= 1
+			KEY_UP:
+				player.pitch += pow(10, digit)
+			KEY_DOWN:
+				player.pitch -= pow(10, digit)
+			KEY_RIGHT:
+				player.yaw += pow(10, digit)
+			KEY_LEFT:
+				player.yaw -= pow(10, digit)
+			KEY_PLUS:
+				player.speed += pow(10, digit)
+			KEY_MINUS:
+				player.speed -= pow(10, digit)
+		digit = clampi(digit, -8, 2)
+		emit_signal("update_label", player, digit)

@@ -24,7 +24,7 @@ environment = SubResource("Environment_c77vg")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1000, 0)
 
 [node name="XRCamera3D" type="XRCamera3D" parent="XROrigin3D"]
-near = 0.1
+near = 10.0
 far = 6000.0
 
 [node name="LeftHand" type="XRController3D" parent="XROrigin3D"]
