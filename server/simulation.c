@@ -233,23 +233,6 @@ static void initPlayer(Player* p)
    p->dirty |= DIRTY_POS;
 }
 
-static void playerHit(int p, int p2)
-{
-   if(p == p2)
-   {
-      players[p].deaths++;
-      players[p].dirty |= DIRTY_DATA;
-   }
-   else
-   {
-      players[p].kills++;
-      players[p].dirty |= DIRTY_DATA;
-      players[p2].deaths++;
-      players[p2].dirty |= DIRTY_DATA;
-   }
-   initPlayer(&players[p2]);
-}
-
 Vec3d acc(Vec3d pos)
 {
    int i;
@@ -332,7 +315,19 @@ void stepSimulation(double t, double delta)
                   && (m->leftSource == 1)
                   )
                {
-                  playerHit(pl, pl2);
+                  double score = 64.0 / (m->speedAtLaunch * m->speedAtLaunch);
+                  score = (score > 10.0) ? 10.0 : score;
+                  #if SHOT_LOG
+                  sprintf(scratch, "player %d (\"%s\") hit player %d (\"%s\"), score %.2lf", pl, players[pl].name, pl2, players[pl2].name, score);
+                  log(scratch);
+                  #endif
+                  if(pl != pl2)
+                  {
+                     players[pl].score += score;
+                     players[pl].dirty |= DIRTY_DATA;
+                  }
+                  initPlayer(&players[pl2]);
+
                   m->live = 0;
                   m->diedAt = fractTs;
                   m->dirty |= DIRTY_LIVE;
@@ -394,7 +389,8 @@ void initSimulation(void)
          m->dirty = 0;
       }
       p->live = 0;
-      p->name[15] = 0;
+      p->name[16] = 0;
+      p->dirty = 0;
    }
 }
 
@@ -403,12 +399,11 @@ void playerJoin(int pl)
    Player* p = &(players[pl]);
    initPlayer(p);
 
-   p->deaths = 0;
-   p->kills = 0;
+   p->score = 0;
    p->currentMissile = 0;
    p->live = 1;
-   strncpy(p->name, "Anonymous", 15);
-   p->dirty |= DIRTY_NAME | DIRTY_DATA | DIRTY_LIVE;
+   strncpy(p->name, "Anonymous", 16);
+   p->dirty |= DIRTY_LIVE;
 }
 
 void playerLeave(int pl)
@@ -438,7 +433,7 @@ void playerShoot(int pl, double yaw, double pitch, double speed)
    Missile* m = &(p->missiles[p->currentMissile]);
 
    #if SHOT_LOG
-   sprintf(scratch, "shot (id %d) (player %d): %13.8lf, %13.8lf, %13.8lf", mid, pl, yaw, pitch, speed);
+   sprintf(scratch, "shot (id %d) (player %d, \"%s\"): %13.8lf, %13.8lf, %13.8lf", mid, pl, p->name, yaw, pitch, speed);
    log(scratch);
    #endif
 
@@ -450,6 +445,7 @@ void playerShoot(int pl, double yaw, double pitch, double speed)
    m->acceleration = acc(m->position);
    m->live = 1;
    m->leftSource = 0;
+   m->speedAtLaunch = speed;
    m->age = 0;
    m->dirty = DIRTY_LIVE | DIRTY_POS;
 
@@ -469,8 +465,10 @@ void playerShoot(int pl, double yaw, double pitch, double speed)
 void playerName(int pl, char* n)
 {
    Player* p = &(players[pl]);
-   strncpy(p->name, n, 15);
+   memcpy(p->name, n, 16);
    p->dirty = DIRTY_NAME;
+   sprintf(scratch, "player %d changed name to \"%s\"", pl, p->name);
+   log(scratch);
 }
 
 Missile* getMissile(int p, int s)

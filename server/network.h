@@ -5,7 +5,7 @@
 #define MSG_SIM_TIME     1 // ts:f64                                       len: 12
 #define MSG_OWN_ID       2 // pyid:u32                                     len: 8
 #define MSG_PLAYER_POS   3 // pyid:u32 x:f32 y:f32 z:f32 r:f32             len: 24
-#define MSG_PLAYER_DATA  4 // pyid:u32 k:u32 d:u32                         len: 16
+#define MSG_PLAYER_DATA  4 // pyid:u32 score:f32                           len: 12
 #define MSG_PLAYER_NAME  5 // pyid:u32 name:c8x16                          len: 24
 #define MSG_PLAYER_DEL   6 // pyid:u32                                     len: 8
 #define MSG_PLANET       7 // pnid:u32 x:f32 y:f32 z:f32 r:f32             len: 24

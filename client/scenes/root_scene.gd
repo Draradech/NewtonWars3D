@@ -30,14 +30,18 @@ func is_menu_open() -> bool:
 	return game.is_menu_open()
 
 func _on_connect() -> void:
+	var playername = main_menu.get_playername()
 	var host = main_menu.get_host()
 	var port = main_menu.get_port()
 	game = game_scene.instantiate()
-	game.set_server(host, port)
+	game.playername = playername
+	game.host = host
+	game.port = port
 	add_child(game)
 	remove_child(main_menu)
 	main_menu.queue_free()
 	main_menu = null
+	Global.config["name"] = playername
 	Global.config["host"] = host
 	Global.config["port"] = port
 	Global.save_config()

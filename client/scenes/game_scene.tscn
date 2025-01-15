@@ -134,6 +134,10 @@ max_value = 2.0
 step = 0.1
 value = 0.5
 
+[node name="Quit" type="Button" parent="UI/EscMenu/VBox"]
+layout_mode = 2
+text = "Quit"
+
 [node name="Disconnect" type="Button" parent="UI/EscMenu/VBox"]
 layout_mode = 2
 text = "Disconnect"
@@ -169,6 +173,7 @@ layout_mode = 2
 text = "OK"
 
 [node name="Stats" type="Label" parent="UI"]
+visible = false
 layout_mode = 1
 offset_left = 12.0
 offset_top = 12.0
@@ -202,10 +207,27 @@ fit_content = true
 scroll_active = false
 script = ExtResource("6_kk2rg")
 
+[node name="PlayerList" type="RichTextLabel" parent="UI"]
+clip_contents = false
+custom_minimum_size = Vector2(180, 1000)
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -52.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = 52.0
+grow_horizontal = 0
+bbcode_enabled = true
+scroll_active = false
+horizontal_alignment = 2
+
 [connection signal="update_label" from="Space" to="UI/MissileInput" method="update_label"]
 [connection signal="value_changed" from="UI/EscMenu/VBox/GridContainer/ShotsSelf" to="." method="_on_shots_self_value_changed"]
 [connection signal="value_changed" from="UI/EscMenu/VBox/GridContainer/ShotsOther" to="." method="_on_shots_other_value_changed"]
 [connection signal="value_changed" from="UI/EscMenu/VBox/GridContainer/UiScale" to="." method="_on_ui_scale_value_changed"]
+[connection signal="pressed" from="UI/EscMenu/VBox/Quit" to="." method="_on_quit_pressed"]
 [connection signal="pressed" from="UI/EscMenu/VBox/Disconnect" to="." method="_on_disconnect_pressed"]
 [connection signal="pressed" from="UI/EscMenu/VBox/Continue" to="." method="_on_continue_pressed"]
 [connection signal="pressed" from="UI/DisconnectMessage/VBox/Disconnect" to="." method="_on_disconnect_pressed"]

@@ -1,9 +1,7 @@
-Playernames
-Playerlist
-AA in settings
-Points (dependent on speed)
 Rounds (10min)
 
-Touch Interface
+AA in settings
 
 VR Interface
+
+Touch Interface

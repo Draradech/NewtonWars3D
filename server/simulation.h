@@ -14,6 +14,7 @@ typedef struct
    Vec3d velocity;
    Vec3d acceleration;
    double diedAt;
+   double speedAtLaunch;
    int live;
    int leftSource;
    int age;
@@ -25,10 +26,9 @@ typedef struct
 {
    Vec3d position;
    Missile* missiles;
-   char name[16];
+   char name[17];
+   double score;
    int live;
-   int deaths;
-   int kills;
    int currentMissile;
    int dirty;
 } Player;

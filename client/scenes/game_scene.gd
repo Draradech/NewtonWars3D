@@ -7,16 +7,14 @@ var space: Space = $Space
 
 var host
 var port
-func set_server(h, p) -> void:
-	host = h
-	port = p
+var playername
 
 var ui
 func _ready():
 	$UI/EscMenu/VBox/GridContainer/ShotsOther.value = Global.config["num_shots_other"]
 	$UI/EscMenu/VBox/GridContainer/ShotsSelf.value = Global.config["num_shots_self"]
 	$UI/EscMenu/VBox/GridContainer/UiScale.value = Global.config["ui_scale"]
-	network.tcp_connect(host, port)
+	network.tcp_connect(host, port, playername)
 	ui = $UI
 	if get_parent().is_vr():
 		remove_child(ui)
@@ -70,6 +68,10 @@ func _on_continue_pressed() -> void:
 func _on_disconnect_pressed() -> void:
 	Global.save_config()
 	get_parent()._on_disconnect()
+
+func _on_quit_pressed() -> void:
+	Global.save_config()
+	get_parent()._on_quit()
 
 func _on_ui_scale_value_changed(value: float) -> void:
 	get_tree().root.content_scale_factor = value

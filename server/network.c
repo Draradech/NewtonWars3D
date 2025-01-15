@@ -313,12 +313,12 @@ void initNetwork(void)
 void disconnectPlayer(int p)
 {
    int socket = connection[p].socket;
+   sprintf(scratch, "socket %d (player %d, \"%s\") closed", socket, p, getPlayer(p)->name);
+   log(scratch);
    playerLeave(p);
    close(connection[p].socket);
    FD_CLR(connection[p].socket, &master);
    connection[p].socket = 0;
-   sprintf(scratch, "socket %d (player %d) closed", socket, p);
-   log(scratch);
 }
 
 void stepNetwork(double t, double delta)
@@ -445,17 +445,17 @@ void stepNetwork(double t, double delta)
             {
                if(connection[pi].limit < 0)
                {
-                  sprintf(scratch, "socket %d (player %d) exceeded rate limit", (unsigned int)i, pi);
+                  sprintf(scratch, "socket %d (player %d, \"%s\") exceeded rate limit", (unsigned int)i, pi, getPlayer(pi)->name);
                   log(scratch);
                }
                else if(nbytes == 0)
                {
-                  sprintf(scratch, "socket %d (player %d) hung up", (unsigned int)i, pi);
+                  sprintf(scratch, "socket %d (player %d, \"%s\") hung up", (unsigned int)i, pi, getPlayer(pi)->name);
                   log(scratch);
                }
                else
                {
-                  sprintf(scratch, "recv error on socket %d (player %d):", (unsigned int)i, pi);
+                  sprintf(scratch, "recv error on socket %d (player %d, \"%s\"):", (unsigned int)i, pi, getPlayer(pi)->name);
                   log_errno(scratch);
                }
                disconnectPlayer(pi);
@@ -495,9 +495,19 @@ void stepNetwork(double t, double delta)
                            }
                            break;
                         }
+                        case MSG_SET_NAME:
+                        {
+                           if(con->msgbufindex == 16)
+                           {
+                              playerName(pi, con->msgbuf);
+                              con->inMsg = 0;
+                              con->msgbufindex = 0;
+                           }
+                           break;
+                        }
                         default:
                         {
-                           sprintf(scratch, "unknown message %d (player %d)", con->msgID, pi);
+                           sprintf(scratch, "unknown message %d (player %d, \"%s\")", con->msgID, pi, getPlayer(pi)->name);
                            log(scratch);
                            disconnectPlayer(pi);
                            cancel = 1;
@@ -613,6 +623,45 @@ void addPlayerPos(int dirtyOnly)
    }
 }
 
+void addPlayerName(int dirtyOnly)
+{
+   unsigned char buf[24];
+   uint32_t packetId = MSG_PLAYER_NAME;
+
+   for(int i = 0; i < conf.maxPlayers; i++)
+   {
+      Player* p = getPlayer(i);
+      if(p->live && ((p->dirty & DIRTY_NAME) || !dirtyOnly))
+      {
+         memcpy(buf, &packetId, 4);
+         memcpy(buf + 4, &i, 4);
+         memcpy(buf + 8, p->name, 16);
+         addToSendBuffer((char*)buf, sizeof(buf));
+         if(dirtyOnly) p->dirty &= ~DIRTY_NAME;
+      }
+   }
+}
+
+void addPlayerData(int dirtyOnly)
+{
+   unsigned char buf[12];
+   uint32_t packetId = MSG_PLAYER_DATA;
+
+   for(int i = 0; i < conf.maxPlayers; i++)
+   {
+      Player* p = getPlayer(i);
+      if(p->live && ((p->dirty & DIRTY_DATA) || !dirtyOnly))
+      {
+         memcpy(buf, &packetId, 4);
+         memcpy(buf + 4, &i, 4);
+         float f = p->score;
+         memcpy(buf + 8, &f, 4);
+         addToSendBuffer((char*)buf, sizeof(buf));
+         if(dirtyOnly) p->dirty &= ~DIRTY_DATA;
+      }
+   }
+}
+
 void addPlayerDel(void)
 {
    unsigned char buf[8];
@@ -700,6 +749,8 @@ void sendFrameData(double t)
 {
    addPlanets(1);
    addPlayerPos(1);
+   addPlayerName(1);
+   addPlayerData(1);
    addPlayerDel();
    addNewMissiles();
    addMissilePos(t);
@@ -712,6 +763,8 @@ void sendStartPacket(int pl, double t)
    addOwnId(pl);
    addPlanets(0);
    addPlayerPos(0);
+   addPlayerName(0);
+   addPlayerData(0);
    addSimTime(t);
    sendOne(pl);
 }

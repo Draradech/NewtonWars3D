@@ -1,8 +1,12 @@
 extends Node3D
 
 func _ready() -> void:
+	$UI/MainMenu/VBox/Grid/Name.text = Global.config["name"]
 	$UI/MainMenu/VBox/Grid/Host.text = Global.config["host"]
 	$UI/MainMenu/VBox/Grid/Port.text = str(Global.config["port"])
+
+func get_playername() -> String:
+	return $UI/MainMenu/VBox/Grid/Name.text
 
 func get_host() -> String:
 	return $UI/MainMenu/VBox/Grid/Host.text

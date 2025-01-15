@@ -12,6 +12,7 @@ var location: Vector3:
 	set(value):
 		location = value
 		sphere.position = location
+		name_label.position = location + Vector3.UP * radius
 		update_pointer()
 var speed: float = 8
 var pitch: float = 0:
@@ -28,7 +29,12 @@ var pointer_v: Line3D
 var torus: MeshInstance3D
 var sphere: MeshInstance3D
 var shots: Array[Shot]
-var points: float = 0
+var score: float = 0
+var pname: String = "":
+	set(value):
+		pname = value
+		name_label.text = value
+var name_label: Label3D
 
 func update_pointer():
 	if pointer:
@@ -74,7 +80,19 @@ func _init(loc: Vector3, rad: float, do_pointer: bool, mat: StandardMaterial3D):
 	sphere.mesh = SphereMesh.new()
 	sphere.mesh.radial_segments = 16
 	sphere.mesh.rings = 8
-	radius = rad
-	location = loc
 	sphere.mesh.surface_set_material(0, material)
 	add_child(sphere)
+	
+	name_label = Label3D.new()
+	name_label.fixed_size = true
+	name_label.pixel_size = 0.0012
+	name_label.font_size = 16
+	name_label.outline_size = 8
+	name_label.double_sided = false
+	name_label.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+	name_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	add_child(name_label)
+	name_label.visible = false
+	
+	radius = rad
+	location = loc

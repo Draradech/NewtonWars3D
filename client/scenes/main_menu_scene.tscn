@@ -34,6 +34,13 @@ layout_mode = 2
 layout_mode = 2
 columns = 2
 
+[node name="NameLbl" type="Label" parent="UI/MainMenu/VBox/Grid"]
+layout_mode = 2
+text = "Player Name"
+
+[node name="Name" type="LineEdit" parent="UI/MainMenu/VBox/Grid"]
+layout_mode = 2
+
 [node name="HostLbl" type="Label" parent="UI/MainMenu/VBox/Grid"]
 layout_mode = 2
 text = "Host"
@@ -41,7 +48,6 @@ text = "Host"
 [node name="Host" type="LineEdit" parent="UI/MainMenu/VBox/Grid"]
 custom_minimum_size = Vector2(250, 0)
 layout_mode = 2
-text = "localhost"
 
 [node name="PortLbl" type="Label" parent="UI/MainMenu/VBox/Grid"]
 layout_mode = 2
@@ -49,7 +55,6 @@ text = "Port"
 
 [node name="Port" type="LineEdit" parent="UI/MainMenu/VBox/Grid"]
 layout_mode = 2
-text = "3490"
 
 [node name="Connect" type="Button" parent="UI/MainMenu/VBox"]
 layout_mode = 2

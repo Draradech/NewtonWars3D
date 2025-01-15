@@ -96,6 +96,26 @@ func prepare_frame():
 		if shot.render_live:
 			shot.prepare_render(time)
 
+func update_player_list():
+	if not player_id in players: return
+	var bbstring: = ""
+	#bbstring += "[color=ff7f00]%s\n%.1f[/color]\n\n" % [players[player_id].pname, players[player_id].score]
+	bbstring += "%s\n%.1f\n\n" % [players[player_id].pname, players[player_id].score]
+	for pid in players:
+		if pid == player_id: continue
+		var player : Player = players[pid]
+		#bbstring += "[color=007fff]%s\n%.1f[/color]\n\n" % [player.pname, player.score]
+		bbstring += "%s\n%.1f\n\n" % [player.pname, player.score]
+	get_parent().ui.get_node("PlayerList").text = bbstring
+
+func update_player_name(pyid: int, pname: String):
+	players[pyid].pname = pname
+	update_player_list()
+
+func update_player_score(pyid: int, score: float):
+	players[pyid].score = score
+	update_player_list()
+
 func update_planet(pnid: int, loc: Vector3, rad: float):
 	if not planets.has(pnid):
 		planets.set(pnid, Planet.new(loc, rad, material))
@@ -177,26 +197,31 @@ func find_closest_intersection(ray_origin: Vector3, ray_dir: Vector3) -> Vector3
 
 func _input(event: InputEvent) -> void:
 	if player_id == -1: return
+	if not players.has(player_id): return
+	if get_parent().is_menu_open(): return
 	var player = players[player_id]
-	if get_tree().root.get_node("RootScene").is_menu_open(): return
 	if not player: return
-	if event is InputEventKey and event.is_pressed():
-		match(event.key_label):
-			KEY_PAGEUP:
-				digit += 1
-			KEY_PAGEDOWN:
-				digit -= 1
-			KEY_UP:
-				player.pitch += pow(10, digit)
-			KEY_DOWN:
-				player.pitch -= pow(10, digit)
-			KEY_RIGHT:
-				player.yaw += pow(10, digit)
-			KEY_LEFT:
-				player.yaw -= pow(10, digit)
-			KEY_PLUS:
-				player.speed += pow(10, digit)
-			KEY_MINUS:
-				player.speed -= pow(10, digit)
-		digit = clampi(digit, -8, 2)
-		emit_signal("update_label", player, digit)
+	if event is InputEventKey:
+		if event.keycode == KEY_SHIFT:
+			for pl2 in players.values():
+				pl2.name_label.visible = event.is_pressed()
+		elif event.is_pressed():
+			match(event.key_label):
+				KEY_PAGEUP:
+					digit += 1
+				KEY_PAGEDOWN:
+					digit -= 1
+				KEY_UP:
+					player.pitch += pow(10, digit)
+				KEY_DOWN:
+					player.pitch -= pow(10, digit)
+				KEY_RIGHT:
+					player.yaw += pow(10, digit)
+				KEY_LEFT:
+					player.yaw -= pow(10, digit)
+				KEY_PLUS:
+					player.speed += pow(10, digit)
+				KEY_MINUS:
+					player.speed -= pow(10, digit)
+			digit = clampi(digit, -8, 2)
+			emit_signal("update_label", player, digit)

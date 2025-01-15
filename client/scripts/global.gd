@@ -4,6 +4,7 @@ var configPath = "user://config.nw3d"
 var config: Dictionary = {
 	"host": "localhost",
 	"port": 3490,
+	"name": "Isaac",
 	"num_shots_self": 6,
 	"num_shots_other": 2,
 	"ui_scale": 1.0,

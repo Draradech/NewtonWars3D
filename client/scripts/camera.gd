@@ -24,7 +24,7 @@ func _input(event):
 			MOUSE_BUTTON_LEFT:
 				if event.double_click:
 					var ray_dir = project_ray_normal(get_viewport().get_mouse_position())
-					var target_pos = get_parent().space.find_closest_intersection(position, ray_dir)
+					var target_pos = get_parent().get_node("GameScene").space.find_closest_intersection(position, ray_dir)
 					if target_pos.x < 10000.0:
 						create_tween().tween_method(func(value): poff = value, poff, target_pos, .5).set_trans(Tween.TRANS_SINE)
 
