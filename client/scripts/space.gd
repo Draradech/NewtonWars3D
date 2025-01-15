@@ -1,4 +1,4 @@
-class_name Display
+class_name Space
 extends Node3D
 
 @export
@@ -9,6 +9,7 @@ var player_id: int = -1
 var planets: Dictionary[int, Planet]
 var players: Dictionary[int, Player]
 var shots: Dictionary[int, Shot]
+var missileInput
 
 var pot_init = false
 func gpot(loc: Vector3) -> float:
@@ -64,59 +65,6 @@ func pot_eval():
 	mmd.visible_instance_count = id
 	pot_init = true
 
-var digit: int = 0
-func updateLabel():
-	var pitchstring: = "%13.8f" % players[player_id].pitch
-	if absf(players[player_id].pitch) < 1e-10: players[player_id].pitch = 0.0
-	players[player_id].pitch = clampf(players[player_id].pitch, -999, 999)
-	pitchstring = ("%13.8f" % players[player_id].pitch).insert((5 if digit < 0 else 4) - digit, "[/color]")
-	pitchstring = pitchstring.insert((4 if digit < 0 else 3) - digit, "[color=ff7f00]")
-	
-	var yawstring: = "%13.8f" % players[player_id].yaw
-	if absf(players[player_id].yaw) < 1e-10: players[player_id].yaw = 0.0
-	players[player_id].yaw = clampf(players[player_id].yaw, -999, 999)
-	yawstring = ("%13.8f" % players[player_id].yaw).insert((5 if digit < 0 else 4) - digit, "[/color]")
-	yawstring = yawstring.insert((4 if digit < 0 else 3) - digit, "[color=ff7f00]")
-	
-	var speedstring: = "%13.8f" % players[player_id].speed
-	if absf(players[player_id].speed) < 1e-10: players[player_id].speed = 0.0
-	players[player_id].speed = clampf(players[player_id].speed, 0, 999)
-	speedstring = ("%13.8f" % players[player_id].speed).insert((5 if digit < 0 else 4) - digit, "[/color]")
-	speedstring = speedstring.insert((4 if digit < 0 else 3) - digit, "[color=ff7f00]")
-	
-	var bbstring: = "[center]"
-	bbstring += "Yaw:   "
-	bbstring += yawstring
-	bbstring += "\nPitch: "
-	bbstring += pitchstring
-	bbstring += "\nSpeed: "
-	bbstring += speedstring
-	bbstring += "[/center]"
-	$MissileInput.text = bbstring
-
-func _input(event: InputEvent) -> void:
-	if get_parent().input_blocked(): return
-	if event is InputEventKey and event.is_pressed():
-		match(event.key_label):
-			KEY_PAGEUP:
-				digit += 1
-			KEY_PAGEDOWN:
-				digit -= 1
-			KEY_UP:
-				players[player_id].pitch += pow(10, digit)
-			KEY_DOWN:
-				players[player_id].pitch -= pow(10, digit)
-			KEY_RIGHT:
-				players[player_id].yaw += pow(10, digit)
-			KEY_LEFT:
-				players[player_id].yaw -= pow(10, digit)
-			KEY_PLUS:
-				players[player_id].speed += pow(10, digit)
-			KEY_MINUS:
-				players[player_id].speed -= pow(10, digit)
-		digit = clampi(digit, -8, 2)
-		updateLabel()
-
 func _process(_delta: float) -> void:
 	if get_parent().input_blocked(): return
 	if Input.is_action_just_pressed("clear"):
@@ -129,7 +77,7 @@ func _process(_delta: float) -> void:
 		players[player_id].pitch = 0
 		players[player_id].yaw = 0
 		players[player_id].speed = 8
-		updateLabel()
+		get_parent().get_node("MissileInput").update_label(players[player_id])
 	if Input.is_action_just_pressed("wire"):
 		if get_tree().root.get_viewport().debug_draw == Viewport.DEBUG_DRAW_DISABLED:
 			get_tree().root.get_viewport().debug_draw = Viewport.DEBUG_DRAW_WIREFRAME
@@ -163,7 +111,7 @@ func update_player_pos(pyid: int, loc: Vector3, rad: float):
 		ply_mat.albedo_color = Color(1, .5, 0) if pyid == player_id else Color(0, .5, 1)
 		players.set(pyid, Player.new(loc, rad, pyid == player_id, ply_mat))
 		add_child(players[pyid])
-		if pyid == player_id: updateLabel()
+		if pyid == player_id: get_parent().get_node("MissileInput").update_label(players[pyid])
 	else:
 		players[pyid].location = loc
 		players[pyid].radius = rad

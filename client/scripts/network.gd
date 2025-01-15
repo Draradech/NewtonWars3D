@@ -26,7 +26,7 @@ var packet_id: = -1
 var discon_notify: = true
 var nodelay: = false
 var player_id: = -1
-func read_network(display: Display, delta: float) -> bool:
+func read_network(space: Space, delta: float) -> bool:
 	tcp_client.poll()
 	if tcp_client.get_status() == StreamPeerTCP.STATUS_CONNECTED:
 		if not nodelay:
@@ -44,7 +44,7 @@ func read_network(display: Display, delta: float) -> bool:
 				elif packet_id == MSG_OWN_ID:
 					if tcp_client.get_available_bytes() >= 4:
 						var pyid = tcp_client.get_u32()
-						display.set_my_pyid(pyid)
+						space.set_my_pyid(pyid)
 						player_id = pyid
 						in_packet = false
 					else:
@@ -52,7 +52,7 @@ func read_network(display: Display, delta: float) -> bool:
 				elif packet_id == MSG_PLAYER_DEL:
 					if tcp_client.get_available_bytes() >= 4:
 						var pyid = tcp_client.get_u32()
-						display.player_disconnect(pyid)
+						space.player_disconnect(pyid)
 						in_packet = false
 					else:
 						done = true
@@ -63,7 +63,7 @@ func read_network(display: Display, delta: float) -> bool:
 						var y: = tcp_client.get_float()
 						var z: = tcp_client.get_float()
 						var r: = tcp_client.get_float()
-						display.update_planet(pnid, Vector3(x, y, z), r)
+						space.update_planet(pnid, Vector3(x, y, z), r)
 						in_packet = false
 					else:
 						done = true
@@ -74,7 +74,7 @@ func read_network(display: Display, delta: float) -> bool:
 						var y: = tcp_client.get_float()
 						var z: = tcp_client.get_float()
 						var r: = tcp_client.get_float()
-						display.update_player_pos(pyid, Vector3(x, y, z), r)
+						space.update_player_pos(pyid, Vector3(x, y, z), r)
 						in_packet = false
 					else:
 						done = true
@@ -82,7 +82,7 @@ func read_network(display: Display, delta: float) -> bool:
 					if tcp_client.get_available_bytes() >= 8:
 						var pyid: = tcp_client.get_u32()
 						var mid: = tcp_client.get_u32()
-						display.new_shot(pyid, mid)
+						space.new_shot(pyid, mid)
 						in_packet = false
 					else:
 						done = true
@@ -93,7 +93,7 @@ func read_network(display: Display, delta: float) -> bool:
 						var x: = tcp_client.get_float()
 						var y: = tcp_client.get_float()
 						var z: = tcp_client.get_float()
-						display.update_shot_pos(mid, ts, Vector3(x, y, z))
+						space.update_shot_pos(mid, ts, Vector3(x, y, z))
 						in_packet = false
 					else:
 						done = true
@@ -109,9 +109,9 @@ func read_network(display: Display, delta: float) -> bool:
 					done = true
 		if !get_parent().input_blocked() and Input.is_action_just_pressed("fire"):
 			tcp_client.put_u32(MSG_SHOOT)
-			tcp_client.put_double(display.players[display.player_id].pitch)
-			tcp_client.put_double(display.players[display.player_id].yaw)
-			tcp_client.put_double(display.players[display.player_id].speed)
+			tcp_client.put_double(space.players[space.player_id].pitch)
+			tcp_client.put_double(space.players[space.player_id].yaw)
+			tcp_client.put_double(space.players[space.player_id].speed)
 		if player_id != -1: return true
 	timeout -= delta
 	if discon_notify and ((tcp_client.get_status() != StreamPeerTCP.STATUS_CONNECTING and tcp_client.get_status() != StreamPeerTCP.STATUS_CONNECTED) or timeout < 0):

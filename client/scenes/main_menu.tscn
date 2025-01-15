@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://3175is5fn7wn"]
 
-[ext_resource type="Script" uid="uid://coh8hfv4bo5gv" path="res://main_menu.gd" id="1_06t4h"]
-[ext_resource type="FontFile" uid="uid://b0eeea1mkogse" path="res://JetBrainsMono-Bold.ttf" id="1_7vrkn"]
+[ext_resource type="Script" uid="uid://coh8hfv4bo5gv" path="res://scenes/main_menu.gd" id="1_06t4h"]
+[ext_resource type="FontFile" uid="uid://b0eeea1mkogse" path="res://assets/JetBrainsMono-Bold.ttf" id="1_7vrkn"]
 
 [sub_resource type="Theme" id="Theme_w5eul"]
 default_font = ExtResource("1_7vrkn")

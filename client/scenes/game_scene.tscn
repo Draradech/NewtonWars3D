@@ -1,15 +1,27 @@
-[gd_scene load_steps=17 format=3 uid="uid://dmv0ts0ud224g"]
+[gd_scene load_steps=18 format=3 uid="uid://dmv0ts0ud224g"]
 
-[ext_resource type="Script" uid="uid://betr7x1j01hy3" path="res://space.gd" id="1_w5eul"]
-[ext_resource type="Script" uid="uid://c46kby0xqkod5" path="res://network.gd" id="2_b5fhv"]
-[ext_resource type="Script" uid="uid://gn16w5grc8wm" path="res://display.gd" id="3_4fhbr"]
-[ext_resource type="FontFile" uid="uid://b0eeea1mkogse" path="res://JetBrainsMono-Bold.ttf" id="4_1vxpe"]
-[ext_resource type="Script" uid="uid://dh81qfh33pl13" path="res://stats.gd" id="5_4hog4"]
-[ext_resource type="Script" uid="uid://yxomh7mqixt" path="res://camera.gd" id="6_myilm"]
+[ext_resource type="Script" uid="uid://betr7x1j01hy3" path="res://scenes/game_scene.gd" id="1_kdryc"]
+[ext_resource type="Script" uid="uid://yxomh7mqixt" path="res://scripts/camera.gd" id="2_6e45b"]
+[ext_resource type="Script" uid="uid://c46kby0xqkod5" path="res://scripts/network.gd" id="3_e35lh"]
+[ext_resource type="Script" uid="uid://gn16w5grc8wm" path="res://scripts/space.gd" id="4_udeyl"]
+[ext_resource type="FontFile" uid="uid://b0eeea1mkogse" path="res://assets/JetBrainsMono-Bold.ttf" id="5_miq82"]
+[ext_resource type="Script" uid="uid://dh81qfh33pl13" path="res://scripts/stats.gd" id="6_j5hk1"]
+[ext_resource type="Script" uid="uid://djbao0fguql6b" path="res://scripts/missile_input.gd" id="6_kk2rg"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5vw27"]
+[sub_resource type="Environment" id="Environment_0xm2m"]
+background_mode = 1
+glow_levels/1 = 2.0
+glow_levels/2 = 1.5
+glow_levels/4 = 0.5
+glow_levels/5 = 0.0
+glow_intensity = 1.5
+glow_bloom = 0.2
+glow_blend_mode = 1
+glow_hdr_threshold = 1.2
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rurhu"]
 shading_mode = 0
-albedo_color = Color(0.313726, 0.313726, 0.313726, 1)
+albedo_color = Color(0.301961, 0.301961, 0.301961, 1)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7mycd"]
 shading_mode = 0
@@ -35,25 +47,17 @@ material = SubResource("StandardMaterial3D_272bh")
 transform_format = 1
 mesh = SubResource("QuadMesh_5vw27")
 
-[sub_resource type="Environment" id="Environment_0xm2m"]
-background_mode = 1
-glow_levels/1 = 2.0
-glow_levels/2 = 1.5
-glow_levels/4 = 0.5
-glow_levels/5 = 0.0
-glow_intensity = 1.5
-glow_bloom = 0.2
-glow_blend_mode = 1
-glow_hdr_threshold = 1.2
-
 [sub_resource type="Theme" id="Theme_w5eul"]
-default_font = ExtResource("4_1vxpe")
+default_font = ExtResource("5_miq82")
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_w5eul"]
 bg_color = Color(0.301961, 0.301961, 0.301961, 1)
 
-[node name="Space" type="Node3D"]
-script = ExtResource("1_w5eul")
+[node name="GameScene" type="Node3D"]
+script = ExtResource("1_kdryc")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_0xm2m")
 
 [node name="XROrigin3D" type="XROrigin3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1000, 0)
@@ -72,24 +76,24 @@ tracker = &"right_hand"
 fov = 60.0
 near = 0.1
 far = 6000.0
-script = ExtResource("6_myilm")
+script = ExtResource("2_6e45b")
 
 [node name="Network" type="Node3D" parent="."]
-script = ExtResource("2_b5fhv")
+script = ExtResource("3_e35lh")
 
-[node name="Display" type="Node3D" parent="."]
-script = ExtResource("3_4fhbr")
-material = SubResource("StandardMaterial3D_5vw27")
+[node name="Space" type="Node3D" parent="."]
+script = ExtResource("4_udeyl")
+material = SubResource("StandardMaterial3D_rurhu")
 
-[node name="GPotBandAllow" type="MultiMeshInstance3D" parent="Display"]
+[node name="GPotBandAllow" type="MultiMeshInstance3D" parent="Space"]
 visible = false
 multimesh = SubResource("MultiMesh_5vw27")
 
-[node name="GPotBandDisallow" type="MultiMeshInstance3D" parent="Display"]
+[node name="GPotBandDisallow" type="MultiMeshInstance3D" parent="Space"]
 visible = false
 multimesh = SubResource("MultiMesh_kek77")
 
-[node name="MissileInput" type="RichTextLabel" parent="Display"]
+[node name="MissileInput" type="RichTextLabel" parent="."]
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
@@ -101,14 +105,20 @@ offset_right = 300.0
 offset_bottom = -10.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_fonts/normal_font = ExtResource("4_1vxpe")
+theme_override_fonts/normal_font = ExtResource("5_miq82")
 bbcode_enabled = true
 fit_content = true
+script = ExtResource("6_kk2rg")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="Display"]
-environment = SubResource("Environment_0xm2m")
+[node name="Stats" type="Label" parent="."]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 57.0
+offset_bottom = 111.0
+theme = SubResource("Theme_w5eul")
+script = ExtResource("6_j5hk1")
 
-[node name="MenuContainer" type="Control" parent="."]
+[node name="EscMenu" type="Control" parent="."]
 visible = false
 layout_mode = 3
 anchors_preset = 15
@@ -118,7 +128,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = SubResource("Theme_w5eul")
 
-[node name="Background" type="Panel" parent="MenuContainer"]
+[node name="Background" type="Panel" parent="EscMenu"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -133,7 +143,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_w5eul")
 
-[node name="VBox" type="VBoxContainer" parent="MenuContainer/Background"]
+[node name="VBox" type="VBoxContainer" parent="EscMenu/Background"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -148,59 +158,50 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 12
 
-[node name="GridContainer" type="GridContainer" parent="MenuContainer/Background/VBox"]
+[node name="GridContainer" type="GridContainer" parent="EscMenu/Background/VBox"]
 layout_mode = 2
 theme_override_constants/h_separation = 12
 theme_override_constants/v_separation = 12
 columns = 2
 
-[node name="ShotsSelfLbl" type="Label" parent="MenuContainer/Background/VBox/GridContainer"]
+[node name="ShotsSelfLbl" type="Label" parent="EscMenu/Background/VBox/GridContainer"]
 layout_mode = 2
 text = "Number of shots drawn (self)"
 
-[node name="ShotsSelf" type="SpinBox" parent="MenuContainer/Background/VBox/GridContainer"]
+[node name="ShotsSelf" type="SpinBox" parent="EscMenu/Background/VBox/GridContainer"]
 layout_mode = 2
 min_value = 1.0
 max_value = 20.0
 value = 6.0
 
-[node name="ShotsOtherLbl" type="Label" parent="MenuContainer/Background/VBox/GridContainer"]
+[node name="ShotsOtherLbl" type="Label" parent="EscMenu/Background/VBox/GridContainer"]
 layout_mode = 2
 text = "Number of shots drawn (other)"
 
-[node name="ShotsOther" type="SpinBox" parent="MenuContainer/Background/VBox/GridContainer"]
+[node name="ShotsOther" type="SpinBox" parent="EscMenu/Background/VBox/GridContainer"]
 layout_mode = 2
 min_value = 1.0
 max_value = 20.0
 value = 2.0
 
-[node name="UiScaleLabel" type="Label" parent="MenuContainer/Background/VBox/GridContainer"]
+[node name="UiScaleLabel" type="Label" parent="EscMenu/Background/VBox/GridContainer"]
 layout_mode = 2
 text = "UI scale"
 
-[node name="UiScale" type="SpinBox" parent="MenuContainer/Background/VBox/GridContainer"]
+[node name="UiScale" type="SpinBox" parent="EscMenu/Background/VBox/GridContainer"]
 layout_mode = 2
 min_value = 0.5
 max_value = 2.0
 step = 0.1
 value = 1.0
 
-[node name="Disconnect" type="Button" parent="MenuContainer/Background/VBox"]
+[node name="Disconnect" type="Button" parent="EscMenu/Background/VBox"]
 layout_mode = 2
 text = "Disconnect"
 
-[node name="Continue" type="Button" parent="MenuContainer/Background/VBox"]
+[node name="Continue" type="Button" parent="EscMenu/Background/VBox"]
 layout_mode = 2
 text = "Continue"
-
-[node name="Stats" type="Label" parent="."]
-visible = false
-offset_left = 10.0
-offset_top = 10.0
-offset_right = 57.0
-offset_bottom = 111.0
-theme = SubResource("Theme_w5eul")
-script = ExtResource("5_4hog4")
 
 [node name="DisconnectMessage" type="Control" parent="."]
 visible = false
@@ -251,9 +252,9 @@ horizontal_alignment = 1
 layout_mode = 2
 text = "OK"
 
-[connection signal="value_changed" from="MenuContainer/Background/VBox/GridContainer/ShotsSelf" to="." method="_on_shots_self_value_changed"]
-[connection signal="value_changed" from="MenuContainer/Background/VBox/GridContainer/ShotsOther" to="." method="_on_shots_other_value_changed"]
-[connection signal="value_changed" from="MenuContainer/Background/VBox/GridContainer/UiScale" to="." method="_on_ui_scale_value_changed"]
-[connection signal="pressed" from="MenuContainer/Background/VBox/Disconnect" to="." method="_on_disconnect_pressed"]
-[connection signal="pressed" from="MenuContainer/Background/VBox/Continue" to="." method="_on_continue_pressed"]
+[connection signal="value_changed" from="EscMenu/Background/VBox/GridContainer/ShotsSelf" to="." method="_on_shots_self_value_changed"]
+[connection signal="value_changed" from="EscMenu/Background/VBox/GridContainer/ShotsOther" to="." method="_on_shots_other_value_changed"]
+[connection signal="value_changed" from="EscMenu/Background/VBox/GridContainer/UiScale" to="." method="_on_ui_scale_value_changed"]
+[connection signal="pressed" from="EscMenu/Background/VBox/Disconnect" to="." method="_on_disconnect_pressed"]
+[connection signal="pressed" from="EscMenu/Background/VBox/Continue" to="." method="_on_continue_pressed"]
 [connection signal="pressed" from="DisconnectMessage/Background/VBox/Disconnect" to="." method="_on_disconnect_pressed"]

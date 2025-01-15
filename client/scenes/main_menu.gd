@@ -3,10 +3,10 @@ extends Control
 func _on_connect_pressed() -> void:
 	var host = $VBox/Grid/Host.text
 	var port = int($VBox/Grid/Port.text)
-	var space = load("res://space.tscn").instantiate()
-	space.menu_data(host, port, self)
-	get_tree().root.add_child(space)
-	get_tree().root.remove_child(self)
+	var game_scene = load("res://scenes/game_scene.tscn").instantiate()
+	game_scene.menu_data(host, port, self)
+	get_tree().root.add_child(game_scene)
+	visible = false
 	Global.config["host"] = $VBox/Grid/Host.text
 	Global.config["port"] = $VBox/Grid/Port.text
 	Global.save_config()
