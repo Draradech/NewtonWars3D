@@ -107,7 +107,7 @@ func read_network(space: Space, delta: float) -> bool:
 					in_packet = true
 				else:
 					done = true
-		if !get_parent().input_blocked() and Input.is_action_just_pressed("fire"):
+		if !get_parent().is_menu_open() and Input.is_action_just_pressed("fire"):
 			tcp_client.put_u32(MSG_SHOOT)
 			tcp_client.put_double(space.players[space.player_id].pitch)
 			tcp_client.put_double(space.players[space.player_id].yaw)

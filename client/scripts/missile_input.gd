@@ -33,7 +33,7 @@ func update_label(pl: Player):
 	text = bbstring
 
 func _input(event: InputEvent) -> void:
-	if get_parent().input_blocked(): return
+	if get_parent().get_parent().is_menu_open: return
 	if not player: return
 	if event is InputEventKey and event.is_pressed():
 		match(event.key_label):

@@ -1,6 +1,8 @@
 class_name Space
 extends Node3D
 
+signal update_label(player: Player)
+
 @export
 var material: StandardMaterial3D
 
@@ -66,7 +68,7 @@ func pot_eval():
 	pot_init = true
 
 func _process(_delta: float) -> void:
-	if get_parent().input_blocked(): return
+	if get_parent().is_menu_open(): return
 	if Input.is_action_just_pressed("clear"):
 		for player: Player in players.values():
 			for shot: Shot in player.shots:
@@ -111,7 +113,7 @@ func update_player_pos(pyid: int, loc: Vector3, rad: float):
 		ply_mat.albedo_color = Color(1, .5, 0) if pyid == player_id else Color(0, .5, 1)
 		players.set(pyid, Player.new(loc, rad, pyid == player_id, ply_mat))
 		add_child(players[pyid])
-		if pyid == player_id: get_parent().get_node("MissileInput").update_label(players[pyid])
+		if pyid == player_id: emit_signal("update_label", players[pyid])
 	else:
 		players[pyid].location = loc
 		players[pyid].radius = rad

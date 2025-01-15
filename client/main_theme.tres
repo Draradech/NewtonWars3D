@@ -1,0 +1,21 @@
+[gd_resource type="Theme" load_steps=3 format=3 uid="uid://bxb23qqdaoemp"]
+
+[ext_resource type="FontFile" uid="uid://b0eeea1mkogse" path="res://assets/JetBrainsMono-Bold.ttf" id="1_470mv"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ekxnf"]
+content_margin_left = 12.0
+content_margin_top = 12.0
+content_margin_right = 12.0
+content_margin_bottom = 12.0
+bg_color = Color(0.301961, 0.301961, 0.301961, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[resource]
+default_font = ExtResource("1_470mv")
+BoxContainer/constants/separation = 12
+GridContainer/constants/h_separation = 12
+GridContainer/constants/v_separation = 12
+PanelContainer/styles/panel = SubResource("StyleBoxFlat_ekxnf")

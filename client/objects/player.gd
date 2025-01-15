@@ -28,6 +28,7 @@ var pointer_v: Line3D
 var torus: MeshInstance3D
 var sphere: MeshInstance3D
 var shots: Array[Shot]
+var points: float = 0
 
 func update_pointer():
 	if pointer:

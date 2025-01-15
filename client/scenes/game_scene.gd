@@ -7,25 +7,14 @@ var space: Space = $Space
 
 var host
 var port
-var menu
-func menu_data(h, p, m) -> void:
+func set_server(h, p) -> void:
 	host = h
 	port = p
-	menu = m
 
-var xr_interface: XRInterface
 func _ready():
-	$EscMenu/Background/VBox/GridContainer/ShotsOther.value = Global.config["num_shots_other"]
-	$EscMenu/Background/VBox/GridContainer/ShotsSelf.value = Global.config["num_shots_self"]
-	$EscMenu/Background/VBox/GridContainer/UiScale.value = Global.config["ui_scale"]
-	xr_interface = XRServer.find_interface("OpenXR")
-	if xr_interface and xr_interface.is_initialized():
-		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
-		get_viewport().use_xr = true
-		$XROrigin3D/XRCamera3D.make_current()
-	else:
-		$Camera3D.make_current()
-	
+	$UI/EscMenu/VBox/GridContainer/ShotsOther.value = Global.config["num_shots_other"]
+	$UI/EscMenu/VBox/GridContainer/ShotsSelf.value = Global.config["num_shots_self"]
+	$UI/EscMenu/VBox/GridContainer/UiScale.value = Global.config["ui_scale"]
 	network.tcp_connect(host, port)
 
 func synchronize(delta: float) -> bool:
@@ -47,34 +36,34 @@ func synchronize(delta: float) -> bool:
 func _process(delta: float) -> void:
 	var start: = Time.get_ticks_usec()
 	if Input.is_action_just_pressed("menu"):
-		$EscMenu.visible = !$EscMenu.visible
-		if !$EscMenu.visible:
+		$UI/EscMenu.visible = !$UI/EscMenu.visible
+		if !$UI/EscMenu.visible:
 			Global.save_config()
 	if Input.is_action_just_pressed("stats"):
-		$Stats.visible = !$Stats.visible
+		$UI/Stats.visible = !$UI/Stats.visible
 	
+	######## main game loop here ########
 	if network.read_network(space, delta):
 		if synchronize(delta):
 			space.prepare_frame()
+	######## main game loop here ########
 	
 	var end: = Time.get_ticks_usec()
-	$Stats.cpu = (end - start) * 1e-3
+	$UI/Stats.cpu = (end - start) * 1e-3
 
-func _on_disconnect_pressed() -> void:
-	menu.visible = true
-	get_tree().root.remove_child(self)
-	network.tcp_disconnect()
-	queue_free()
+func is_menu_open() -> bool:
+	return \
+		$UI/EscMenu.visible \
+		or $UI/DisconnectMessage.visible \
+		or space.player_id == -1
 
 func _on_continue_pressed() -> void:
-	$EscMenu.visible = false
+	$UI/EscMenu.visible = false
 	Global.save_config()
 
-func input_blocked() -> bool:
-	return \
-		$EscMenu.visible \
-		or $DisconnectMessage.visible \
-		or space.player_id == -1
+func _on_disconnect_pressed() -> void:
+	Global.save_config()
+	get_parent()._on_disconnect()
 
 func _on_ui_scale_value_changed(value: float) -> void:
 	get_tree().root.content_scale_factor = value
