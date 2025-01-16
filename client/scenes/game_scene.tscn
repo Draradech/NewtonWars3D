@@ -256,6 +256,36 @@ offset_bottom = 33.5
 grow_horizontal = 2
 horizontal_alignment = 1
 
+[node name="ScoreBoardMessage" type="PanelContainer" parent="UI"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -70.0
+offset_top = -44.0
+offset_right = 70.0
+offset_bottom = 44.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="UI/ScoreBoardMessage"]
+layout_mode = 2
+
+[node name="ScoreBoard" type="RichTextLabel" parent="UI/ScoreBoardMessage/VBox"]
+layout_mode = 2
+bbcode_enabled = true
+text = "Round Ended"
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+
+[node name="BtnOkRndEnd" type="Button" parent="UI/ScoreBoardMessage/VBox"]
+layout_mode = 2
+text = "OK"
+
 [connection signal="update_label" from="Space" to="UI/MissileInput" method="update_label"]
 [connection signal="value_changed" from="UI/EscMenu/VBox/GridContainer/ShotsSelf" to="." method="_on_shots_self_value_changed"]
 [connection signal="value_changed" from="UI/EscMenu/VBox/GridContainer/ShotsOther" to="." method="_on_shots_other_value_changed"]
@@ -266,3 +296,4 @@ horizontal_alignment = 1
 [connection signal="pressed" from="UI/EscMenu/VBox/Disconnect" to="." method="_on_disconnect_pressed"]
 [connection signal="pressed" from="UI/EscMenu/VBox/Continue" to="." method="_on_continue_pressed"]
 [connection signal="pressed" from="UI/DisconnectMessage/VBox/Disconnect" to="." method="_on_disconnect_pressed"]
+[connection signal="pressed" from="UI/ScoreBoardMessage/VBox/BtnOkRndEnd" to="." method="_on_btn_ok_rnd_end_pressed"]

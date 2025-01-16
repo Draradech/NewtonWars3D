@@ -763,6 +763,7 @@ void addMissilePos(double t)
 
 void sendFrameData(double t)
 {
+   addRoundTime();
    addPlanets(1);
    addPlayerPos(1);
    addPlayerName(1);
@@ -770,7 +771,6 @@ void sendFrameData(double t)
    addPlayerDel();
    addNewMissiles();
    addMissilePos(t);
-   addRoundTime();
    addSimTime(t);
    sendAll();
 }

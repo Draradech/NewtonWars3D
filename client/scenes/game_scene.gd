@@ -64,6 +64,7 @@ func _process(delta: float) -> void:
 func is_menu_open() -> bool:
 	return \
 		ui.get_node("EscMenu").visible \
+		or ui.get_node("ScoreBoardMessage").visible \
 		or ui.get_node("DisconnectMessage").visible \
 		or space.player_id == -1
 
@@ -97,3 +98,6 @@ func _on_glow_toggled(toggled_on: bool) -> void:
 func _on_msaa_item_selected(index: int) -> void:
 	Global.config["msaa"] = index
 	RenderingServer.viewport_set_msaa_3d(get_tree().root.get_viewport_rid(), Global.config["msaa"])
+
+func _on_btn_ok_rnd_end_pressed() -> void:
+	ui.get_node("ScoreBoardMessage").visible = false

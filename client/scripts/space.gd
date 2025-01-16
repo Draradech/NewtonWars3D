@@ -67,6 +67,7 @@ func pot_eval():
 	mmd.visible_instance_count = id
 	pot_init = true
 
+var digit: int = 0
 func _process(_delta: float) -> void:
 	if get_parent().is_menu_open(): return
 	if Input.is_action_just_pressed("clear"):
@@ -79,7 +80,7 @@ func _process(_delta: float) -> void:
 		players[player_id].pitch = 0
 		players[player_id].yaw = 0
 		players[player_id].speed = 8
-		get_parent().get_node("MissileInput").update_label(players[player_id])
+		get_parent().ui.get_node("MissileInput").update_label(players[player_id], digit)
 	if Input.is_action_just_pressed("wire"):
 		if get_tree().root.get_viewport().debug_draw == Viewport.DEBUG_DRAW_DISABLED:
 			get_tree().root.get_viewport().debug_draw = Viewport.DEBUG_DRAW_WIREFRAME
@@ -135,7 +136,6 @@ func update_planet(pnid: int, loc: Vector3, rad: float):
 	$GPotBandAllow.visible = false
 	$GPotBandDisallow.visible = false
 
-var digit: int = 0
 func update_player_pos(pyid: int, loc: Vector3, rad: float):
 	if not players.has(pyid):
 		var ply_mat: StandardMaterial3D = material.duplicate()
@@ -146,15 +146,26 @@ func update_player_pos(pyid: int, loc: Vector3, rad: float):
 	else:
 		players[pyid].location = loc
 		players[pyid].radius = rad
-	for os: Shot in players[pyid].shots:
+	for os: Shot in players[pyid].shots.duplicate():
 		if os.render_live:
 			os.stale = true
 		else:
 			shots.erase(os.mid)
-			os.queue_free()
 			players[pyid].shots.erase(os)
-
+			os.queue_free()
+	
 func update_round_time(rt: int):
+	if rt < 0 and round_time >= 0:
+		var sbm = get_parent().ui.get_node("ScoreBoardMessage")
+		var sb: RichTextLabel = sbm.get_node("VBox").get_node("ScoreBoard")
+		var bb: = "Round Ended\n\n[table=2]\n"
+		var sorted = players.values()
+		sorted.sort_custom(func cmp(p1, p2): return p1.score > p2.score)
+		for player: Player in sorted:
+			bb += "[cell]%s  [/cell][cell] %.2f [/cell]\n" % [player.pname, player.score]
+		bb += "[/table]"
+		sb.text = bb
+		sbm.visible = true
 	round_time = rt
 	get_parent().ui.get_node("RoundTime").text = "%s%02d:%02d" % ["-" if signi(round_time) < 0 else "", absi(round_time) / 60, absi(round_time) % 60]
 
@@ -165,8 +176,8 @@ func player_disconnect(pyid: int):
 	for os: Shot in players[pyid].shots:
 		shots.erase(os.mid)
 		os.queue_free()
-	players.erase(pyid)
 	players[pyid].queue_free()
+	players.erase(pyid)
 
 func new_shot(pyid: int, mid: int):
 	var s = Shot.new(mid, players[pyid].material)
