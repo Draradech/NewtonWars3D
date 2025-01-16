@@ -134,6 +134,29 @@ max_value = 2.0
 step = 0.1
 value = 0.5
 
+[node name="GlowLbl" type="Label" parent="UI/EscMenu/VBox/GridContainer"]
+layout_mode = 2
+text = "Glow"
+
+[node name="Glow" type="CheckBox" parent="UI/EscMenu/VBox/GridContainer"]
+layout_mode = 2
+
+[node name="MSAALbl" type="Label" parent="UI/EscMenu/VBox/GridContainer"]
+layout_mode = 2
+text = "MSAA"
+
+[node name="MSAA" type="OptionButton" parent="UI/EscMenu/VBox/GridContainer"]
+layout_mode = 2
+item_count = 4
+popup/item_0/text = "None"
+popup/item_0/id = 0
+popup/item_1/text = "2x"
+popup/item_1/id = 0
+popup/item_2/text = "4x"
+popup/item_2/id = 0
+popup/item_3/text = "8x"
+popup/item_3/id = 0
+
 [node name="Quit" type="Button" parent="UI/EscMenu/VBox"]
 layout_mode = 2
 text = "Quit"
@@ -227,6 +250,8 @@ horizontal_alignment = 2
 [connection signal="value_changed" from="UI/EscMenu/VBox/GridContainer/ShotsSelf" to="." method="_on_shots_self_value_changed"]
 [connection signal="value_changed" from="UI/EscMenu/VBox/GridContainer/ShotsOther" to="." method="_on_shots_other_value_changed"]
 [connection signal="value_changed" from="UI/EscMenu/VBox/GridContainer/UiScale" to="." method="_on_ui_scale_value_changed"]
+[connection signal="toggled" from="UI/EscMenu/VBox/GridContainer/Glow" to="." method="_on_glow_toggled"]
+[connection signal="item_selected" from="UI/EscMenu/VBox/GridContainer/MSAA" to="." method="_on_msaa_item_selected"]
 [connection signal="pressed" from="UI/EscMenu/VBox/Quit" to="." method="_on_quit_pressed"]
 [connection signal="pressed" from="UI/EscMenu/VBox/Disconnect" to="." method="_on_disconnect_pressed"]
 [connection signal="pressed" from="UI/EscMenu/VBox/Continue" to="." method="_on_continue_pressed"]

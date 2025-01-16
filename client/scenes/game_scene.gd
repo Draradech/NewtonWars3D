@@ -14,6 +14,11 @@ func _ready():
 	$UI/EscMenu/VBox/GridContainer/ShotsOther.value = Global.config["num_shots_other"]
 	$UI/EscMenu/VBox/GridContainer/ShotsSelf.value = Global.config["num_shots_self"]
 	$UI/EscMenu/VBox/GridContainer/UiScale.value = Global.config["ui_scale"]
+	get_tree().root.content_scale_factor = Global.config["ui_scale"]
+	$UI/EscMenu/VBox/GridContainer/Glow.button_pressed = Global.config["glow"]
+	get_tree().root.get_node("RootScene").get_node("WorldEnvironment").environment.glow_enabled = Global.config["glow"]
+	$UI/EscMenu/VBox/GridContainer/MSAA.selected = Global.config["msaa"]
+	RenderingServer.viewport_set_msaa_3d(get_tree().root.get_viewport_rid(), Global.config["msaa"])
 	network.tcp_connect(host, port, playername)
 	ui = $UI
 	if get_parent().is_vr():
@@ -41,6 +46,7 @@ func _process(delta: float) -> void:
 	var start: = Time.get_ticks_usec()
 	if Input.is_action_just_pressed("menu"):
 		ui.get_node("EscMenu").visible = !ui.get_node("EscMenu").visible
+		ui.get_node("Stats").visible = ui.get_node("EscMenu").visible
 		if !ui.get_node("EscMenu").visible:
 			Global.save_config()
 	if Input.is_action_just_pressed("stats"):
@@ -63,6 +69,7 @@ func is_menu_open() -> bool:
 
 func _on_continue_pressed() -> void:
 	ui.get_node("EscMenu").visible = false
+	ui.get_node("Stats").visible = false
 	Global.save_config()
 
 func _on_disconnect_pressed() -> void:
@@ -82,3 +89,11 @@ func _on_shots_other_value_changed(value: float) -> void:
 
 func _on_shots_self_value_changed(value: float) -> void:
 	Global.config["num_shots_self"] = value
+
+func _on_glow_toggled(toggled_on: bool) -> void:
+	Global.config["glow"] = toggled_on
+	get_tree().root.get_node("RootScene").get_node("WorldEnvironment").environment.glow_enabled = Global.config["glow"]
+
+func _on_msaa_item_selected(index: int) -> void:
+	Global.config["msaa"] = index
+	RenderingServer.viewport_set_msaa_3d(get_tree().root.get_viewport_rid(), Global.config["msaa"])

@@ -9,6 +9,8 @@ var config: Dictionary = {
 	"num_shots_other": 2,
 	"ui_scale": 1.0,
 	"fullscreen": true,
+	"glow": true,
+	"msaa": 3,
 }
 
 func _ready() -> void:
