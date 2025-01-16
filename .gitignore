@@ -2,3 +2,4 @@
 /client/.godot/
 /client/export/
 /server/build/
+/client/scripts/version.gd
