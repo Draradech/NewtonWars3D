@@ -11,7 +11,7 @@ var player_id: int = -1
 var planets: Dictionary[int, Planet]
 var players: Dictionary[int, Player]
 var shots: Dictionary[int, Shot]
-var missileInput
+var round_time: int
 
 var pot_init = false
 func gpot(loc: Vector3) -> float:
@@ -93,8 +93,13 @@ func _process(_delta: float) -> void:
 
 func prepare_frame():
 	for shot: Shot in shots.values():
-		if shot.render_live:
+		if not shot.render_live:
+			if shot.stale:
+				shots.erase(shot)
+				shot.queue_free()
+		else:
 			shot.prepare_render(time)
+
 
 func update_player_list():
 	if not player_id in players: return
@@ -121,8 +126,10 @@ func update_planet(pnid: int, loc: Vector3, rad: float):
 		planets.set(pnid, Planet.new(loc, rad, material))
 		add_child(planets[pnid])
 	else:
-		planets[pnid].location = loc
-		planets[pnid].radius = rad
+		var op = planets[pnid]
+		planets.set(pnid, Planet.new(loc, rad, material))
+		add_child(planets[pnid])
+		op.queue_free()
 	pot_init = false
 	$GPotBandAllow.visible = false
 	$GPotBandDisallow.visible = false
@@ -138,16 +145,26 @@ func update_player_pos(pyid: int, loc: Vector3, rad: float):
 	else:
 		players[pyid].location = loc
 		players[pyid].radius = rad
+	for os: Shot in players[pyid].shots:
+		if os.render_live:
+			os.stale = true
+		else:
+			shots.erase(os.mid)
+			os.queue_free()
+
+func update_round_time(rt: int):
+	round_time = rt
+	get_parent().ui.get_node("RoundTime").text = "%s%02d:%02d" % ["-" if signi(round_time) < 0 else "", absi(round_time) / 60, absi(round_time) % 60]
 
 func set_my_pyid(pyid: int):
 	player_id = pyid
 
 func player_disconnect(pyid: int):
-	players[pyid].queue_free()
 	for os: Shot in players[pyid].shots:
 		shots.erase(os.mid)
 		os.queue_free()
 	players.erase(pyid)
+	players[pyid].queue_free()
 
 func new_shot(pyid: int, mid: int):
 	var s = Shot.new(mid, players[pyid].material)

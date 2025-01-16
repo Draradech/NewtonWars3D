@@ -40,6 +40,8 @@ void config(int* argc, char** argv)
    conf.blockMultiCon = 0;
    conf.blockConTime = 0;
    conf.timeout = 0;
+   conf.roundTime = 600;
+   conf.roundPause = 30;
 
    //fixed
    conf.maxSegments = 2000;

@@ -569,6 +569,22 @@ void addSimTime(double t)
    addToSendBuffer((char*)buf, sizeof(buf));
 }
 
+void addRoundTime(void)
+{
+   unsigned char buf[8];
+   uint32_t packetId = MSG_ROUND_TIME;
+
+   memcpy(buf, &packetId, 4);
+   int rt = getRoundTime();
+   if(rt % 60 == 0)
+   {
+      rt /= 60;
+      if(rt > 0) rt--;
+      memcpy(buf + 4, &rt, 4);
+      addToSendBuffer((char*)buf, sizeof(buf));
+   }
+}
+
 void addPlanets(int dirtyOnly)
 {
    unsigned char buf[24];
@@ -754,6 +770,7 @@ void sendFrameData(double t)
    addPlayerDel();
    addNewMissiles();
    addMissilePos(t);
+   addRoundTime();
    addSimTime(t);
    sendAll();
 }

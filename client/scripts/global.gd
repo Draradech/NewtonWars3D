@@ -9,7 +9,7 @@ var config: Dictionary = {
 	"num_shots_other": 2,
 	"ui_scale": 1.0,
 	"fullscreen": true,
-	"glow": true,
+	"glow": false,
 	"msaa": 3,
 }
 

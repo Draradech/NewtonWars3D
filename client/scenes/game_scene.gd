@@ -32,9 +32,9 @@ func synchronize(delta: float) -> bool:
 	var next_space_time: = space.time + delta
 	var target_time_delta: = (network.time - 0.05) - next_space_time
 	var speedup: = 0.0
-	if target_time_delta < -1./60:
+	if target_time_delta < -1./60: # +/- 1 sim frame always ok
 		speedup = target_time_delta / 0.05 / 100.0 # 1% slowdown per 50ms buffer underrun
-	elif target_time_delta > 1./60:
+	elif target_time_delta > 1./60: # +/- 1 sim frame always ok
 		speedup = target_time_delta / 0.05 / 100.0 # 1% speedup per 50ms buffer overfill
 	next_space_time = space.time + delta * (1 + speedup)
 	if next_space_time > network.time:

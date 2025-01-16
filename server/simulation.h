@@ -49,6 +49,7 @@ void playerName(int p, char* n);
 Missile* getMissile(int p, int s);
 Planet* getPlanet(int p);
 Player* getPlayer(int p);
+int getRoundTime(void);
 
 void initSimulation(void);
 void stepSimulation(double t, double delta);

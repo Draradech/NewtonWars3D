@@ -223,9 +223,6 @@ offset_bottom = -12.0
 grow_horizontal = 2
 grow_vertical = 0
 bbcode_enabled = true
-text = "[center]Yaw:
-Pitch:
-Speed:[/center]"
 fit_content = true
 scroll_active = false
 script = ExtResource("6_kk2rg")
@@ -245,6 +242,19 @@ grow_horizontal = 0
 bbcode_enabled = true
 scroll_active = false
 horizontal_alignment = 2
+
+[node name="RoundTime" type="Label" parent="UI"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -50.0
+offset_top = 12.0
+offset_right = 50.0
+offset_bottom = 33.5
+grow_horizontal = 2
+horizontal_alignment = 1
 
 [connection signal="update_label" from="Space" to="UI/MissileInput" method="update_label"]
 [connection signal="value_changed" from="UI/EscMenu/VBox/GridContainer/ShotsSelf" to="." method="_on_shots_self_value_changed"]

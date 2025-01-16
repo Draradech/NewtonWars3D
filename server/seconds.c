@@ -43,5 +43,8 @@ double seconds(void)
 
 void wait(double seconds)
 {
-    usleep((int)(1e6 * seconds));
+    if (seconds > 0)
+    {
+        usleep((int)(1e6 * seconds));
+    }
 }

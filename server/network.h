@@ -11,6 +11,7 @@
 #define MSG_PLANET       7 // pnid:u32 x:f32 y:f32 z:f32 r:f32             len: 24
 #define MSG_NEW_MISS     8 // pyid:u32 mid:u32                             len: 12
 #define MSG_MISS_POS     9 // mid:u32 ts:f64 x:f32 y:f32 z:f32             len: 28
+#define MSG_ROUND_TIME  10 // rt:i32                                       len: 8
 
 // client -> server
 

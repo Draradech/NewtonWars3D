@@ -14,6 +14,7 @@ const MSG_PLAYER_DEL: int = 6
 const MSG_PLANET: int = 7
 const MSG_NEW_MISS: int = 8
 const MSG_MISS_POS: int = 9
+const MSG_ROUND_TIME: int = 10
 const MSG_SET_NAME: int = 50
 const MSG_SHOOT: int = 51
 
@@ -124,8 +125,15 @@ func read_network(space: Space, delta: float) -> bool:
 				elif packet_id == MSG_PLAYER_NAME:
 					if tcp_client.get_available_bytes() >= 20:
 						var pyid: = tcp_client.get_u32()
-						var pname = tcp_client.get_string(16)
+						var pname: = tcp_client.get_string(16)
 						space.update_player_name(pyid, pname)
+						in_packet = false
+					else:
+						done = true
+				elif packet_id == MSG_ROUND_TIME:
+					if tcp_client.get_available_bytes() >= 4:
+						var rt: = tcp_client.get_32()
+						space.update_round_time(rt)
 						in_packet = false
 					else:
 						done = true

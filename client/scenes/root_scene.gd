@@ -52,6 +52,11 @@ func _on_disconnect() -> void:
 	remove_child(game)
 	game.queue_free()
 	game = null
+	$Camera3D.distance = 2000.0
+	$Camera3D.pitch = 0.0
+	$Camera3D.yaw = 0.0
+	$Camera3D.poff = Vector3.ZERO
+
 
 func _on_quit() -> void:
 	get_tree().quit()

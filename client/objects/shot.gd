@@ -7,6 +7,7 @@ var line_time: float
 var material: StandardMaterial3D
 var mid: int
 var render_live: bool
+var stale: = false
 
 func _init(id: int, mat: StandardMaterial3D) -> void:
 	mid = id;

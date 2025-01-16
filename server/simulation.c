@@ -21,6 +21,8 @@ static int mid = 0;
 static double potential[80][50][80];
 static char area[80][50][80];
 static char scratch[1024];
+static int roundtime;
+static int activePlayers = 0;
 
 typedef struct
 {
@@ -273,6 +275,55 @@ void stepSimulation(double t, double delta)
 {
    int mi, i, j, pl, pl2;
    double l;
+
+   if(activePlayers == 0)
+   {
+      if(roundtime != conf.roundTime * 60)
+      {
+         initPlanets();
+         roundtime = conf.roundTime * 60;
+      }
+   }
+   else if(roundtime > 0)
+   {
+      roundtime--;
+      if(roundtime == 0)
+      {
+         for(pl = 0; pl < conf.maxPlayers; ++pl)
+         {
+            Player* p = &(players[pl]);
+            if(!p->live) continue;
+
+            for(mi = 0; mi < conf.numShots; ++mi)
+            {
+               Missile* m = &(p->missiles[mi]);
+               if(!m->live) continue;
+               m->live = 0;
+               m->diedAt = t;
+               m->dirty |= DIRTY_LIVE;
+               #if SHOT_LOG
+               sprintf(scratch, "shot (id %d) died (round end)", m->id);
+               log(scratch);
+               #endif
+            }
+
+            initPlayer(p);
+            p->score = 0;
+            p->dirty |= DIRTY_DATA;
+         }
+         initPlanets();
+         roundtime = -conf.roundPause * 60;
+      }
+   }
+   else
+   {
+      roundtime++;
+      if(roundtime == 0)
+      {
+         // round begin
+         roundtime = conf.roundTime * 60;
+      }
+   }
    
    for(pl = 0; pl < conf.maxPlayers; ++pl)
    {
@@ -392,6 +443,7 @@ void initSimulation(void)
       p->name[16] = 0;
       p->dirty = 0;
    }
+   roundtime = conf.roundTime * 60;
 }
 
 void playerJoin(int pl)
@@ -404,6 +456,8 @@ void playerJoin(int pl)
    p->live = 1;
    strncpy(p->name, "Anonymous", 16);
    p->dirty |= DIRTY_LIVE;
+
+   activePlayers++;
 }
 
 void playerLeave(int pl)
@@ -424,10 +478,14 @@ void playerLeave(int pl)
       m->live = 0;
       m->dirty = 0;
    }
+
+   activePlayers--;
 }
 
 void playerShoot(int pl, double yaw, double pitch, double speed)
 {
+   if(roundtime < 0) return;
+
    Player* p = &(players[pl]);
    p->currentMissile = (p->currentMissile + 1) % conf.numShots;
    Missile* m = &(p->missiles[p->currentMissile]);
@@ -484,4 +542,9 @@ Planet* getPlanet(int i)
 Player* getPlayer(int p)
 {
    return &(players[p]);
+}
+
+int getRoundTime(void)
+{
+   return roundtime;
 }

@@ -11,6 +11,8 @@ typedef struct
    int blockMultiCon;
    int blockConTime;
    int timeout;
+   int roundTime;
+   int roundPause;
    /* fixed */
    int maxSegments;
    int segmentSteps;
