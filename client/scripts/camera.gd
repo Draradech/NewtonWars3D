@@ -6,10 +6,19 @@ var pitch: = 0.0
 var yaw: = 0.0
 var poff: = Vector3.ZERO
 
+var checked: = false
 func _input(event):
-	if get_parent().is_menu_open(): return
+	if get_parent().is_menu_open():
+		if not checked:
+			if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
+				Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+			checked = true
+		return
+	else:
+		checked = false
+	
 	if event is InputEventMouseMotion:
-		mouse_move = event.relative
+		mouse_move = event.screen_relative
 	
 	if event is InputEventMouseButton:
 		match event.button_index:

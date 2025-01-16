@@ -181,13 +181,15 @@ func player_disconnect(pyid: int):
 
 func new_shot(pyid: int, mid: int):
 	var s = Shot.new(mid, players[pyid].material)
-	if pyid != player_id: s.material.albedo_color *= .5
-	if players[pyid].shots.size() > (Global.config["num_shots_self"] if pyid == player_id else Global.config["num_shots_other"]) - 1:
+	var numshots = (Global.config["num_shots_self"] if pyid == player_id else Global.config["num_shots_other"])
+	while players[pyid].shots.size() > numshots - 1:
 		var os = players[pyid].shots.pop_front()
 		shots.erase(os.mid)
 		os.queue_free()
+	var i = players[pyid].shots.size()
 	for sh: Shot in players[pyid].shots:
-		sh.material.albedo_color *= .8
+		sh.material.albedo_color = players[pyid].material.albedo_color * pow(maxf(.7, pow(0.2, 1.0 / (numshots + 1))), i)
+		i -= 1
 	players[pyid].shots.append(s)
 	shots[mid] = s
 	add_child(s)
