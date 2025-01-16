@@ -6,7 +6,17 @@ set(CMAKE_C_STANDARD 17)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+find_package(Git)
+add_custom_target(version
+    ${CMAKE_COMMAND} -D SRC=${CMAKE_SOURCE_DIR}/nw3d_version.h.in
+                     -D DST=${CMAKE_BINARY_DIR}/nw3d_version.h
+                     -D GIT_EXECUTABLE=${GIT_EXECUTABLE}
+                     -P ${CMAKE_SOURCE_DIR}/generate_version.cmake
+  )
+
 add_executable(nw3d_server main.c config.c network.c simulation.c vector.c seconds.c log.c)
+add_dependencies(nw3d_server version)
+target_include_directories(nw3d_server PRIVATE ${CMAKE_BINARY_DIR})
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
     target_compile_options(nw3d_server PRIVATE -march=x86-64-v3 -Wall -Wextra -Wpedantic)

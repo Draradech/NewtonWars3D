@@ -1,0 +1,4 @@
+#ifndef _NW3D_VERSION_H_
+#define _NW3D_VERSION_H_
+#define NW3D_VERSION "@NW3D_VERSION@"
+#endif  /* _NW3D_VERSION_H_ */

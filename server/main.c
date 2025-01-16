@@ -1,3 +1,5 @@
+#include "nw3d_version.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -6,8 +8,12 @@
 #include "network.h"
 #include "simulation.h"
 
+#define LOG_SYS "MAIN"
+#include "log.h"
+
 int main(int argc, char** argv)
 {
+   log(NW3D_VERSION);
    srand(seconds());
    config(&argc, argv);
 
