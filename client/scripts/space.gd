@@ -95,22 +95,23 @@ func prepare_frame():
 	for shot: Shot in shots.values():
 		if not shot.render_live:
 			if shot.stale:
-				shots.erase(shot)
+				shots.erase(shot.mid)
 				shot.queue_free()
+				for player in players.values():
+					player.shots.erase(shot)
 		else:
 			shot.prepare_render(time)
-
 
 func update_player_list():
 	if not player_id in players: return
 	var bbstring: = ""
 	#bbstring += "[color=ff7f00]%s\n%.1f[/color]\n\n" % [players[player_id].pname, players[player_id].score]
-	bbstring += "%s\n%.1f\n\n" % [players[player_id].pname, players[player_id].score]
+	bbstring += "%s\n%.2f\n\n" % [players[player_id].pname, players[player_id].score]
 	for pid in players:
 		if pid == player_id: continue
 		var player : Player = players[pid]
 		#bbstring += "[color=007fff]%s\n%.1f[/color]\n\n" % [player.pname, player.score]
-		bbstring += "%s\n%.1f\n\n" % [player.pname, player.score]
+		bbstring += "%s\n%.2f\n\n" % [player.pname, player.score]
 	get_parent().ui.get_node("PlayerList").text = bbstring
 
 func update_player_name(pyid: int, pname: String):
@@ -151,6 +152,7 @@ func update_player_pos(pyid: int, loc: Vector3, rad: float):
 		else:
 			shots.erase(os.mid)
 			os.queue_free()
+			players[pyid].shots.erase(os)
 
 func update_round_time(rt: int):
 	round_time = rt

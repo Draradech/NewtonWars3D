@@ -11,6 +11,7 @@ config_version=5
 [application]
 
 config/name="Newton Wars 3D"
+config/version="0.1.37"
 run/main_scene="uid://b1s1usrg2fto0"
 config/features=PackedStringArray("4.4", "Mobile")
 boot_splash/bg_color=Color(0, 0, 0, 1)
@@ -21,6 +22,7 @@ config/windows_native_icon="res://icon.ico"
 [autoload]
 
 Global="*res://scripts/global.gd"
+Version="*res://scripts/version.gd"
 
 [debug]
 
@@ -34,6 +36,10 @@ window/size/window_width_override=1280
 window/size/window_height_override=720
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/git_version/plugin.cfg")
 
 [gui]
 

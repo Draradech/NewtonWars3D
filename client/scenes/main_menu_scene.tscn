@@ -30,6 +30,12 @@ grow_vertical = 2
 [node name="VBox" type="VBoxContainer" parent="UI/MainMenu"]
 layout_mode = 2
 
+[node name="Title" type="Label" parent="UI/MainMenu/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Newton Wars 3D"
+horizontal_alignment = 1
+
 [node name="Grid" type="GridContainer" parent="UI/MainMenu/VBox"]
 layout_mode = 2
 columns = 2
@@ -63,6 +69,11 @@ text = "Connect"
 [node name="Quit" type="Button" parent="UI/MainMenu/VBox"]
 layout_mode = 2
 text = "Quit"
+
+[node name="Version" type="Label" parent="UI/MainMenu/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 2
 
 [connection signal="pressed" from="UI/MainMenu/VBox/Connect" to="." method="_on_connect_pressed"]
 [connection signal="pressed" from="UI/MainMenu/VBox/Quit" to="." method="_on_quit_pressed"]
