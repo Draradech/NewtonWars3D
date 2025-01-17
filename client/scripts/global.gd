@@ -11,6 +11,8 @@ var config: Dictionary = {
 	"fullscreen": true,
 	"glow": false,
 	"msaa": 3,
+	"color_self": Color(1, .5, 0),
+	"color_other": Color(0, .5, 1),
 }
 
 func _ready() -> void:

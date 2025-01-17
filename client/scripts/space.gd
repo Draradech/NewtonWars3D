@@ -80,7 +80,7 @@ func _process(_delta: float) -> void:
 		players[player_id].pitch = 0
 		players[player_id].yaw = 0
 		players[player_id].speed = 8
-		get_parent().ui.get_node("MissileInput").update_label(players[player_id], digit)
+		emit_signal("update_label", players[player_id], digit)
 	if Input.is_action_just_pressed("wire"):
 		if get_tree().root.get_viewport().debug_draw == Viewport.DEBUG_DRAW_DISABLED:
 			get_tree().root.get_viewport().debug_draw = Viewport.DEBUG_DRAW_WIREFRAME
@@ -139,7 +139,7 @@ func update_planet(pnid: int, loc: Vector3, rad: float):
 func update_player_pos(pyid: int, loc: Vector3, rad: float):
 	if not players.has(pyid):
 		var ply_mat: StandardMaterial3D = material.duplicate()
-		ply_mat.albedo_color = Color(1, .5, 0) if pyid == player_id else Color(0, .5, 1)
+		ply_mat.albedo_color = Global.config["color_self"] if pyid == player_id else Global.config["color_other"]
 		players.set(pyid, Player.new(loc, rad, pyid == player_id, ply_mat))
 		add_child(players[pyid])
 		if pyid == player_id: emit_signal("update_label", players[pyid], digit)
@@ -166,6 +166,7 @@ func update_round_time(rt: int):
 		bb += "[/table]"
 		sb.text = bb
 		sbm.visible = true
+		get_tree().root.get_node("RootScene").reset_camera()
 	round_time = rt
 	get_parent().ui.get_node("RoundTime").text = "%s%02d:%02d" % ["-" if signi(round_time) < 0 else "", absi(round_time) / 60, absi(round_time) % 60]
 
@@ -179,19 +180,34 @@ func player_disconnect(pyid: int):
 	players[pyid].queue_free()
 	players.erase(pyid)
 
+func trim_and_recolor_shots():
+	for pyid in players:
+		var player: = players[pyid]
+		var numshots = (Global.config["num_shots_self"] if pyid == player_id else Global.config["num_shots_other"])
+		while player.shots.size() > numshots:
+			var os = player.shots.pop_front()
+			shots.erase(os.mid)
+			os.queue_free()
+		var i = player.shots.size() - 1
+		for sh: Shot in player.shots:
+			sh.material.albedo_color = player.material.albedo_color * pow(maxf(.7, pow(0.2, 1.0 / (numshots + 1))), i)
+			i -= 1
+
+func update_player_colors():
+	for pyid in players:
+		var player: = players[pyid]
+		var color = (Global.config["color_self"] if pyid == player_id else Global.config["color_other"])
+		player.material.albedo_color = color
+		if pyid == player_id:
+			player.pointer_h.material.albedo_color = color * 0.5
+	trim_and_recolor_shots()
+	emit_signal("update_label", players[player_id], digit)
+
 func new_shot(pyid: int, mid: int):
 	var s = Shot.new(mid, players[pyid].material)
-	var numshots = (Global.config["num_shots_self"] if pyid == player_id else Global.config["num_shots_other"])
-	while players[pyid].shots.size() > numshots - 1:
-		var os = players[pyid].shots.pop_front()
-		shots.erase(os.mid)
-		os.queue_free()
-	var i = players[pyid].shots.size()
-	for sh: Shot in players[pyid].shots:
-		sh.material.albedo_color = players[pyid].material.albedo_color * pow(maxf(.7, pow(0.2, 1.0 / (numshots + 1))), i)
-		i -= 1
 	players[pyid].shots.append(s)
 	shots[mid] = s
+	trim_and_recolor_shots()
 	add_child(s)
 
 func update_shot_pos(mid: int, ts: float, loc: Vector3):

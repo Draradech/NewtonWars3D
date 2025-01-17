@@ -1,7 +1,8 @@
-[gd_scene load_steps=16 format=3 uid="uid://dmv0ts0ud224g"]
+[gd_scene load_steps=17 format=3 uid="uid://dmv0ts0ud224g"]
 
 [ext_resource type="Script" uid="uid://betr7x1j01hy3" path="res://scenes/game_scene.gd" id="1_kdryc"]
 [ext_resource type="Script" uid="uid://c46kby0xqkod5" path="res://scripts/network.gd" id="3_e35lh"]
+[ext_resource type="Script" uid="uid://bwsd8yrhlf3v8" path="res://scripts/color_picker.gd" id="4_rurhu"]
 [ext_resource type="Script" uid="uid://gn16w5grc8wm" path="res://scripts/space.gd" id="4_udeyl"]
 [ext_resource type="Script" uid="uid://dh81qfh33pl13" path="res://scripts/stats.gd" id="6_j5hk1"]
 [ext_resource type="Script" uid="uid://djbao0fguql6b" path="res://scripts/missile_input.gd" id="6_kk2rg"]
@@ -102,6 +103,24 @@ layout_mode = 2
 [node name="GridContainer" type="GridContainer" parent="UI/EscMenu/VBox"]
 layout_mode = 2
 columns = 2
+
+[node name="ColorSelfLbl" type="Label" parent="UI/EscMenu/VBox/GridContainer"]
+layout_mode = 2
+text = "Color (self)"
+
+[node name="ColorSelf" type="ColorPickerButton" parent="UI/EscMenu/VBox/GridContainer"]
+layout_mode = 2
+edit_alpha = false
+script = ExtResource("4_rurhu")
+
+[node name="ColorOtherLbl" type="Label" parent="UI/EscMenu/VBox/GridContainer"]
+layout_mode = 2
+text = "Color (other)"
+
+[node name="ColorOther" type="ColorPickerButton" parent="UI/EscMenu/VBox/GridContainer"]
+layout_mode = 2
+edit_alpha = false
+script = ExtResource("4_rurhu")
 
 [node name="ShotsSelfLbl" type="Label" parent="UI/EscMenu/VBox/GridContainer"]
 layout_mode = 2
@@ -287,6 +306,10 @@ layout_mode = 2
 text = "OK"
 
 [connection signal="update_label" from="Space" to="UI/MissileInput" method="update_label"]
+[connection signal="color_changed" from="UI/EscMenu/VBox/GridContainer/ColorSelf" to="." method="_on_color_self_color_changed"]
+[connection signal="picker_created" from="UI/EscMenu/VBox/GridContainer/ColorSelf" to="UI/EscMenu/VBox/GridContainer/ColorSelf" method="_on_picker_created"]
+[connection signal="color_changed" from="UI/EscMenu/VBox/GridContainer/ColorOther" to="." method="_on_color_other_color_changed"]
+[connection signal="picker_created" from="UI/EscMenu/VBox/GridContainer/ColorOther" to="UI/EscMenu/VBox/GridContainer/ColorOther" method="_on_picker_created"]
 [connection signal="value_changed" from="UI/EscMenu/VBox/GridContainer/ShotsSelf" to="." method="_on_shots_self_value_changed"]
 [connection signal="value_changed" from="UI/EscMenu/VBox/GridContainer/ShotsOther" to="." method="_on_shots_other_value_changed"]
 [connection signal="value_changed" from="UI/EscMenu/VBox/GridContainer/UiScale" to="." method="_on_ui_scale_value_changed"]

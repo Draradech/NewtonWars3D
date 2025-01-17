@@ -18,6 +18,8 @@ func _ready():
 	$UI/EscMenu/VBox/GridContainer/Glow.button_pressed = Global.config["glow"]
 	get_tree().root.get_node("RootScene").get_node("WorldEnvironment").environment.glow_enabled = Global.config["glow"]
 	$UI/EscMenu/VBox/GridContainer/MSAA.selected = Global.config["msaa"]
+	$UI/EscMenu/VBox/GridContainer/ColorSelf.color = Global.config["color_self"]
+	$UI/EscMenu/VBox/GridContainer/ColorOther.color = Global.config["color_other"]
 	RenderingServer.viewport_set_msaa_3d(get_tree().root.get_viewport_rid(), Global.config["msaa"])
 	network.tcp_connect(host, port, playername)
 	ui = $UI
@@ -89,9 +91,11 @@ func _on_ui_scale_value_changed(value: float) -> void:
 
 func _on_shots_other_value_changed(value: float) -> void:
 	Global.config["num_shots_other"] = value
+	$Space.trim_and_recolor_shots()
 
 func _on_shots_self_value_changed(value: float) -> void:
 	Global.config["num_shots_self"] = value
+	$Space.trim_and_recolor_shots()
 
 func _on_glow_toggled(toggled_on: bool) -> void:
 	Global.config["glow"] = toggled_on
@@ -103,3 +107,11 @@ func _on_msaa_item_selected(index: int) -> void:
 
 func _on_btn_ok_rnd_end_pressed() -> void:
 	ui.get_node("ScoreBoardMessage").visible = false
+
+func _on_color_self_color_changed(color: Color) -> void:
+	Global.config["color_self"] = color
+	$Space.update_player_colors()
+
+func _on_color_other_color_changed(color: Color) -> void:
+	Global.config["color_other"] = color
+	$Space.update_player_colors()
