@@ -10,7 +10,7 @@ func _exit_tree() -> void:
 	remove_export_plugin(exporter)
 
 func _build() -> bool:
-	exporter.create_version_script()
+	exporter.update_version()
 	return true
 
 class GitVersionExporterPlugin extends EditorExportPlugin:
@@ -25,8 +25,10 @@ class GitVersionExporterPlugin extends EditorExportPlugin:
 			return "v0.0.0-unknown"
 		return output[0].trim_suffix("\n")
 	
-	func create_version_script():
+	func update_version():
 		var version: = get_git_description()
+		var stripped: = version.trim_prefix("v").split("-")[0]
+		ProjectSettings.set_setting("application/config/version", stripped)
 		var script: GDScript = GDScript.new()
 		script.source_code = "extends Node\nconst version: String = \"%s\"" % version
 		var err: int = ResourceSaver.save(script, "res://scripts/version.gd")
@@ -34,4 +36,4 @@ class GitVersionExporterPlugin extends EditorExportPlugin:
 			push_error("Failed to save version as script. Error: %s" % error_string(err))
 	
 	func _export_begin(features: PackedStringArray, is_debug: bool, path: String, flags: int) -> void:
-		create_version_script()
+		update_version()

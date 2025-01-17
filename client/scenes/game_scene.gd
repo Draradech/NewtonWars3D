@@ -86,8 +86,6 @@ func _on_quit_pressed() -> void:
 func _on_ui_scale_value_changed(value: float) -> void:
 	get_tree().root.content_scale_factor = value
 	Global.config["ui_scale"] = value
-	for player: Player in $Space.players.values():
-		player.name_label.pixel_size = 1./930 * value
 
 func _on_shots_other_value_changed(value: float) -> void:
 	Global.config["num_shots_other"] = value

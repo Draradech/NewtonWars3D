@@ -252,6 +252,8 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventKey:
 		if event.keycode == KEY_SHIFT:
 			for pl2 in players.values():
+				if event.is_pressed():
+					pl2.name_label.pixel_size = 1.16 / get_tree().root.get_visible_rect().size.y
 				pl2.name_label.visible = event.is_pressed()
 		elif event.is_pressed():
 			match(event.key_label):
