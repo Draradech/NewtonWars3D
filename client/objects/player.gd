@@ -85,7 +85,7 @@ func _init(loc: Vector3, rad: float, do_pointer: bool, mat: StandardMaterial3D):
 	
 	name_label = Label3D.new()
 	name_label.fixed_size = true
-	name_label.pixel_size = 0.0012
+	name_label.pixel_size = 1./930 * Global.config["ui_scale"] 
 	name_label.font_size = 16
 	name_label.outline_size = 8
 	name_label.double_sided = false
