@@ -47,10 +47,12 @@ func synchronize(delta: float) -> bool:
 func _process(delta: float) -> void:
 	var start: = Time.get_ticks_usec()
 	if Input.is_action_just_pressed("menu"):
-		ui.get_node("EscMenu").visible = !ui.get_node("EscMenu").visible
-		ui.get_node("Stats").visible = ui.get_node("EscMenu").visible
-		if !ui.get_node("EscMenu").visible:
-			Global.save_config()
+		if ui.get_node("HelpMessage").visible:
+			ui.get_node("HelpMessage").visible = false
+		else:
+			ui.get_node("EscMenu").visible = !ui.get_node("EscMenu").visible
+			if !ui.get_node("EscMenu").visible:
+				Global.save_config()
 	if Input.is_action_just_pressed("stats"):
 		ui.get_node("Stats").visible = !ui.get_node("Stats").visible
 	
@@ -72,7 +74,6 @@ func is_menu_open() -> bool:
 
 func _on_continue_pressed() -> void:
 	ui.get_node("EscMenu").visible = false
-	ui.get_node("Stats").visible = false
 	Global.save_config()
 
 func _on_disconnect_pressed() -> void:
@@ -113,3 +114,9 @@ func _on_color_self_color_changed(color: Color) -> void:
 func _on_color_other_color_changed(color: Color) -> void:
 	Global.config["color_other"] = color
 	$Space.update_player_colors()
+
+func _on_btn_ok_help_pressed() -> void:
+	ui.get_node("HelpMessage").visible = false
+
+func _on_input_help_pressed() -> void:
+	ui.get_node("HelpMessage").visible = true

@@ -8,15 +8,6 @@ var poff: = Vector3.ZERO
 
 var checked: = false
 func _input(event):
-	if get_parent().is_menu_open():
-		if not checked:
-			if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
-				Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-			checked = true
-		return
-	else:
-		checked = false
-	
 	if event is InputEventMouseMotion:
 		mouse_move = event.screen_relative
 	
@@ -37,21 +28,62 @@ func _input(event):
 					if target_pos.x < 10000.0:
 						create_tween().tween_method(func(value): poff = value, poff, target_pos, .5).set_trans(Tween.TRANS_SINE)
 
-func _process(_delta):
+func _process(delta):
 	if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
+		
 		# camera rotation
-		if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
+		if \
+		Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) \
+		and not Input.is_key_pressed(KEY_CTRL):
 			mouse_move *= 0.25
 			yaw -= mouse_move.x
 			pitch -= mouse_move.y
-			pitch = clamp(pitch, -89, 89)
+		
 		# camera move
-		if Input.is_mouse_button_pressed(MOUSE_BUTTON_MIDDLE):
+		if \
+		Input.is_mouse_button_pressed(MOUSE_BUTTON_MIDDLE) \
+		or (
+		Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT)
+		and Input.is_key_pressed(KEY_CTRL)
+		):
 			poff += Vector3(-mouse_move.x, mouse_move.y, 0) \
 				.rotated(Vector3.RIGHT, deg_to_rad(pitch)) \
 				.rotated(Vector3.UP, deg_to_rad(yaw)) * distance / 1000
 		mouse_move = Vector2(0, 0)
 	
+	# camera move
+	if Input.is_key_pressed(KEY_CTRL):
+		var off = Vector3.ZERO
+		if Input.is_key_pressed(KEY_I):
+			off.y -= 200 * delta;
+		if Input.is_key_pressed(KEY_K):
+			off.y += 200 * delta;
+		if Input.is_key_pressed(KEY_J):
+			off.x += 200 * delta;
+		if Input.is_key_pressed(KEY_L):
+			off.x -= 200 * delta;
+		poff += off \
+			.rotated(Vector3.RIGHT, deg_to_rad(pitch)) \
+			.rotated(Vector3.UP, deg_to_rad(yaw)) * distance / 1000
+	
+	# camera rotation
+	else:
+		if Input.is_key_pressed(KEY_I):
+			pitch += 50 * delta;
+		if Input.is_key_pressed(KEY_K):
+			pitch -= 50 * delta;
+		if Input.is_key_pressed(KEY_J):
+			yaw += 50 * delta;
+		if Input.is_key_pressed(KEY_L):
+			yaw -= 50 * delta;
+	
+	# camera distance
+	if Input.is_key_pressed(KEY_U):
+		distance = clamp(distance / pow(2, delta), 10, 3000)
+	if Input.is_key_pressed(KEY_O):
+		distance = clamp(distance * pow(2, delta), 10, 3000)
+	
+	pitch = clamp(pitch, -89, 89)
 	rotation.x = deg_to_rad(pitch)
 	rotation.y = deg_to_rad(yaw)
 	var pos = Vector3(0, 0, distance)
