@@ -5,6 +5,10 @@ This is the 3D version of [Newton Wars](https://github.com/Draradech/NewtonWars)
 
 Milestones
 ==========
+2025-01-18
+----------
+First release
+
 2025-01-14
 ----------
 Early playtest version
