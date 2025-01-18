@@ -15,7 +15,9 @@ func _ready():
 		$XROrigin3D.world_scale = 1000
 		$XROrigin3D/XRCamera3D.make_current()
 		game = game_scene.instantiate()
-		game.set_server(Global.config["host"], Global.config["port"])
+		game.playername = Global.config["name"]
+		game.host = Global.config["host"]
+		game.port = Global.config["port"]
 		add_child(game)
 	else:
 		$Camera3D.make_current()
