@@ -156,7 +156,9 @@ func process_network(space: Space, delta: float) -> bool:
 					in_packet = true
 				else:
 					done = true
-		if !space.ui.is_menu_open() and Input.is_action_just_pressed("fire"):
+		if !space.ui.is_menu_open() \
+		and (Input.is_action_just_pressed("fire") \
+		or space.ui.root.should_shoot()):
 			tcp_client.put_u32(MSG_SHOOT)
 			tcp_client.put_double(space.players[space.player_id].pitch)
 			tcp_client.put_double(space.players[space.player_id].yaw)

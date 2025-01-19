@@ -27,7 +27,10 @@ func _ready() -> void:
 	($EscMenu/VBox/GridContainer/MSAA as OptionButton).selected = Global.config["msaa"]
 	($EscMenu/VBox/GridContainer/ColorSelf as ColorPickerButton).color = Global.config["color_self"]
 	($EscMenu/VBox/GridContainer/ColorOther as ColorPickerButton).color = Global.config["color_other"]
-	get_tree().root.content_scale_factor = Global.config["ui_scale"]
+	var uiscale: float = Global.config["ui_scale"]
+	get_tree().root.content_scale_factor = uiscale
+	root.vrui_viewport.size_2d_override = root.vrui_viewport.size / uiscale
+	root.vrui_viewport.gui_embed_subwindows = true
 	root.environment.glow_enabled = Global.config["glow"]
 	var msaa: RenderingServer.ViewportMSAA = Global.config["msaa"]
 	RenderingServer.viewport_set_msaa_3d(get_tree().root.get_viewport_rid(), msaa)
@@ -93,8 +96,9 @@ func _on_continue_pressed() -> void:
 	Global.save_config()
 
 func _on_ui_scale_value_changed(value: float) -> void:
-	get_tree().root.content_scale_factor = value
 	Global.config["ui_scale"] = value
+	get_tree().root.content_scale_factor = value
+	root.vrui_viewport.size_2d_override = root.vrui_viewport.size / value
 
 func _on_shots_other_value_changed(value: float) -> void:
 	Global.config["num_shots_other"] = value

@@ -6,6 +6,7 @@ var ui_scene: = preload("res://scenes/ui_scene.tscn")
 
 @onready var world_environment: WorldEnvironment = $WorldEnvironment
 @onready var environment: = world_environment.environment
+@onready var vrui_viewport: SubViewport = $ViewportVRUI
 
 var ui: UiScene
 var game: GameScene
@@ -18,11 +19,8 @@ func _ready() -> void:
 	if xr_interface and xr_interface.is_initialized():
 		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 		get_viewport().use_xr = true
-		var origin: XROrigin3D = $XROrigin3D
-		origin.world_scale = 1000
 		var xr_camera: XRCamera3D = $XROrigin3D/XRCamera3D
 		xr_camera.make_current()
-		var vrui_viewport: SubViewport = $ViewportVRUI
 		vrui_viewport.add_child(ui)
 		$Camera3D.queue_free()
 		remove_child($Camera3D)
@@ -43,6 +41,9 @@ func _on_connect() -> void:
 	game = game_scene.instantiate()
 	game.root = self
 	game.ui = ui
+	if is_vr():
+		game.scale = Vector3.ONE * 0.001
+		game.position = Vector3(0, 1, 0)
 	add_child(game)
 	ui.game_mode(game)
 
@@ -73,3 +74,21 @@ func _process(_delta: float) -> void:
 			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN)
 			Global.config["fullscreen"] = true
 		Global.save_config()
+
+var shoot: = false
+func _on_right_hand_button_pressed(action_name: String) -> void:
+	if action_name == "btna_click":
+		if ui.help_message.visible:
+			ui.help_message.visible = false
+		else:
+			ui.esc_menu.visible = !ui.esc_menu.visible
+			if !ui.esc_menu.visible:
+				Global.save_config()
+	if action_name == "trigger_click":
+		if not ui.is_menu_open():
+			shoot = true
+
+func should_shoot() -> bool:
+	var should: = shoot
+	shoot = false
+	return should

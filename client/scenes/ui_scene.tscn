@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://by25rtctl4ay"]
 
-[ext_resource type="Script" uid="uid://bl840huh4x7a0" path="res://scenes/ui_scene.gd" id="1_uymlc"]
+[ext_resource type="Script" uid="uid://bl840huh4x7a0" path="res://scripts/ui_scene.gd" id="1_uymlc"]
 [ext_resource type="Script" uid="uid://bwsd8yrhlf3v8" path="res://scripts/color_picker.gd" id="1_yev5y"]
 [ext_resource type="Script" uid="uid://dh81qfh33pl13" path="res://scripts/stats.gd" id="2_gdt2y"]
 [ext_resource type="Script" uid="uid://djbao0fguql6b" path="res://scripts/missile_input.gd" id="3_wm3ai"]
