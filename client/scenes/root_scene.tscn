@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://b1s1usrg2fto0"]
+[gd_scene load_steps=7 format=3 uid="uid://b1s1usrg2fto0"]
 
 [ext_resource type="Script" uid="uid://bp3og6x5x1p3h" path="res://scenes/root_scene.gd" id="1_cgud6"]
 [ext_resource type="Script" uid="uid://yxomh7mqixt" path="res://scripts/camera.gd" id="2_sfakk"]
@@ -13,6 +13,19 @@ glow_intensity = 1.5
 glow_bloom = 0.2
 glow_blend_mode = 1
 glow_hdr_threshold = 1.2
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_cgud6"]
+viewport_path = NodePath("ViewportVRUI")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kk2rg"]
+resource_local_to_scene = true
+shading_mode = 0
+albedo_texture = SubResource("ViewportTexture_cgud6")
+
+[sub_resource type="QuadMesh" id="QuadMesh_sfakk"]
+resource_local_to_scene = true
+material = SubResource("StandardMaterial3D_kk2rg")
+size = Vector2(1920, 1080)
 
 [node name="RootScene" type="Node3D"]
 script = ExtResource("1_cgud6")
@@ -38,3 +51,11 @@ fov = 60.0
 near = 0.1
 far = 6000.0
 script = ExtResource("2_sfakk")
+
+[node name="ViewportVRUI" type="SubViewport" parent="."]
+size = Vector2i(1920, 1080)
+
+[node name="MeshVRUI" type="MeshInstance3D" parent="."]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, -1300)
+visible = false
+mesh = SubResource("QuadMesh_sfakk")

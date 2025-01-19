@@ -7,10 +7,10 @@ var surface: Array
 var verts: PackedVector3Array
 var indices: PackedInt32Array
 
-const PHI = (1 + sqrt(5)) / 2
-const IPH = 1 / PHI
+const PHI: = (1 + sqrt(5)) / 2
+const IPH: = 1 / PHI
 
-var ddvert = [
+var ddvert: Array[Vector3] = [
 	Vector3(   1,    1,    1),
 	Vector3(   1,    1,   -1),
 	Vector3(   1,   -1,    1),
@@ -33,7 +33,7 @@ var ddvert = [
 	Vector3(-IPH,    0, -PHI),
 ]
 
-var ddedge = [
+var ddedge: Array[PackedByteArray] = [
 	[ 0,  8], [ 0, 12], [ 0, 16],
 	[ 1,  9], [ 1, 12], [ 1, 18],
 	[ 2, 10], [ 2, 13], [ 2, 16],
@@ -47,7 +47,7 @@ var ddedge = [
 	[16, 17], [18, 19],
 ]
 
-var ddface = [
+var ddface: Array[PackedByteArray] = [
 	[ 0,  8,  9,  1, 12],
 	[ 0, 12, 13,  2, 16],
 	[ 0, 16, 17,  4,  8],
@@ -62,8 +62,9 @@ var ddface = [
 	[ 6, 10, 11,  7, 15],
 ]
 
-func add_cylinder(p1: Vector3, p2: Vector3, r: float):
-	var vo = verts.size()
+@warning_ignore_start("return_value_discarded")
+func add_cylinder(p1: Vector3, p2: Vector3, r: float) -> void:
+	var vo: = verts.size()
 	
 	# calc verts at point 1
 	var dir: = (p2 - p1).normalized()
@@ -72,6 +73,7 @@ func add_cylinder(p1: Vector3, p2: Vector3, r: float):
 		right = dir.cross(Vector3.FORWARD)
 	right = right.normalized()
 	var vert0: = right * r
+	
 	for i in range(sides):
 		verts.append(vert0.rotated(dir, i * 2 * PI / sides) + p1)
 	
@@ -99,8 +101,10 @@ func add_cylinder(p1: Vector3, p2: Vector3, r: float):
 		indices.append(vo + sides + 0)
 		indices.append(vo + sides + i + 2)
 		indices.append(vo + sides + i + 1)
+@warning_ignore_restore("return_value_discarded")
 
-func _init(center: Vector3, r1: float, r2: float):
+func _init(center: Vector3, r1: float, r2: float) -> void:
+	@warning_ignore("return_value_discarded")
 	surface.resize(Mesh.ARRAY_MAX)
 	surface[Mesh.ARRAY_VERTEX] = verts
 	surface[Mesh.ARRAY_INDEX] = indices
@@ -114,6 +118,5 @@ func _init(center: Vector3, r1: float, r2: float):
 		vcenter = vcenter.normalized() * r1
 		for corner in face:
 			add_cylinder(vcenter + center, ddvert[corner].normalized() * r1 + center, r2)
-	
 	mesh = ArrayMesh.new()
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surface)
+	(mesh as ArrayMesh).add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surface)

@@ -36,24 +36,24 @@ var pname: String = "":
 		name_label.text = value
 var name_label: Label3D
 
-func update_pointer():
+func update_pointer() -> void:
 	if pointer:
-		var vel = Vector3.RIGHT * 50
+		var vel: = Vector3.RIGHT * 50
 		vel = vel.rotated(Vector3.FORWARD, deg_to_rad(-pitch))
 		vel = vel.rotated(Vector3.UP, deg_to_rad(-yaw))
-		var vel_xz = Vector3(vel.x, 0, vel.z);
+		var vel_xz: = Vector3(vel.x, 0, vel.z);
 		pointer.points[0] = location
 		pointer.tmpEnd(location + vel)
 		pointer_h.points[0] = location
 		pointer_h.tmpEnd(location + vel_xz)
 		pointer_v.points[0] = location + vel_xz
 		pointer_v.tmpEnd(location + vel)
-		var d = vel_xz.length()
-		torus.mesh.inner_radius = d - 0.25
-		torus.mesh.outer_radius = d + 0.25
+		var d: = vel_xz.length()
+		(torus.mesh as TorusMesh).inner_radius = d - 0.25
+		(torus.mesh as TorusMesh).outer_radius = d + 0.25
 		torus.position = location
 
-func _init(loc: Vector3, rad: float, do_pointer: bool, mat: StandardMaterial3D):
+func _init(loc: Vector3, rad: float, do_pointer: bool, mat: StandardMaterial3D) -> void:
 	if do_pointer:
 		var pointermat: StandardMaterial3D = mat.duplicate()
 		pointermat.albedo_color = Color.WHITE
@@ -70,16 +70,16 @@ func _init(loc: Vector3, rad: float, do_pointer: bool, mat: StandardMaterial3D):
 		add_child(pointer_v)
 		torus = MeshInstance3D.new()
 		torus.mesh = TorusMesh.new()
-		torus.mesh.rings = 64
-		torus.mesh.ring_segments = 8
+		(torus.mesh as TorusMesh).rings = 64
+		(torus.mesh as TorusMesh).ring_segments = 8
 		torus.mesh.surface_set_material(0, pointermat)
 		add_child(torus)
 	
 	material = mat.duplicate()
 	sphere = MeshInstance3D.new()
 	sphere.mesh = SphereMesh.new()
-	sphere.mesh.radial_segments = 16
-	sphere.mesh.rings = 8
+	(sphere.mesh as SphereMesh).radial_segments = 16
+	(sphere.mesh as SphereMesh).rings = 8
 	sphere.mesh.surface_set_material(0, material)
 	add_child(sphere)
 	

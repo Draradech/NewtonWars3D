@@ -1,11 +1,12 @@
+class_name StatsLabel
 extends Label
 
 var cpu: float = 0
 
-func _ready():
+func _ready() -> void:
 	RenderingServer.viewport_set_measure_render_time(get_tree().root.get_viewport_rid(), true)
 
-func _process(delta):
+func _process(delta: float) -> void:
 	if visible:
 		text = "\
 		frame: %.1fms (%.0f fps)

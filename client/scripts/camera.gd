@@ -1,3 +1,4 @@
+class_name MainCamera
 extends Camera3D
 
 var mouse_move: = Vector2(0.0, 0.0)
@@ -5,30 +6,38 @@ var distance: = 2000.0
 var pitch: = 0.0
 var yaw: = 0.0
 var poff: = Vector3.ZERO
+var root: RootScene
 
 var checked: = false
-func _input(event):
+func _input(event: InputEvent) -> void:
+	if not root.game: return
+	
 	if event is InputEventMouseMotion:
-		mouse_move = event.screen_relative
+		var iemm: InputEventMouseMotion = event
+		mouse_move = iemm.screen_relative
 	
 	if event is InputEventMouseButton:
-		match event.button_index:
+		var iemb: InputEventMouseButton = event
+		match iemb.button_index:
 			MOUSE_BUTTON_MIDDLE, \
 			MOUSE_BUTTON_RIGHT:
-				Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED if event.pressed else Input.MOUSE_MODE_VISIBLE)
+				Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED if iemb.pressed else Input.MOUSE_MODE_VISIBLE)
 				mouse_move = Vector2(0, 0)
 			MOUSE_BUTTON_WHEEL_UP:
 				distance = clamp(distance / 1.05, 10, 3000)
 			MOUSE_BUTTON_WHEEL_DOWN:
 				distance = clamp(distance * 1.05, 10, 3000)
 			MOUSE_BUTTON_LEFT:
-				if event.double_click:
-					var ray_dir = project_ray_normal(get_viewport().get_mouse_position())
-					var target_pos = get_parent().get_node("GameScene").space.find_closest_intersection(position, ray_dir)
+				if iemb.double_click:
+					var ray_dir: = project_ray_normal(get_viewport().get_mouse_position())
+					var target_pos: = root.game.space.find_closest_intersection(position, ray_dir)
 					if target_pos.x < 10000.0:
-						create_tween().tween_method(func(value): poff = value, poff, target_pos, .5).set_trans(Tween.TRANS_SINE)
+						@warning_ignore("return_value_discarded")
+						create_tween().tween_method(func(value: Vector3) -> void: poff = value, poff, target_pos, .5).set_trans(Tween.TRANS_SINE)
 
-func _process(delta):
+func _process(delta: float) -> void:
+	if not root.game: return
+	
 	if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
 		
 		# camera rotation
@@ -53,7 +62,7 @@ func _process(delta):
 	
 	# camera move
 	if Input.is_key_pressed(KEY_CTRL):
-		var off = Vector3.ZERO
+		var off: = Vector3.ZERO
 		if Input.is_key_pressed(KEY_I):
 			off.y -= 200 * delta;
 		if Input.is_key_pressed(KEY_K):
@@ -86,7 +95,7 @@ func _process(delta):
 	pitch = clamp(pitch, -89, 89)
 	rotation.x = deg_to_rad(pitch)
 	rotation.y = deg_to_rad(yaw)
-	var pos = Vector3(0, 0, distance)
+	var pos: = Vector3(0, 0, distance)
 	pos = pos.rotated(Vector3.RIGHT, deg_to_rad(pitch))
 	pos = pos.rotated(Vector3.UP, deg_to_rad(yaw))
 	position = pos + poff

@@ -20,12 +20,16 @@ const MSG_SHOOT: int = 51
 
 var playername: String
 var playername_sent: = false
-func tcp_connect(host, port, pname):
-	tcp_client.connect_to_host(host, port)
+func tcp_connect() -> void:
+	var host: String = Global.config["host"]
+	var port: int = Global.config["port"]
+	var err: = tcp_client.connect_to_host(host, port)
+	if err != OK:
+		push_error("error on connect")
 	timeout = 1.0
-	playername = pname
+	playername = Global.config["name"]
 
-func tcp_disconnect():
+func tcp_disconnect() -> void:
 	tcp_client.disconnect_from_host()
 
 var in_packet: = false
@@ -33,21 +37,26 @@ var packet_id: = -1
 var discon_notify: = true
 var nodelay: = false
 var player_id: = -1
-func read_network(space: Space, delta: float) -> bool:
-	tcp_client.poll()
+func process_network(space: Space, delta: float) -> bool:
+	var err: = tcp_client.poll()
+	if err != OK:
+		push_error("error on poll")
 	if tcp_client.get_status() == StreamPeerTCP.STATUS_CONNECTED:
 		if not nodelay:
 			tcp_client.set_no_delay(true)
 			nodelay = true
 		if not playername_sent:
 			tcp_client.put_u32(MSG_SET_NAME)
-			var cstr_name = playername.to_ascii_buffer().slice(0, 16)
+			var cstr_name: = playername.to_ascii_buffer().slice(0, 16)
 			if cstr_name.size() < 16:
-				var pba = PackedByteArray()
+				var pba: = PackedByteArray()
+				@warning_ignore("return_value_discarded")
 				pba.resize(16 - cstr_name.size())
 				pba.fill(0)
 				cstr_name.append_array(pba)
-			tcp_client.put_data(cstr_name)
+			err = tcp_client.put_data(cstr_name)
+			if err != OK:
+				push_error("error on put_data")
 			playername_sent = true
 		var done: = false
 		while not done:
@@ -60,7 +69,7 @@ func read_network(space: Space, delta: float) -> bool:
 						done = true
 				elif packet_id == MSG_OWN_ID:
 					if tcp_client.get_available_bytes() >= 4:
-						var pyid = tcp_client.get_u32()
+						var pyid: = tcp_client.get_u32()
 						space.set_my_pyid(pyid)
 						player_id = pyid
 						in_packet = false
@@ -68,7 +77,7 @@ func read_network(space: Space, delta: float) -> bool:
 						done = true
 				elif packet_id == MSG_PLAYER_DEL:
 					if tcp_client.get_available_bytes() >= 4:
-						var pyid = tcp_client.get_u32()
+						var pyid: = tcp_client.get_u32()
 						space.player_disconnect(pyid)
 						in_packet = false
 					else:
@@ -138,7 +147,7 @@ func read_network(space: Space, delta: float) -> bool:
 					else:
 						done = true
 				else:
-					print("Unknown packet ID: %d." % packet_id)
+					push_warning("Unknown packet ID: %d." % packet_id)
 					tcp_client.disconnect_from_host()
 					return false
 			else:
@@ -147,7 +156,7 @@ func read_network(space: Space, delta: float) -> bool:
 					in_packet = true
 				else:
 					done = true
-		if !get_parent().is_menu_open() and Input.is_action_just_pressed("fire"):
+		if !space.ui.is_menu_open() and Input.is_action_just_pressed("fire"):
 			tcp_client.put_u32(MSG_SHOOT)
 			tcp_client.put_double(space.players[space.player_id].pitch)
 			tcp_client.put_double(space.players[space.player_id].yaw)
@@ -156,6 +165,6 @@ func read_network(space: Space, delta: float) -> bool:
 	timeout -= delta
 	if discon_notify and ((tcp_client.get_status() != StreamPeerTCP.STATUS_CONNECTING and tcp_client.get_status() != StreamPeerTCP.STATUS_CONNECTED) or timeout < 0):
 		tcp_client.disconnect_from_host()
-		get_parent().ui.get_node("DisconnectMessage").visible = true
+		space.ui.disconnect_message.visible = true
 		discon_notify = false
 	return false

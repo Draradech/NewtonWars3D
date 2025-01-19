@@ -1,65 +1,75 @@
+class_name RootScene
 extends Node3D
 
-var game_scene = preload("res://scenes/game_scene.tscn")
-var main_menu_scene = preload("res://scenes/main_menu_scene.tscn")
+var game_scene: = preload("res://scenes/game_scene.tscn")
+var ui_scene: = preload("res://scenes/ui_scene.tscn")
 
-var main_menu = null
-var game = null
+@onready var world_environment: WorldEnvironment = $WorldEnvironment
+@onready var environment: = world_environment.environment
+
+var ui: UiScene
+var game: GameScene
 
 var xr_interface: XRInterface
-func _ready():
+func _ready() -> void:
 	xr_interface = XRServer.find_interface("OpenXR")
+	ui = ui_scene.instantiate()
+	ui.root = self
 	if xr_interface and xr_interface.is_initialized():
 		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 		get_viewport().use_xr = true
-		$XROrigin3D.world_scale = 1000
-		$XROrigin3D/XRCamera3D.make_current()
-		game = game_scene.instantiate()
-		game.playername = Global.config["name"]
-		game.host = Global.config["host"]
-		game.port = Global.config["port"]
-		add_child(game)
+		var origin: XROrigin3D = $XROrigin3D
+		origin.world_scale = 1000
+		var xr_camera: XRCamera3D = $XROrigin3D/XRCamera3D
+		xr_camera.make_current()
+		var vrui_viewport: SubViewport = $ViewportVRUI
+		vrui_viewport.add_child(ui)
+		$Camera3D.queue_free()
+		remove_child($Camera3D)
 	else:
-		$Camera3D.make_current()
-		main_menu = main_menu_scene.instantiate()
-		add_child(main_menu)
+		var cam: MainCamera = $Camera3D
+		cam.make_current()
+		cam.root = self
+		add_child(ui)
+	if Global.config["fullscreen"]:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN)
+	else:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 
-func is_vr():
+func is_vr() -> bool:
 	return xr_interface.is_initialized()
 
-func is_menu_open() -> bool:
-	if main_menu: return true
-	return game.is_menu_open()
-
 func _on_connect() -> void:
-	var playername = main_menu.get_playername()
-	var host = main_menu.get_host()
-	var port = main_menu.get_port()
 	game = game_scene.instantiate()
-	game.playername = playername
-	game.host = host
-	game.port = port
+	game.root = self
+	game.ui = ui
 	add_child(game)
-	remove_child(main_menu)
-	main_menu.queue_free()
-	main_menu = null
-	Global.config["name"] = playername
-	Global.config["host"] = host
-	Global.config["port"] = port
-	Global.save_config()
+	ui.game_mode(game)
 
 func _on_disconnect() -> void:
-	main_menu = main_menu_scene.instantiate()
-	add_child(main_menu)
+	ui.main_menu_mode()
 	remove_child(game)
 	game.queue_free()
 	game = null
 	reset_camera()
 
-func reset_camera():
-	$Camera3D.distance = 2000.0
-	$Camera3D.pitch = 0.0
-	$Camera3D.yaw = 0.0
-	$Camera3D.poff = Vector3.ZERO
+func reset_camera() -> void:
+	if not is_vr():
+		var cam: MainCamera = $Camera3D
+		cam.distance = 2000.0
+		cam.pitch = 0.0
+		cam.yaw = 0.0
+		cam.poff = Vector3.ZERO
+
 func _on_quit() -> void:
 	get_tree().quit()
+
+func _process(_delta: float) -> void:
+	if Input.is_action_just_pressed("fullscreen"):
+		if Global.config["fullscreen"]:
+			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+			Global.config["fullscreen"] = false
+		else:
+			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN)
+			Global.config["fullscreen"] = true
+		Global.save_config()

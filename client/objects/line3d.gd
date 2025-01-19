@@ -19,7 +19,8 @@ var tmpsurface: Array
 var tmpverts: PackedVector3Array
 var tmpindices: PackedInt32Array
 
-func tmpEnd(p: Vector3):
+@warning_ignore_start("return_value_discarded")
+func tmpEnd(p: Vector3) -> void:
 	var dir: Vector3
 	var right: Vector3
 	var vert0: Vector3
@@ -30,7 +31,7 @@ func tmpEnd(p: Vector3):
 		tmpmesh = MeshInstance3D.new()
 		tmpmesh.mesh = ArrayMesh.new()
 		add_child(tmpmesh)
-	tmpmesh.mesh.clear_surfaces()
+	(tmpmesh.mesh as ArrayMesh).clear_surfaces()
 	
 	if points.size() > 2:
 		# copy end vertices of last drawn segment
@@ -39,9 +40,9 @@ func tmpEnd(p: Vector3):
 		
 		# calc verts at last known point in line
 		dir = (p - points[-2]).normalized()
-		var last_vert0 = tmpverts[0]
-		var last_right = points[-2] - last_vert0
-		var new_up = dir.cross(last_right.normalized()).normalized()
+		var last_vert0: = tmpverts[0]
+		var last_right: = points[-2] - last_vert0
+		var new_up: = dir.cross(last_right.normalized()).normalized()
 		right = dir.cross(new_up).normalized()
 		vert0 = right * radius
 		for i in range(sides):
@@ -84,8 +85,8 @@ func tmpEnd(p: Vector3):
 		
 		# calc verts at point 1
 		dir = (p - points[-2]).normalized()
-		var last_right = -right
-		var new_up = dir.cross(last_right.normalized()).normalized()
+		var last_right: = -right
+		var new_up: = dir.cross(last_right.normalized()).normalized()
 		right = dir.cross(new_up).normalized()
 		vert0 = right * radius
 		for i in range(sides):
@@ -158,11 +159,11 @@ func tmpEnd(p: Vector3):
 			tmpindices.append(sides + i + 2)
 			tmpindices.append(sides + i + 1)
 	
-	tmpmesh.mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, tmpsurface)
-	tmpmesh.mesh.surface_set_material(0, material)
+	(tmpmesh.mesh as ArrayMesh).add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, tmpsurface)
+	(tmpmesh.mesh as ArrayMesh).surface_set_material(0, material)
 
-func addPoint(p: Vector3):
-	points.push_back(p)
+func addPoint(p: Vector3) -> void:
+	points.append(p)
 	var point_num: int = points.size() - 1
 	
 	if point_num < 2: return
@@ -174,7 +175,7 @@ func addPoint(p: Vector3):
 	var vert0: Vector3
 	
 	if seg_in_surf == 0:
-		var oldverts = verts
+		var oldverts: = verts
 		verts = PackedVector3Array()
 		surface[Mesh.ARRAY_VERTEX] = verts
 		indices.clear()
@@ -192,9 +193,9 @@ func addPoint(p: Vector3):
 				verts.append(oldverts[-sides + i])
 	
 	dir = (points[-1] - points[-3]).normalized()
-	var last_vert0 = verts[seg_in_surf * sides]
-	var last_right = points[-3] - last_vert0
-	var new_up = dir.cross(last_right.normalized()).normalized()
+	var last_vert0: = verts[seg_in_surf * sides]
+	var last_right: = points[-3] - last_vert0
+	var new_up: = dir.cross(last_right.normalized()).normalized()
 	right = dir.cross(new_up).normalized()
 	vert0 = right * radius
 	for i in range(sides):
@@ -215,11 +216,11 @@ func addPoint(p: Vector3):
 		indices.append(seg_in_surf * sides + sides + (0 + i) % sides)
 		indices.append(seg_in_surf * sides + sides + (1 + i) % sides)
 	
-	mesh.mesh.clear_surfaces()
-	mesh.mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surface)
+	(mesh.mesh as ArrayMesh).clear_surfaces()
+	(mesh.mesh as ArrayMesh).add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surface)
 	mesh.mesh.surface_set_material(0, material)
 
-func finalize():
+func finalize() -> void:
 	var point_num: int = points.size() # pretend we added a new virtual point
 	
 	if point_num < 2: return
@@ -235,7 +236,7 @@ func finalize():
 	vert0 = right * radius
 	
 	if seg_in_surf == 0:
-		var oldverts = verts
+		var oldverts: = verts
 		verts = PackedVector3Array()
 		surface[Mesh.ARRAY_VERTEX] = verts
 		indices.clear()
@@ -249,9 +250,9 @@ func finalize():
 			for i in range(sides):
 				verts.append(oldverts[-sides + i])
 	
-	var last_vert0 = verts[seg_in_surf * sides]
-	var last_right = points[-2] - last_vert0
-	var new_up = dir.cross(last_right.normalized()).normalized()
+	var last_vert0: = verts[seg_in_surf * sides]
+	var last_right: = points[-2] - last_vert0
+	var new_up: = dir.cross(last_right.normalized()).normalized()
 	right = dir.cross(new_up).normalized()
 	vert0 = right * radius
 	
@@ -279,12 +280,12 @@ func finalize():
 		indices.append(seg_in_surf * sides + sides + i + 2)
 		indices.append(seg_in_surf * sides + sides + i + 1)
 	
-	mesh.mesh.clear_surfaces()
-	mesh.mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surface)
+	(mesh.mesh as ArrayMesh).clear_surfaces()
+	(mesh.mesh as ArrayMesh).add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surface)
 	mesh.mesh.surface_set_material(0, material)
 	if tmpmesh: tmpmesh.queue_free()
 
-func _init(rad: float, mat: StandardMaterial3D):
+func _init(rad: float, mat: StandardMaterial3D) -> void:
 	radius = rad
 	material = mat
 	surface.resize(Mesh.ARRAY_MAX)

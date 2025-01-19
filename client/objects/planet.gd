@@ -13,6 +13,6 @@ var mass: float
 func _init(loc: Vector3, rad: float, mat: StandardMaterial3D) -> void:
 	location = loc
 	radius = rad
-	var sph = BeamSphere.new(loc, rad, 0.5)
+	var sph: = BeamSphere.new(loc, rad, 0.5)
 	sph.mesh.surface_set_material(0, mat)
 	add_child(sph)

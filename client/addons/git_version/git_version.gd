@@ -27,7 +27,7 @@ class GitVersionExporterPlugin extends EditorExportPlugin:
 	
 	func update_version():
 		var version: = get_git_description()
-		print("Version: " + version)
+		print("Embedding version: " + version)
 		var stripped: = version.trim_prefix("v").split("-")[0]
 		ProjectSettings.set_setting("application/config/version", stripped)
 		ProjectSettings.save()
