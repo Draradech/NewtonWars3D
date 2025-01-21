@@ -11,8 +11,6 @@ var players: Dictionary[int, Player]
 var shots: Dictionary[int, Shot]
 var round_time: int
 
-var ui: UiScene
-
 var pot_init: = false
 func gpot(loc: Vector3) -> float:
 	var pot: float = 0
@@ -72,7 +70,7 @@ func pot_eval() -> void:
 
 var digit: int = 0
 func _process(_delta: float) -> void:
-	if ui.is_menu_open(): return
+	if Global.ui.is_menu_open(): return
 	if Input.is_action_just_pressed("clear"):
 		for player: Player in players.values():
 			for shot: Shot in player.shots:
@@ -84,7 +82,7 @@ func _process(_delta: float) -> void:
 		players[player_id].pitch = 0
 		players[player_id].yaw = 0
 		players[player_id].speed = 8
-		ui.missile_input.update_label(players[player_id], digit)
+		Global.ui.missile_input.update_label(players[player_id], digit)
 	if Input.is_action_just_pressed("wire"):
 		if get_tree().root.get_viewport().debug_draw == Viewport.DEBUG_DRAW_DISABLED:
 			get_tree().root.get_viewport().debug_draw = Viewport.DEBUG_DRAW_WIREFRAME
@@ -120,7 +118,7 @@ func update_player_list() -> void:
 		var player : Player = players[pid]
 		#bbstring += "[color=007fff]%s\n%.1f[/color]\n\n" % [player.pname, player.score]
 		bbstring += "%s\n%.2f\n\n" % [player.pname, player.score]
-	ui.player_list.text = bbstring
+	Global.ui.player_list.text = bbstring
 
 func update_player_name(pyid: int, pname: String) -> void:
 	players[pyid].pname = pname
@@ -151,7 +149,7 @@ func update_player_pos(pyid: int, loc: Vector3, rad: float) -> void:
 		ply_mat.albedo_color = Global.config["color_self"] if pyid == player_id else Global.config["color_other"]
 		players[pyid] = Player.new(loc, rad, pyid == player_id, ply_mat)
 		add_child(players[pyid])
-		if pyid == player_id: ui.missile_input.update_label(players[pyid], digit)
+		if pyid == player_id: Global.ui.missile_input.update_label(players[pyid], digit)
 	else:
 		players[pyid].location = loc
 		players[pyid].radius = rad
@@ -172,11 +170,11 @@ func update_round_time(rt: int) -> void:
 		for player: Player in sorted:
 			bb += "[cell]%s  [/cell][cell] %.2f [/cell]\n" % [player.pname, player.score]
 		bb += "[/table]"
-		ui.score_board.text = bb
-		ui.score_message.visible = true
-		ui.root.reset_camera()
+		Global.ui.score_board.text = bb
+		Global.ui.score_message.visible = true
+		Global.root.reset_camera()
 	round_time = rt
-	ui.round_time.text = "%s%02d:%02d" % ["-" if signi(round_time) < 0 else "", absi(round_time) / 60, absi(round_time) % 60]
+	Global.ui.round_time.text = "%s%02d:%02d" % ["-" if signi(round_time) < 0 else "", absi(round_time) / 60, absi(round_time) % 60]
 
 func set_my_pyid(pyid: int) -> void:
 	player_id = pyid
@@ -216,7 +214,7 @@ func update_player_colors() -> void:
 		if pyid == player_id:
 			player.pointer_h.material.albedo_color = color * 0.5
 	trim_and_recolor_shots()
-	ui.missile_input.update_label(players[player_id], digit)
+	Global.ui.missile_input.update_label(players[player_id], digit)
 
 func new_shot(pyid: int, mid: int) -> void:
 	var s: = Shot.new(mid, players[pyid].material)
@@ -261,7 +259,7 @@ func find_closest_intersection(ray_origin: Vector3, ray_dir: Vector3) -> Vector3
 func _input(event: InputEvent) -> void:
 	if player_id == -1: return
 	if not players.has(player_id): return
-	if ui.is_menu_open(): return
+	if Global.ui.is_menu_open(): return
 	var player: = players[player_id]
 	if event is InputEventKey:
 		var iek: InputEventKey = event
@@ -289,4 +287,4 @@ func _input(event: InputEvent) -> void:
 				KEY_MINUS:
 					player.speed -= pow(10, digit)
 			digit = clampi(digit, -8, 2)
-			ui.missile_input.update_label(player, digit)
+			Global.ui.missile_input.update_label(player, digit)

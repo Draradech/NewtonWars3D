@@ -156,17 +156,19 @@ func process_network(space: Space, delta: float) -> bool:
 					in_packet = true
 				else:
 					done = true
-		if !space.ui.is_menu_open() \
-		and (Input.is_action_just_pressed("fire") \
-		or space.ui.root.should_shoot()):
-			tcp_client.put_u32(MSG_SHOOT)
-			tcp_client.put_double(space.players[space.player_id].pitch)
-			tcp_client.put_double(space.players[space.player_id].yaw)
-			tcp_client.put_double(space.players[space.player_id].speed)
+		if !Global.ui.is_menu_open() \
+		and Input.is_action_just_pressed("fire"):
+			_on_shoot()
 		if player_id != -1: return true
 	timeout -= delta
 	if discon_notify and ((tcp_client.get_status() != StreamPeerTCP.STATUS_CONNECTING and tcp_client.get_status() != StreamPeerTCP.STATUS_CONNECTED) or timeout < 0):
 		tcp_client.disconnect_from_host()
-		space.ui.disconnect_message.visible = true
+		Global.ui.disconnect_message.visible = true
 		discon_notify = false
 	return false
+
+func _on_shoot() -> void:
+	tcp_client.put_u32(MSG_SHOOT)
+	tcp_client.put_double(Global.game.space.players[Global.game.space.player_id].pitch)
+	tcp_client.put_double(Global.game.space.players[Global.game.space.player_id].yaw)
+	tcp_client.put_double(Global.game.space.players[Global.game.space.player_id].speed)

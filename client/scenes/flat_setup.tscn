@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://e4mojf5exrj3"]
+
+[ext_resource type="Script" uid="uid://yxomh7mqixt" path="res://scripts/camera.gd" id="1_ridhd"]
+[ext_resource type="Script" uid="uid://bkk0iu0lufb6u" path="res://scripts/flat_setup.gd" id="1_snx8n"]
+
+[node name="FlatSetup" type="Node3D" node_paths=PackedStringArray("cam")]
+script = ExtResource("1_snx8n")
+cam = NodePath("Camera3D")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+fov = 60.0
+near = 0.1
+far = 6000.0
+script = ExtResource("1_ridhd")

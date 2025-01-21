@@ -1,16 +1,10 @@
 class_name GameScene
 extends Node3D
 
-@onready
-var network: Network = $Network
-@onready
-var space: Space = $Space
-
-var ui: UiScene
-var root: RootScene
+@export var network: Network
+@export var space: Space
 
 func _ready() -> void:
-	space.ui = ui
 	network.tcp_connect()
 
 func synchronize(delta: float) -> bool:
@@ -37,4 +31,4 @@ func _process(delta: float) -> void:
 			space.prepare_frame()
 	
 	var end: = Time.get_ticks_usec()
-	ui.stats.cpu = (end - start) * 1e-3
+	Global.ui.stats.cpu = (end - start) * 1e-3

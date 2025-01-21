@@ -1,5 +1,9 @@
 extends Node
 
+var root: RootScene
+var game: GameScene
+var ui: UiScene
+
 var configPath: = "user://config.nw3d"
 var config: Dictionary[String, Variant] = {
 	"host": "localhost",

@@ -12,9 +12,6 @@ extends Control
 @onready var player_list: RichTextLabel = $PlayerList
 @onready var round_time: Label = $RoundTime
 
-var root: RootScene
-var game: GameScene
-
 func _ready() -> void:
 	($MainMenu/VBox/Grid/Name as LineEdit).text = Global.config["name"]
 	($MainMenu/VBox/Grid/Host as LineEdit).text = Global.config["host"]
@@ -29,9 +26,9 @@ func _ready() -> void:
 	($EscMenu/VBox/GridContainer/ColorOther as ColorPickerButton).color = Global.config["color_other"]
 	var uiscale: float = Global.config["ui_scale"]
 	get_tree().root.content_scale_factor = uiscale
-	root.vrui_viewport.size_2d_override = root.vrui_viewport.size / uiscale
-	root.vrui_viewport.gui_embed_subwindows = true
-	root.environment.glow_enabled = Global.config["glow"]
+	#root.vrui_viewport.size_2d_override = root.vrui_viewport.size / uiscale
+	#root.vrui_viewport.gui_embed_subwindows = true
+	#root.environment.glow_enabled = Global.config["glow"]
 	var msaa: RenderingServer.ViewportMSAA = Global.config["msaa"]
 	RenderingServer.viewport_set_msaa_3d(get_tree().root.get_viewport_rid(), msaa)
 
@@ -46,8 +43,7 @@ func _process(_delta: float) -> void:
 	if Input.is_action_just_pressed("stats"):
 		stats.visible = !stats.visible
 
-func game_mode(g: GameScene) -> void:
-	game = g
+func game_mode() -> void:
 	main_menu.visible = false
 	missile_input.visible = true
 	player_list.visible = true
@@ -58,7 +54,6 @@ func main_menu_mode() -> void:
 	missile_input.visible = false
 	player_list.visible = false
 	round_time.visible = false
-	game = null
 
 func is_menu_open() -> bool:
 	return \
@@ -79,17 +74,17 @@ func _on_port_text_changed(new_text: String) -> void:
 
 func _on_connect_pressed() -> void:
 	Global.save_config()
-	root._on_connect()
+	Global.root._on_connect()
 
 func _on_quit_pressed() -> void:
 	Global.save_config()
-	root._on_quit()
+	Global.root._on_quit()
 
 func _on_disconnect_pressed() -> void:
 	Global.save_config()
 	disconnect_message.visible = false
 	esc_menu.visible = false
-	root._on_disconnect()
+	Global.root._on_disconnect()
 
 func _on_continue_pressed() -> void:
 	esc_menu.visible = false
@@ -98,19 +93,19 @@ func _on_continue_pressed() -> void:
 func _on_ui_scale_value_changed(value: float) -> void:
 	Global.config["ui_scale"] = value
 	get_tree().root.content_scale_factor = value
-	root.vrui_viewport.size_2d_override = root.vrui_viewport.size / value
+	#root.vrui_viewport.size_2d_override = root.vrui_viewport.size / value
 
 func _on_shots_other_value_changed(value: float) -> void:
 	Global.config["num_shots_other"] = value
-	if game: game.space.trim_and_recolor_shots()
+	if Global.game: Global.game.space.trim_and_recolor_shots()
 
 func _on_shots_self_value_changed(value: float) -> void:
 	Global.config["num_shots_self"] = value
-	if game: game.space.trim_and_recolor_shots()
+	if Global.game: Global.game.space.trim_and_recolor_shots()
 
 func _on_glow_toggled(toggled_on: bool) -> void:
 	Global.config["glow"] = toggled_on
-	root.environment.glow_enabled = Global.config["glow"]
+	Global.root.world_environment.environment.glow_enabled = Global.config["glow"]
 
 func _on_msaa_item_selected(index: int) -> void:
 	Global.config["msaa"] = index
@@ -122,11 +117,11 @@ func _on_btn_ok_rnd_end_pressed() -> void:
 
 func _on_color_self_color_changed(color: Color) -> void:
 	Global.config["color_self"] = color
-	if game: game.space.update_player_colors()
+	if Global.game: Global.game.space.update_player_colors()
 
 func _on_color_other_color_changed(color: Color) -> void:
 	Global.config["color_other"] = color
-	if game: game.space.update_player_colors()
+	if Global.game: Global.game.space.update_player_colors()
 
 func _on_btn_ok_help_pressed() -> void:
 	help_message.visible = false

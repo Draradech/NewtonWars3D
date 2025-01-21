@@ -32,8 +32,10 @@ material = SubResource("StandardMaterial3D_272bh")
 transform_format = 1
 mesh = SubResource("QuadMesh_5vw27")
 
-[node name="GameScene" type="Node3D"]
+[node name="GameScene" type="Node3D" node_paths=PackedStringArray("network", "space")]
 script = ExtResource("1_kdryc")
+network = NodePath("Network")
+space = NodePath("Space")
 
 [node name="Network" type="Node3D" parent="."]
 script = ExtResource("3_e35lh")
