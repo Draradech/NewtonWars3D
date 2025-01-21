@@ -31,7 +31,7 @@ func _ready() -> void:
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 
 func is_vr() -> bool:
-	return xr_setup != null
+	return xr != null
 
 func _on_connect() -> void:
 	Global.game = game_scene.instantiate()

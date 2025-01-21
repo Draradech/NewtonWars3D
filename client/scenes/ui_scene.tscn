@@ -1,9 +1,11 @@
-[gd_scene load_steps=5 format=3 uid="uid://by25rtctl4ay"]
+[gd_scene load_steps=7 format=3 uid="uid://by25rtctl4ay"]
 
 [ext_resource type="Script" uid="uid://bl840huh4x7a0" path="res://scripts/ui_scene.gd" id="1_uymlc"]
 [ext_resource type="Script" uid="uid://bwsd8yrhlf3v8" path="res://scripts/color_picker.gd" id="1_yev5y"]
 [ext_resource type="Script" uid="uid://dh81qfh33pl13" path="res://scripts/stats.gd" id="2_gdt2y"]
 [ext_resource type="Script" uid="uid://djbao0fguql6b" path="res://scripts/missile_input.gd" id="3_wm3ai"]
+[ext_resource type="Script" uid="uid://rx6iuj8r427y" path="res://scripts/dialog.gd" id="4_8ysb5"]
+[ext_resource type="Script" uid="uid://by0xplirlm0d1" path="res://scripts/color_button.gd" id="5_7onhe"]
 
 [node name="UI" type="Control"]
 layout_mode = 3
@@ -91,6 +93,7 @@ offset_right = 196.0
 offset_bottom = 151.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("4_8ysb5")
 
 [node name="VBox" type="VBoxContainer" parent="MainMenu"]
 layout_mode = 2
@@ -111,6 +114,8 @@ text = "Player Name"
 
 [node name="Name" type="LineEdit" parent="MainMenu/VBox/Grid"]
 layout_mode = 2
+text = " "
+context_menu_enabled = false
 
 [node name="HostLbl" type="Label" parent="MainMenu/VBox/Grid"]
 layout_mode = 2
@@ -119,6 +124,7 @@ text = "Host"
 [node name="Host" type="LineEdit" parent="MainMenu/VBox/Grid"]
 custom_minimum_size = Vector2(250, 0)
 layout_mode = 2
+text = " "
 
 [node name="PortLbl" type="Label" parent="MainMenu/VBox/Grid"]
 layout_mode = 2
@@ -126,6 +132,7 @@ text = "Port"
 
 [node name="Port" type="LineEdit" parent="MainMenu/VBox/Grid"]
 layout_mode = 2
+text = " "
 
 [node name="Connect" type="Button" parent="MainMenu/VBox"]
 layout_mode = 2
@@ -138,6 +145,7 @@ text = "Quit"
 [node name="Version" type="Label" parent="MainMenu/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
+text = " "
 horizontal_alignment = 2
 
 [node name="EscMenu" type="PanelContainer" parent="."]
@@ -154,6 +162,7 @@ offset_right = 189.5
 offset_bottom = 111.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("4_8ysb5")
 
 [node name="VBox" type="VBoxContainer" parent="EscMenu"]
 layout_mode = 2
@@ -166,19 +175,19 @@ columns = 2
 layout_mode = 2
 text = "Color (self)"
 
-[node name="ColorSelf" type="ColorPickerButton" parent="EscMenu/VBox/GridContainer"]
+[node name="ColorSelfButton" type="Button" parent="EscMenu/VBox/GridContainer"]
 layout_mode = 2
-edit_alpha = false
-script = ExtResource("1_yev5y")
+text = " "
+script = ExtResource("5_7onhe")
 
 [node name="ColorOtherLbl" type="Label" parent="EscMenu/VBox/GridContainer"]
 layout_mode = 2
 text = "Color (other)"
 
-[node name="ColorOther" type="ColorPickerButton" parent="EscMenu/VBox/GridContainer"]
+[node name="ColorOtherButton" type="Button" parent="EscMenu/VBox/GridContainer"]
 layout_mode = 2
-edit_alpha = false
-script = ExtResource("1_yev5y")
+text = " "
+script = ExtResource("5_7onhe")
 
 [node name="ShotsSelfLbl" type="Label" parent="EscMenu/VBox/GridContainer"]
 layout_mode = 2
@@ -189,6 +198,7 @@ layout_mode = 2
 min_value = 1.0
 max_value = 20.0
 value = 1.0
+alignment = 2
 
 [node name="ShotsOtherLbl" type="Label" parent="EscMenu/VBox/GridContainer"]
 layout_mode = 2
@@ -199,8 +209,9 @@ layout_mode = 2
 min_value = 1.0
 max_value = 20.0
 value = 1.0
+alignment = 2
 
-[node name="UiScaleLabel" type="Label" parent="EscMenu/VBox/GridContainer"]
+[node name="UiScaleLbl" type="Label" parent="EscMenu/VBox/GridContainer"]
 layout_mode = 2
 text = "UI scale"
 
@@ -210,6 +221,7 @@ min_value = 1.0
 max_value = 2.0
 step = 0.1
 value = 1.0
+alignment = 2
 
 [node name="GlowLbl" type="Label" parent="EscMenu/VBox/GridContainer"]
 layout_mode = 2
@@ -264,6 +276,7 @@ offset_right = 70.0
 offset_bottom = 44.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("4_8ysb5")
 
 [node name="VBox" type="VBoxContainer" parent="DisconnectMessage"]
 layout_mode = 2
@@ -290,6 +303,7 @@ offset_right = 70.0
 offset_bottom = 44.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("4_8ysb5")
 
 [node name="VBox" type="VBoxContainer" parent="ScoreMessage"]
 layout_mode = 2
@@ -319,6 +333,7 @@ offset_right = 203.5
 offset_bottom = 286.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("4_8ysb5")
 
 [node name="VBox" type="VBoxContainer" parent="HelpMessage"]
 layout_mode = 2
@@ -358,15 +373,81 @@ autowrap_mode = 0
 layout_mode = 2
 text = "OK"
 
+[node name="ColorPickerSelfDialog" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -196.0
+offset_top = -151.0
+offset_right = 196.0
+offset_bottom = 151.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("4_8ysb5")
+
+[node name="VBox" type="VBoxContainer" parent="ColorPickerSelfDialog"]
+layout_mode = 2
+
+[node name="ColorPickerSelfLbl" type="Label" parent="ColorPickerSelfDialog/VBox"]
+layout_mode = 2
+text = "Color (self)"
+
+[node name="ColorPickerSelf" type="ColorPicker" parent="ColorPickerSelfDialog/VBox"]
+layout_mode = 2
+edit_alpha = false
+picker_shape = 2
+can_add_swatches = false
+sampler_visible = false
+color_modes_visible = false
+hex_visible = false
+presets_visible = false
+script = ExtResource("1_yev5y")
+
+[node name="ColorPickerOtherDialog" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -196.0
+offset_top = -151.0
+offset_right = 196.0
+offset_bottom = 151.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("4_8ysb5")
+
+[node name="VBox" type="VBoxContainer" parent="ColorPickerOtherDialog"]
+layout_mode = 2
+
+[node name="ColorPickerOtherLbl" type="Label" parent="ColorPickerOtherDialog/VBox"]
+layout_mode = 2
+text = "Color (other)"
+
+[node name="ColorPickerOther" type="ColorPicker" parent="ColorPickerOtherDialog/VBox"]
+layout_mode = 2
+edit_alpha = false
+picker_shape = 2
+can_add_swatches = false
+sampler_visible = false
+color_modes_visible = false
+hex_visible = false
+presets_visible = false
+script = ExtResource("1_yev5y")
+
 [connection signal="text_changed" from="MainMenu/VBox/Grid/Name" to="." method="_on_name_text_changed"]
 [connection signal="text_changed" from="MainMenu/VBox/Grid/Host" to="." method="_on_host_text_changed"]
 [connection signal="text_changed" from="MainMenu/VBox/Grid/Port" to="." method="_on_port_text_changed"]
 [connection signal="pressed" from="MainMenu/VBox/Connect" to="." method="_on_connect_pressed"]
 [connection signal="pressed" from="MainMenu/VBox/Quit" to="." method="_on_quit_pressed"]
-[connection signal="color_changed" from="EscMenu/VBox/GridContainer/ColorSelf" to="." method="_on_color_self_color_changed"]
-[connection signal="picker_created" from="EscMenu/VBox/GridContainer/ColorSelf" to="EscMenu/VBox/GridContainer/ColorSelf" method="_on_picker_created"]
-[connection signal="color_changed" from="EscMenu/VBox/GridContainer/ColorOther" to="." method="_on_color_other_color_changed"]
-[connection signal="picker_created" from="EscMenu/VBox/GridContainer/ColorOther" to="EscMenu/VBox/GridContainer/ColorOther" method="_on_picker_created"]
+[connection signal="pressed" from="EscMenu/VBox/GridContainer/ColorSelfButton" to="." method="_on_color_self_button_pressed"]
+[connection signal="pressed" from="EscMenu/VBox/GridContainer/ColorOtherButton" to="." method="_on_color_other_button_pressed"]
 [connection signal="value_changed" from="EscMenu/VBox/GridContainer/ShotsSelf" to="." method="_on_shots_self_value_changed"]
 [connection signal="value_changed" from="EscMenu/VBox/GridContainer/ShotsOther" to="." method="_on_shots_other_value_changed"]
 [connection signal="value_changed" from="EscMenu/VBox/GridContainer/UiScale" to="." method="_on_ui_scale_value_changed"]
@@ -379,3 +460,7 @@ text = "OK"
 [connection signal="pressed" from="DisconnectMessage/VBox/Disconnect" to="." method="_on_disconnect_pressed"]
 [connection signal="pressed" from="ScoreMessage/VBox/BtnOkRndEnd" to="." method="_on_btn_ok_rnd_end_pressed"]
 [connection signal="pressed" from="HelpMessage/VBox/BtnOkHelp" to="." method="_on_btn_ok_help_pressed"]
+[connection signal="closed" from="ColorPickerSelfDialog/VBox/ColorPickerSelf" to="." method="_on_color_picker_self_closed"]
+[connection signal="color_changed" from="ColorPickerSelfDialog/VBox/ColorPickerSelf" to="." method="_on_color_picker_self_color_changed"]
+[connection signal="closed" from="ColorPickerOtherDialog/VBox/ColorPickerOther" to="." method="_on_color_picker_other_closed"]
+[connection signal="color_changed" from="ColorPickerOtherDialog/VBox/ColorPickerOther" to="." method="_on_color_picker_other_color_changed"]

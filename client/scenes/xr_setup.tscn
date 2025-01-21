@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://8uo1ne78y6nb"]
+[gd_scene load_steps=12 format=3 uid="uid://8uo1ne78y6nb"]
 
 [ext_resource type="PackedScene" uid="uid://cqhw276realc" path="res://addons/godot-xr-tools/functions/function_pointer.tscn" id="1_ewgfa"]
 [ext_resource type="Script" uid="uid://btg7nucq50m1e" path="res://scripts/xr_setup.gd" id="1_nntj1"]
@@ -11,7 +11,7 @@ albedo_color = Color(0, 0.498039, 1, 1)
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_cklhh"]
 material = SubResource("StandardMaterial3D_nntj1")
-radius = 0.02
+radius = 0.015
 height = 0.1
 radial_segments = 24
 rings = 4
@@ -19,13 +19,24 @@ rings = 4
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cklhh"]
 shading_mode = 0
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_d5y7k"]
+shading_mode = 0
+albedo_color = Color(0.498039, 0, 1, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_lbqvw"]
+material = SubResource("StandardMaterial3D_d5y7k")
+radius = 0.015
+height = 0.1
+radial_segments = 24
+rings = 4
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_72xyp"]
 shading_mode = 0
 albedo_color = Color(0.0784314, 0.0784314, 0.0784314, 1)
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_ed5s8"]
 material = SubResource("StandardMaterial3D_72xyp")
-height = 0.1
+height = 0.01
 radial_segments = 32
 rings = 1
 
@@ -55,26 +66,36 @@ tracker = &"right_hand"
 pose = &"aim"
 
 [node name="FunctionPointer" parent="RightHand" instance=ExtResource("1_ewgfa")]
-distance = 0.5
+laser_length = 1
 show_target = true
 target_radius = 0.005
 target_material = SubResource("StandardMaterial3D_cklhh")
 
+[node name="RightHand2" type="XRController3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 1, -0.5)
+tracker = &"right_hand"
+pose = &"grip"
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="RightHand2"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
+mesh = SubResource("CapsuleMesh_lbqvw")
+
 [node name="ViewportBackWall" parent="." instance=ExtResource("2_nntj1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, -1.3)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -1.3)
 screen_size = Vector2(3.84, 2.16)
-viewport_size = Vector2(1920, 1080)
-update_mode = 2
-throttle_fps = 15.0
+viewport_size = Vector2(2560, 1440)
 unshaded = true
-scene_properties_keys = PackedStringArray()
 
 [node name="VirtualKeyboard" parent="." instance=ExtResource("3_cklhh")]
 transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 0.8, -1.1)
+visible = false
 screen_size = Vector2(0.8, 0.4)
+update_mode = 1
 scene_properties_keys = PackedStringArray("virtual_keyboard_2d.gd")
 
 [node name="PlayCenter" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.005, 0)
 mesh = SubResource("CylinderMesh_ed5s8")
 
+[connection signal="button_pressed" from="LeftHand" to="." method="_on_left_hand_button_pressed"]
 [connection signal="button_pressed" from="RightHand" to="." method="_on_right_hand_button_pressed"]

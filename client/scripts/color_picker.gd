@@ -1,14 +1,33 @@
-extends ColorPickerButton
+extends ColorPicker
 
-func _on_picker_created() -> void:
-	var picker: = get_picker()
-	var popup: = get_popup()
-	picker.can_add_swatches = false
-	picker.sampler_visible = false
-	picker.color_modes_visible = false
-	picker.hex_visible = false
-	picker.presets_visible = false
-	var threedot: HBoxContainer = picker.get_child(0, true).get_child(0, true).get_child(5, true)
+signal closed
+
+func _ok_pressed() -> void:
+	var grand_parent: Control = get_parent().get_parent()
+	grand_parent.visible = false
+	closed.emit()
+
+func _ready() -> void:
+	var vbox: VBoxContainer = get_child(0, true).get_child(0, true)
+	var threedot: HBoxContainer = vbox.get_child(5, true)
 	threedot.visible = false
-	var panel: Panel = popup.get_child(0, true)
-	panel.remove_theme_stylebox_override("panel")
+	var ok_button: = Button.new()
+	ok_button.text = "OK"
+	@warning_ignore("return_value_discarded")
+	ok_button.pressed.connect(_ok_pressed)
+	var parent: Control = get_parent()
+	parent.add_child.call_deferred(ok_button)
+	setup_mouse_filters(self)
+
+func setup_mouse_filters(ctrl: Control) -> void:
+	for child in ctrl.get_children(true):
+		if child is Control:
+			var ctrl_child: Control = child
+			if ctrl_child.visible:
+				if ctrl_child is LineEdit:
+					(ctrl_child as LineEdit).select_all_on_focus = false
+				elif ctrl_child is SpinBox:
+					ctrl_child.mouse_filter = Control.MOUSE_FILTER_STOP
+				elif ctrl_child.mouse_filter == Control.MOUSE_FILTER_STOP:
+					ctrl_child.mouse_filter = Control.MOUSE_FILTER_PASS
+				setup_mouse_filters(ctrl_child)
