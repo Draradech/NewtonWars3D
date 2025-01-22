@@ -14,7 +14,7 @@ extends XRToolsVirtualKey
 
 
 # Keyboard associated with this button
-var _keyboard : XRToolsVirtualKeyboard2D
+var _keyboard : XRToolsVirtualKeyboardBase2D
 
 
 # Called when the node enters the scene tree for the first time.
@@ -26,7 +26,7 @@ func _ready():
 	_keyboard = XRTools.find_xr_ancestor(
 		self,
 		"*",
-		"XRToolsVirtualKeyboard2D")
+		"XRToolsVirtualKeyboardBase2D")
 
 	# Handle button presses
 	pressed.connect(_on_pressed)

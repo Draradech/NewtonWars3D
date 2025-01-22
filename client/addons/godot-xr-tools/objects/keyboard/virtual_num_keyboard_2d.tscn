@@ -1,0 +1,111 @@
+[gd_scene load_steps=3 format=3 uid="uid://bnnare6scoxcr"]
+
+[ext_resource type="Script" uid="uid://b48hrj7sldpay" path="res://addons/godot-xr-tools/objects/keyboard/virtual_num_keyboard_2d.gd" id="1_vpx0j"]
+[ext_resource type="Script" uid="uid://dr4xgtun2lo0j" path="res://addons/godot-xr-tools/objects/keyboard/virtual_key_char.gd" id="2_evoni"]
+
+[node name="VirtualNumKeyboard2D" type="CanvasLayer"]
+script = ExtResource("1_vpx0j")
+
+[node name="Background" type="ColorRect" parent="."]
+offset_right = 180.0
+offset_bottom = 160.0
+color = Color(0.12549, 0.12549, 0.12549, 0.752941)
+
+[node name="Standard" type="Control" parent="Background"]
+layout_mode = 1
+anchors_preset = 0
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 176.0
+offset_bottom = 156.0
+
+[node name="VirtualKey1" type="Node2D" parent="Background/Standard"]
+position = Vector2(0, 80)
+script = ExtResource("2_evoni")
+scan_code_text = "1"
+unicode = 49
+key_text = "1"
+
+[node name="VirtualKey2" type="Node2D" parent="Background/Standard"]
+position = Vector2(40, 80)
+script = ExtResource("2_evoni")
+scan_code_text = "2"
+unicode = 50
+key_text = "2"
+
+[node name="VirtualKey3" type="Node2D" parent="Background/Standard"]
+position = Vector2(80, 80)
+script = ExtResource("2_evoni")
+scan_code_text = "3"
+unicode = 51
+key_text = "3"
+
+[node name="VirtualKey4" type="Node2D" parent="Background/Standard"]
+position = Vector2(0, 40)
+script = ExtResource("2_evoni")
+scan_code_text = "4"
+unicode = 52
+key_text = "4"
+
+[node name="VirtualKey5" type="Node2D" parent="Background/Standard"]
+position = Vector2(40, 40)
+script = ExtResource("2_evoni")
+scan_code_text = "5"
+unicode = 53
+key_text = "5"
+
+[node name="VirtualKey6" type="Node2D" parent="Background/Standard"]
+position = Vector2(80, 40)
+script = ExtResource("2_evoni")
+scan_code_text = "6"
+unicode = 54
+key_text = "6"
+
+[node name="VirtualKey7" type="Node2D" parent="Background/Standard"]
+script = ExtResource("2_evoni")
+scan_code_text = "7"
+unicode = 55
+key_text = "7"
+
+[node name="VirtualKey8" type="Node2D" parent="Background/Standard"]
+position = Vector2(40, 0)
+script = ExtResource("2_evoni")
+scan_code_text = "8"
+unicode = 56
+key_text = "8"
+
+[node name="VirtualKey9" type="Node2D" parent="Background/Standard"]
+position = Vector2(80, 0)
+script = ExtResource("2_evoni")
+scan_code_text = "9"
+unicode = 57
+key_text = "9"
+
+[node name="VirtualKey0" type="Node2D" parent="Background/Standard"]
+position = Vector2(0, 120)
+script = ExtResource("2_evoni")
+scan_code_text = "0"
+unicode = 48
+key_size = Vector2(72, 32)
+key_text = "0"
+
+[node name="VirtualKeyBackspace" type="Node2D" parent="Background/Standard"]
+position = Vector2(120, 80)
+script = ExtResource("2_evoni")
+scan_code_text = "BackSpace"
+key_size = Vector2(52, 32)
+key_text = "BKSP"
+
+[node name="VirtualKeyPeriod" type="Node2D" parent="Background/Standard"]
+position = Vector2(80, 120)
+script = ExtResource("2_evoni")
+scan_code_text = "Period"
+unicode = 46
+key_text = "."
+
+[node name="VirtualKeyEnter" type="Node2D" parent="Background/Standard"]
+position = Vector2(120, 120)
+script = ExtResource("2_evoni")
+scan_code_text = "Enter"
+key_size = Vector2(52, 32)
+key_text = "Enter"

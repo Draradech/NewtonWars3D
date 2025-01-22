@@ -1,6 +1,6 @@
 @tool
 class_name XRToolsVirtualKeyboard2D
-extends CanvasLayer
+extends XRToolsVirtualKeyboardBase2D
 
 
 ## Enumeration of keyboard view modes
@@ -26,7 +26,7 @@ var _mode: int = KeyboardMode.LOWER_CASE
 
 # Add support for is_xr_class on XRTools classes
 func is_xr_class(name : String) -> bool:
-	return name == "XRToolsVirtualKeyboard2D"
+	return super(name) or name == "XRToolsVirtualKeyboard2D"
 
 
 # Handle key pressed from VirtualKey

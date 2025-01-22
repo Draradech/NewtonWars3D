@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://8uo1ne78y6nb"]
+[gd_scene load_steps=16 format=3 uid="uid://8uo1ne78y6nb"]
 
 [ext_resource type="PackedScene" uid="uid://cqhw276realc" path="res://addons/godot-xr-tools/functions/function_pointer.tscn" id="1_ewgfa"]
 [ext_resource type="Script" uid="uid://btg7nucq50m1e" path="res://scripts/xr_setup.gd" id="1_nntj1"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://dgdb1texynduw" path="res://addons/godot-xr-tools/objects/virtual_keyboard.tscn" id="3_cklhh"]
 [ext_resource type="Shader" uid="uid://br114fj5aunx0" path="res://shaders/laser.gdshader" id="3_d5y7k"]
 [ext_resource type="PackedScene" uid="uid://by25rtctl4ay" path="res://scenes/ui_scene.tscn" id="4_cklhh"]
+[ext_resource type="PackedScene" uid="uid://brqlg2j8b2r4k" path="res://addons/godot-xr-tools/objects/virtual_num_keyboard.tscn" id="7_lbqvw"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nntj1"]
 shading_mode = 0
@@ -100,15 +101,18 @@ scene_properties_keys = PackedStringArray("ui_scene.gd")
 
 [node name="VirtualKeyboard" parent="." instance=ExtResource("3_cklhh")]
 transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 0.8, -1.1)
-visible = false
 screen_size = Vector2(0.8, 0.4)
 update_mode = 1
-scene_properties_keys = PackedStringArray("virtual_keyboard_2d.gd")
+scene_properties_keys = PackedStringArray("virtual_keyboard_2d.gd", "virtual_keyboard_base_2d.gd")
 
 [node name="PlayCenter" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.005, 0)
 visible = false
 mesh = SubResource("CylinderMesh_ed5s8")
+
+[node name="VirtualNumKeyboard" parent="." instance=ExtResource("7_lbqvw")]
+transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0.7, 0.8, -1.1)
+screen_size = Vector2(0.36, 0.32)
 
 [connection signal="button_pressed" from="LeftHand" to="." method="_on_left_hand_button_pressed"]
 [connection signal="button_pressed" from="RightHand" to="." method="_on_right_hand_button_pressed"]
