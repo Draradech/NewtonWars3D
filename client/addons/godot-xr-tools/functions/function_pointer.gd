@@ -62,10 +62,10 @@ const SUPPRESS_MASK := 0b0000_0000_0100_0000_0000_0000_0000_0000
 @export var laser_length : LaserLength = LaserLength.FULL: set = set_laser_length
 
 ## Laser pointer material
-@export var laser_material : StandardMaterial3D = null : set = set_laser_material
+@export var laser_material : Material = null : set = set_laser_material
 
 ## Laser pointer material when hitting target
-@export var laser_hit_material : StandardMaterial3D = null : set = set_laser_hit_material
+@export var laser_hit_material : Material = null : set = set_laser_hit_material
 
 @export_group("Target")
 
@@ -76,7 +76,7 @@ const SUPPRESS_MASK := 0b0000_0000_0100_0000_0000_0000_0000_0000
 @export var target_radius : float = 0.05: set = set_target_radius
 
 ## Target material
-@export var target_material : StandardMaterial3D = null : set = set_target_material
+@export var target_material : Material = null : set = set_target_material
 
 @export_group("Collision")
 
@@ -289,14 +289,14 @@ func set_laser_length(p_laser_length : LaserLength) -> void:
 
 
 # Set pointer laser_material property
-func set_laser_material(p_laser_material : StandardMaterial3D) -> void:
+func set_laser_material(p_laser_material : Material) -> void:
 	laser_material = p_laser_material
 	if is_inside_tree():
 		_update_pointer()
 
 
 # Set pointer laser_hit_material property
-func set_laser_hit_material(p_laser_hit_material : StandardMaterial3D) -> void:
+func set_laser_hit_material(p_laser_hit_material : Material) -> void:
 	laser_hit_material = p_laser_hit_material
 	if is_inside_tree():
 		_update_pointer()
@@ -317,7 +317,7 @@ func set_target_radius(p_target_radius : float) -> void:
 
 
 # Set pointer target_material property
-func set_target_material(p_target_material : StandardMaterial3D) -> void:
+func set_target_material(p_target_material : Material) -> void:
 	target_material = p_target_material
 	if is_inside_tree():
 		_update_target_material()

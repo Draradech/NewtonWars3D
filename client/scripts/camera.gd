@@ -7,32 +7,37 @@ var pitch: = 0.0
 var yaw: = 0.0
 var poff: = Vector3.ZERO
 
-var checked: = false
 func _input(event: InputEvent) -> void:
 	if not Global.game: return
 	
 	if event is InputEventMouseMotion:
-		var iemm: InputEventMouseMotion = event
-		mouse_move = iemm.screen_relative
+		var mouse_motion_event: InputEventMouseMotion = event
+		mouse_move = mouse_motion_event.screen_relative
 	
 	if event is InputEventMouseButton:
-		var iemb: InputEventMouseButton = event
-		match iemb.button_index:
+		var mouse_button_event: InputEventMouseButton = event
+		match mouse_button_event.button_index:
 			MOUSE_BUTTON_MIDDLE, \
 			MOUSE_BUTTON_RIGHT:
-				Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED if iemb.pressed else Input.MOUSE_MODE_VISIBLE)
+				Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED if mouse_button_event.pressed else Input.MOUSE_MODE_VISIBLE)
 				mouse_move = Vector2(0, 0)
 			MOUSE_BUTTON_WHEEL_UP:
 				distance = clamp(distance / 1.05, 10, 3000)
 			MOUSE_BUTTON_WHEEL_DOWN:
 				distance = clamp(distance * 1.05, 10, 3000)
 			MOUSE_BUTTON_LEFT:
-				if iemb.double_click:
+				if mouse_button_event.double_click:
 					var ray_dir: = project_ray_normal(get_viewport().get_mouse_position())
 					var target_pos: = Global.game.space.find_closest_intersection(position, ray_dir)
 					if target_pos.x < 10000.0:
 						@warning_ignore("return_value_discarded")
 						create_tween().tween_method(func(value: Vector3) -> void: poff = value, poff, target_pos, .5).set_trans(Tween.TRANS_SINE)
+
+func reset_camera() -> void:
+	distance = 2000.0
+	pitch = 0.0
+	yaw = 0.0
+	poff = Vector3.ZERO
 
 func _process(delta: float) -> void:
 	if not Global.game: return

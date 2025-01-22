@@ -18,7 +18,6 @@ func _ready() -> void:
 		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 		get_viewport().use_xr = true
 		xr = xr_setup.instantiate()
-		xr.viewport_back_wall.scene = ui_scene
 		add_child(xr)
 	else:
 		flat = flat_setup.instantiate()
@@ -48,22 +47,13 @@ func _on_disconnect() -> void:
 	remove_child(Global.game)
 	Global.game.queue_free()
 	Global.game = null
-	reset_camera()
-
-func reset_camera() -> void:
-	if not is_vr():
-		flat.cam.distance = 2000.0
-		flat.cam.pitch = 0.0
-		flat.cam.yaw = 0.0
-		flat.cam.poff = Vector3.ZERO
+	if not is_vr(): flat.cam.reset_camera()
 
 func _on_quit() -> void:
 	get_tree().quit()
 
-func _process(_delta: float) -> void:
-	if not Global.ui and xr.viewport_back_wall.scene_node:
-		Global.ui = xr.viewport_back_wall.scene_node
-	if Input.is_action_just_pressed("fullscreen"):
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("fullscreen"):
 		if Global.config["fullscreen"]:
 			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 			Global.config["fullscreen"] = false
@@ -71,3 +61,7 @@ func _process(_delta: float) -> void:
 			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN)
 			Global.config["fullscreen"] = true
 		Global.save_config()
+
+func _process(_delta: float) -> void:
+	if not Global.ui and xr.viewport_back_wall.scene_node:
+		Global.ui = xr.viewport_back_wall.scene_node
