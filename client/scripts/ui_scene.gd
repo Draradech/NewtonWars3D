@@ -32,7 +32,7 @@ func _ready() -> void:
 	($EscMenu/VBox/GridContainer/MSAA as OptionButton).selected = Global.config["msaa"]
 	var msaa: RenderingServer.ViewportMSAA = Global.config["msaa"]
 	RenderingServer.viewport_set_msaa_3d(get_tree().root.get_viewport_rid(), msaa)
-	if Global.root.is_vr():
+	if Global.root.xr:
 		($EscMenu/VBox/InputHelp as Control).visible = false
 		($EscMenu/VBox/GridContainer/Glow as Control).visible = false
 		($EscMenu/VBox/GridContainer/GlowLbl as Control).visible = false

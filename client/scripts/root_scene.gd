@@ -29,12 +29,9 @@ func _ready() -> void:
 	else:
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 
-func is_vr() -> bool:
-	return xr != null
-
 func _on_connect() -> void:
 	Global.game = game_scene.instantiate()
-	if is_vr():
+	if xr:
 		Global.game.scale = Vector3.ONE * 0.001
 		Global.game.position = Vector3(0, 1, 0)
 		@warning_ignore("return_value_discarded")
@@ -47,7 +44,8 @@ func _on_disconnect() -> void:
 	remove_child(Global.game)
 	Global.game.queue_free()
 	Global.game = null
-	if not is_vr(): flat.cam.reset_camera()
+	Global.root.xr.hand_controller.visible = false
+	if flat: flat.cam.reset_camera()
 
 func _on_quit() -> void:
 	get_tree().quit()

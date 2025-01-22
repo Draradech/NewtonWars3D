@@ -12,5 +12,5 @@ void vertex() {
 
 void fragment() {
 	ALBEDO = color;
-	ALPHA = clamp((vz - (full_length / 2.0 - fade_length)) * (full_length / 2.0), 0.0, 1.0);
+	ALPHA = clamp((vz - (full_length / 2.0 - fade_length)) / fade_length, 0.0, 1.0);
 }

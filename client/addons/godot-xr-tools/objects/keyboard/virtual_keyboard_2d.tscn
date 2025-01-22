@@ -1,8 +1,8 @@
 [gd_scene load_steps=4 format=3 uid="uid://lauwp8okd1vh"]
 
-[ext_resource type="Script" path="res://addons/godot-xr-tools/objects/keyboard/virtual_keyboard_2d.gd" id="1"]
-[ext_resource type="Script" path="res://addons/godot-xr-tools/objects/keyboard/virtual_key_char.gd" id="2_n0nlg"]
-[ext_resource type="Script" path="res://addons/godot-xr-tools/objects/keyboard/virtual_key.gd" id="3_h05ve"]
+[ext_resource type="Script" uid="uid://ccd57origbok6" path="res://addons/godot-xr-tools/objects/keyboard/virtual_keyboard_2d.gd" id="1"]
+[ext_resource type="Script" uid="uid://dr4xgtun2lo0j" path="res://addons/godot-xr-tools/objects/keyboard/virtual_key_char.gd" id="2_n0nlg"]
+[ext_resource type="Script" uid="uid://b7ic0hp5q0k0l" path="res://addons/godot-xr-tools/objects/keyboard/virtual_key.gd" id="3_h05ve"]
 
 [node name="VirtualKeyboard2D" type="CanvasLayer"]
 script = ExtResource("1")
@@ -10,7 +10,7 @@ script = ExtResource("1")
 [node name="Background" type="ColorRect" parent="."]
 offset_right = 400.0
 offset_bottom = 200.0
-color = Color(0.12549, 0.12549, 0.12549, 0.752941)
+color = Color(0.301961, 0.301961, 0.301961, 1)
 
 [node name="Standard" type="Control" parent="Background"]
 layout_mode = 1
@@ -92,23 +92,20 @@ key_text = "0"
 [node name="ToggleShift" type="Node2D" parent="Background/Standard"]
 position = Vector2(0, 120)
 script = ExtResource("3_h05ve")
-key_size = Vector2(50, 32)
+key_size = Vector2(52, 32)
 key_text = "SHIFT"
-key_highlight = Color(1, 1, 1, 1)
 
 [node name="ToggleCaps" type="Node2D" parent="Background/Standard"]
 position = Vector2(0, 160)
 script = ExtResource("3_h05ve")
-key_size = Vector2(45, 32)
+key_size = Vector2(52, 32)
 key_text = "CAPS"
-key_highlight = Color(1, 1, 1, 1)
 
 [node name="ToggleAlt" type="Node2D" parent="Background/Standard"]
-position = Vector2(55, 160)
+position = Vector2(60, 160)
 script = ExtResource("3_h05ve")
-key_size = Vector2(35, 32)
+key_size = Vector2(52, 32)
 key_text = "ALT"
-key_highlight = Color(1, 1, 1, 1)
 
 [node name="VirtualKeyBackspace" type="Node2D" parent="Background/Standard"]
 position = Vector2(340, 120)
@@ -118,11 +115,11 @@ key_size = Vector2(52, 32)
 key_text = "BKSP"
 
 [node name="VirtualKeySpace" type="Node2D" parent="Background/Standard"]
-position = Vector2(100, 160)
+position = Vector2(120, 160)
 script = ExtResource("2_n0nlg")
 scan_code_text = "Space"
 unicode = 32
-key_size = Vector2(190, 32)
+key_size = Vector2(172, 32)
 key_text = "Space"
 
 [node name="VirtualKeyPeriod" type="Node2D" parent="Background/Standard"]

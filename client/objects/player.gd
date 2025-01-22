@@ -14,15 +14,24 @@ var location: Vector3:
 		sphere.position = location
 		name_label.position = location + Vector3.UP * radius
 		update_pointer()
-var speed: float = 8
+var speed: float = 8:
+	set(value):
+		speed = value
+		update_labels()
 var pitch: float = 0:
 	set(value):
 		pitch = value
+		update_labels()
 		update_pointer()
 var yaw: float = 0:
 	set(value):
 		yaw = value
+		update_labels()
 		update_pointer()
+var digit: int = 0:
+	set(value):
+		digit = value
+		update_labels()
 var pointer: Line3D
 var pointer_h: Line3D
 var pointer_v: Line3D
@@ -95,3 +104,31 @@ func _init(loc: Vector3, rad: float, do_pointer: bool, mat: StandardMaterial3D) 
 	
 	radius = rad
 	location = loc
+
+func vr_name_label() -> void:
+	name_label.pixel_size = 1.0
+	name_label.billboard = BaseMaterial3D.BILLBOARD_DISABLED
+	name_label.visible = true
+	var cam_pos: = Global.root.xr.cam.position
+	var label_pos: = name_label.global_position
+	var vec_dir_3d: = cam_pos - label_pos
+	var vec_dir_2d: = Vector2(vec_dir_3d.z, vec_dir_3d.x)
+	name_label.rotation.y = vec_dir_2d.angle()
+
+func update_labels() -> void:
+	var p: = clampf(pitch, -999, 999)
+	if p != pitch: pitch = p
+	var y: = clampf(yaw, -999, 999)
+	if y != yaw: yaw = y
+	var s: = clampf(speed, 0, 999)
+	if s != speed: speed = s
+	var d: = clampi(digit, -8, 2)
+	if d != digit: digit = d
+	if pitch != 0.0 and absf(pitch) < 1e-10: pitch = 0.0
+	if yaw != 0.0 and absf(yaw) < 1e-10: yaw = 0.0
+	if speed != 0.0 and absf(speed) < 1e-10: speed = 0.0
+	if Global.root.xr:
+		var hand_controller: HandController = Global.root.xr.hand_controller.get_scene_instance()
+		hand_controller.update_values(self)
+	else:
+		Global.ui.missile_input.update_label(self)

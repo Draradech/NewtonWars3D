@@ -17,16 +17,16 @@ signal released
 @export var key_text := "" : set = _set_key_text
 
 ## Key normal color
-@export var key_normal := Color(0.1, 0.1, 0.1) : set = _set_key_normal
+@export var key_normal := Color("2e2e2e") : set = _set_key_normal
 
 ## Key highlight color
-@export var key_highlight := Color(0.2, 0.2, 0.2) : set = _set_key_highlight
+@export var key_highlight := Color("1f1f1f") : set = _set_key_highlight
 
 ## Text normal color
 @export var text_normal := Color(1.0, 1.0, 1.0) : set = _set_text_normal
 
 ## Text highlight color
-@export var text_highlight := Color(0.0, 0.0, 0.0) : set = _set_text_highlight
+@export var text_highlight := Color(1.0, 1.0, 1.0) : set = _set_text_highlight
 
 ## Key highlighted
 @export var highlighted := false : set = _set_highlighted

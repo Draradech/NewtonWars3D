@@ -68,21 +68,12 @@ func pot_eval() -> void:
 	mmd.visible_instance_count = id
 	pot_init = true
 
-var digit: int = 0
 func _process(_delta: float) -> void:
 	if Global.ui.is_menu_open(): return
 	if Input.is_action_just_pressed("clear"):
-		for player: Player in players.values():
-			for shot: Shot in player.shots:
-				shot.queue_free()
-				if not shots.erase(shot.mid):
-					push_warning("trying to erase non-existent shot (clear)")
-			player.shots.clear()
+		clear_shots()
 	if Input.is_action_just_pressed("reset"):
-		players[player_id].pitch = 0
-		players[player_id].yaw = 0
-		players[player_id].speed = 8
-		Global.ui.missile_input.update_label(players[player_id], digit)
+		reset_aim()
 	if Input.is_action_just_pressed("wire"):
 		if get_tree().root.get_viewport().debug_draw == Viewport.DEBUG_DRAW_DISABLED:
 			get_tree().root.get_viewport().debug_draw = Viewport.DEBUG_DRAW_WIREFRAME
@@ -95,6 +86,19 @@ func _process(_delta: float) -> void:
 		var mmi3dd: MultiMeshInstance3D = $GPotBandDisallow
 		if not pot_init: pot_eval()
 		mmi3dd.visible = !mmi3dd.visible
+
+func reset_aim() -> void:
+	players[player_id].pitch = 0
+	players[player_id].yaw = 0
+	players[player_id].speed = 8
+
+func clear_shots() -> void:
+	for player: Player in players.values():
+		for shot: Shot in player.shots:
+			shot.queue_free()
+			if not shots.erase(shot.mid):
+				push_warning("trying to erase non-existent shot (clear)")
+		player.shots.clear()
 
 func prepare_frame() -> void:
 	for shot: Shot in shots.values():
@@ -149,7 +153,7 @@ func update_player_pos(pyid: int, loc: Vector3, rad: float) -> void:
 		ply_mat.albedo_color = Global.config["color_self"] if pyid == player_id else Global.config["color_other"]
 		players[pyid] = Player.new(loc, rad, pyid == player_id, ply_mat)
 		add_child(players[pyid])
-		if pyid == player_id: Global.ui.missile_input.update_label(players[pyid], digit)
+		if pyid == player_id: players[pyid].update_labels()
 	else:
 		players[pyid].location = loc
 		players[pyid].radius = rad
@@ -172,7 +176,7 @@ func update_round_time(rt: int) -> void:
 		bb += "[/table]"
 		Global.ui.score_board.text = bb
 		Global.ui.score_message.visible = true
-		Global.root.reset_camera()
+		if Global.root.flat: Global.root.flat.cam.reset_camera()
 	round_time = rt
 	Global.ui.round_time.text = "%s%02d:%02d" % ["-" if signi(round_time) < 0 else "", absi(round_time) / 60, absi(round_time) % 60]
 
@@ -214,7 +218,7 @@ func update_player_colors() -> void:
 		if pyid == player_id:
 			player.pointer_h.material.albedo_color = color * 0.5
 	trim_and_recolor_shots()
-	Global.ui.missile_input.update_label(players[player_id], digit)
+	players[player_id].update_labels()
 
 func new_shot(pyid: int, mid: int) -> void:
 	var s: = Shot.new(mid, players[pyid].material)
@@ -262,29 +266,27 @@ func _input(event: InputEvent) -> void:
 	if Global.ui.is_menu_open(): return
 	var player: = players[player_id]
 	if event is InputEventKey:
-		var iek: InputEventKey = event
-		if iek.keycode == KEY_SHIFT:
+		var key_event: InputEventKey = event
+		if key_event.keycode == KEY_SHIFT:
 			for pl2: Player in players.values():
-				if iek.is_pressed():
+				if key_event.is_pressed():
 					pl2.name_label.pixel_size = 1.16 / get_tree().root.get_visible_rect().size.y
-				pl2.name_label.visible = iek.is_pressed()
-		elif iek.is_pressed():
-			match(iek.key_label):
+				pl2.name_label.visible = key_event.is_pressed()
+		elif key_event.is_pressed():
+			match(key_event.key_label):
 				KEY_PAGEUP:
-					digit += 1
+					player.digit += 1
 				KEY_PAGEDOWN:
-					digit -= 1
+					player.digit -= 1
 				KEY_UP:
-					player.pitch += pow(10, digit)
+					player.pitch += pow(10, player.digit)
 				KEY_DOWN:
-					player.pitch -= pow(10, digit)
+					player.pitch -= pow(10, player.digit)
 				KEY_RIGHT:
-					player.yaw += pow(10, digit)
+					player.yaw += pow(10, player.digit)
 				KEY_LEFT:
-					player.yaw -= pow(10, digit)
+					player.yaw -= pow(10, player.digit)
 				KEY_PLUS:
-					player.speed += pow(10, digit)
+					player.speed += pow(10, player.digit)
 				KEY_MINUS:
-					player.speed -= pow(10, digit)
-			digit = clampi(digit, -8, 2)
-			Global.ui.missile_input.update_label(player, digit)
+					player.speed -= pow(10, player.digit)
