@@ -1,0 +1,47 @@
+[gd_scene load_steps=4 format=3 uid="uid://dmvjmo55f3cyk"]
+
+[ext_resource type="Script" uid="uid://yp4uuhoraycl" path="res://scripts/hand_info_panel.gd" id="1_4jwe7"]
+[ext_resource type="Script" uid="uid://rx6iuj8r427y" path="res://scripts/dialog.gd" id="2_64qqt"]
+[ext_resource type="Script" uid="uid://dh81qfh33pl13" path="res://scripts/stats.gd" id="3_64qqt"]
+
+[node name="HandInfoPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_4jwe7")
+
+[node name="HandInfoPanelDialog" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(280, 220)
+layout_mode = 0
+offset_right = 280.0
+offset_bottom = 220.0
+script = ExtResource("2_64qqt")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HandInfoPanelDialog"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HandInfoPanelDialog/VBoxContainer"]
+layout_mode = 2
+
+[node name="RoundTimeLbl" type="Label" parent="HandInfoPanelDialog/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Round Time: "
+
+[node name="RoundTime" type="Label" parent="HandInfoPanelDialog/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="DebugStats" type="Label" parent="HandInfoPanelDialog/VBoxContainer"]
+visible = false
+layout_mode = 2
+text = "1
+2
+3
+4
+5
+6"
+script = ExtResource("3_64qqt")
+
+[node name="PlayerPoints" type="RichTextLabel" parent="HandInfoPanelDialog/VBoxContainer"]
+layout_mode = 2
+bbcode_enabled = true
+fit_content = true
+scroll_active = false

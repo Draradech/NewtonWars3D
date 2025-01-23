@@ -114,13 +114,29 @@ func prepare_frame() -> void:
 
 func update_player_list() -> void:
 	if not player_id in players: return
+	if Global.root.xr:
+		update_player_list_vr()
+	else:
+		update_player_list_flat()
+
+func update_player_list_vr() -> void:
+	var bbstring: = "[table=2]\n"
+	bbstring += "[cell]%s  [/cell][cell] %.2f [/cell]\n" % [players[player_id].pname, players[player_id].score]
+	for pid in players:
+		if pid == player_id: continue
+		var player : Player = players[pid]
+		bbstring += "[cell]%s  [/cell][cell] %.2f [/cell]\n" % [player.pname, player.score]
+	bbstring += "[/table]"
+	var panel_vp: XRToolsViewport2DIn3D = Global.root.xr.hand_info_panel
+	var panel: HandInfoPanel = panel_vp.get_scene_instance()
+	panel.player_list.text = bbstring
+
+func update_player_list_flat() -> void:
 	var bbstring: = ""
-	#bbstring += "[color=ff7f00]%s\n%.1f[/color]\n\n" % [players[player_id].pname, players[player_id].score]
 	bbstring += "%s\n%.2f\n\n" % [players[player_id].pname, players[player_id].score]
 	for pid in players:
 		if pid == player_id: continue
 		var player : Player = players[pid]
-		#bbstring += "[color=007fff]%s\n%.1f[/color]\n\n" % [player.pname, player.score]
 		bbstring += "%s\n%.2f\n\n" % [player.pname, player.score]
 	Global.ui.player_list.text = bbstring
 
@@ -178,7 +194,13 @@ func update_round_time(rt: int) -> void:
 		Global.ui.score_message.visible = true
 		if Global.root.flat: Global.root.flat.cam.reset_camera()
 	round_time = rt
-	Global.ui.round_time.text = "%s%02d:%02d" % ["-" if signi(round_time) < 0 else "", absi(round_time) / 60, absi(round_time) % 60]
+	var rt_text: = "%s%02d:%02d" % ["-" if signi(round_time) < 0 else "", absi(round_time) / 60, absi(round_time) % 60]
+	if Global.root.xr:
+		var panel_vp: XRToolsViewport2DIn3D = Global.root.xr.hand_info_panel
+		var panel: HandInfoPanel = panel_vp.get_scene_instance()
+		panel.round_time.text = rt_text
+	else:
+		Global.ui.round_time.text = rt_text
 
 func set_my_pyid(pyid: int) -> void:
 	player_id = pyid

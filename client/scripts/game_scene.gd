@@ -24,11 +24,6 @@ func synchronize(delta: float) -> bool:
 	return true
 
 func _process(delta: float) -> void:
-	var start: = Time.get_ticks_usec()
-	
 	if network.process_network(space, delta):
 		if synchronize(delta):
 			space.prepare_frame()
-	
-	var end: = Time.get_ticks_usec()
-	Global.ui.stats.cpu = (end - start) * 1e-3

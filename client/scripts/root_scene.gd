@@ -60,6 +60,22 @@ func _input(event: InputEvent) -> void:
 			Global.config["fullscreen"] = true
 		Global.save_config()
 
+var t1: = 0.0
+var t2: = 0.0
 func _process(_delta: float) -> void:
+	t1 = Time.get_ticks_usec() / 1000.0
+	def1.call_deferred()
 	if not Global.ui and xr.viewport_back_wall.scene_node:
 		Global.ui = xr.viewport_back_wall.scene_node
+
+func def1() -> void:
+	def2.call_deferred()
+
+func def2() -> void:
+	t2 = Time.get_ticks_usec() / 1000.0
+	if xr:
+		var panel_vp: XRToolsViewport2DIn3D = Global.root.xr.hand_info_panel
+		var panel: HandInfoPanel = panel_vp.get_scene_instance()
+		panel.debug_stats.cpu = t2 - t1
+	else:
+		Global.ui.stats.cpu = t2 - t1
