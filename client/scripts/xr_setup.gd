@@ -9,6 +9,8 @@ extends XROrigin3D
 @export var cam: XRCamera3D
 @export var laser: XRToolsFunctionPointer
 @export var rh_grip: MeshInstance3D
+@export var rh_ctrl: XRController3D
+@export var lh_ctrl: XRController3D
 
 signal shoot
 
@@ -60,6 +62,12 @@ func _process(_delta: float) -> void:
 		hand_info_panel.screen_size.y = 0.22 * ratio
 		hand_info_panel.position.y = 0.22 * ratio * 0.5
 		hand_info_panel.viewport_size.y = 220.0 * ratio
+	if Global.config["world_rotate"]:
+		var thumb: Vector2 = rh_ctrl.get_vector2("thumb_stick")
+		var rotate_sign: = signf(thumb.x)
+		var amount: = clampf((absf(thumb.x) - .5) * 2., 0., 1.)
+		if amount > 0.01:
+			Global.game.rotate_y(rotate_sign * amount * _delta)
 
 func update_laser() -> void:
 	var mesh3d: MeshInstance3D = laser.get_node("Laser")

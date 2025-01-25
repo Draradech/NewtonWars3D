@@ -109,11 +109,11 @@ func vr_name_label() -> void:
 	name_label.pixel_size = 1.0
 	name_label.billboard = BaseMaterial3D.BILLBOARD_DISABLED
 	name_label.visible = true
-	var cam_pos: = Global.root.xr.cam.position
+	var cam_pos: = Global.root.xr.cam.global_position
 	var label_pos: = name_label.global_position
 	var vec_dir_3d: = cam_pos - label_pos
 	var vec_dir_2d: = Vector2(vec_dir_3d.z, vec_dir_3d.x)
-	name_label.rotation.y = vec_dir_2d.angle()
+	name_label.global_rotation.y = vec_dir_2d.angle()
 
 func update_labels() -> void:
 	var p: = clampf(pitch, -999, 999)

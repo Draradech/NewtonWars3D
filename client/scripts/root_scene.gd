@@ -32,8 +32,10 @@ func _ready() -> void:
 func _on_connect() -> void:
 	Global.game = game_scene.instantiate()
 	if xr:
-		Global.game.scale = Vector3.ONE * 0.001
-		Global.game.position = Vector3(0, 1, 0)
+		Global.game.scale = Vector3.ONE * 0.001 * Global.config["world_scale"]
+		var height: float = Global.config["world_height"]
+		var dist: float = Global.config["world_distance"]
+		Global.game.position = Vector3(0, height, -dist)
 		@warning_ignore("return_value_discarded")
 		xr.shoot.connect(Global.game.network._on_shoot)
 	add_child(Global.game)
@@ -62,11 +64,22 @@ func _input(event: InputEvent) -> void:
 
 var t1: = 0.0
 var t2: = 0.0
+var pt1: = 0.0
+var pt2: = 0.0
+var phy_running: = false
+
 func _process(_delta: float) -> void:
 	t1 = Time.get_ticks_usec() / 1000.0
+	if phy_running:
+		pt2 = t1
+		phy_running = false
 	def1.call_deferred()
 	if not Global.ui and xr.viewport_back_wall.scene_node:
 		Global.ui = xr.viewport_back_wall.scene_node
+
+func _physics_process(_delta: float) -> void:
+	pt1 = Time.get_ticks_usec() / 1000.0
+	phy_running = true
 
 func def1() -> void:
 	def2.call_deferred()
@@ -77,5 +90,7 @@ func def2() -> void:
 		var panel_vp: XRToolsViewport2DIn3D = Global.root.xr.hand_info_panel
 		var panel: HandInfoPanel = panel_vp.get_scene_instance()
 		panel.debug_stats.cpu = t2 - t1
+		panel.debug_stats.pcpu = pt2 - pt1
 	else:
 		Global.ui.stats.cpu = t2 - t1
+		Global.ui.stats.pcpu = pt2 - pt1

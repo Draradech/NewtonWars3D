@@ -28,6 +28,10 @@ func _ready() -> void:
 	($EscMenu/VBox/GridContainer/ShotsOther as SpinBox).value = Global.config["num_shots_other"]
 	($EscMenu/VBox/GridContainer/ShotsSelf as SpinBox).value = Global.config["num_shots_self"]
 	($EscMenu/VBox/GridContainer/UiScale as SpinBox).value = Global.config["ui_scale"]
+	($EscMenu/VBox/GridContainer/WorldScale as SpinBox).value = Global.config["world_scale"]
+	($EscMenu/VBox/GridContainer/WorldDst as SpinBox).value = Global.config["world_distance"]
+	($EscMenu/VBox/GridContainer/WorldHeight as SpinBox).value = Global.config["world_height"]
+	($EscMenu/VBox/GridContainer/Rotate as CheckBox).button_pressed = Global.config["world_rotate"]
 	($EscMenu/VBox/GridContainer/Glow as CheckBox).button_pressed = Global.config["glow"]
 	($EscMenu/VBox/GridContainer/MSAA as OptionButton).selected = Global.config["msaa"]
 	var msaa: RenderingServer.ViewportMSAA = Global.config["msaa"]
@@ -38,6 +42,15 @@ func _ready() -> void:
 		($EscMenu/VBox/GridContainer/GlowLbl as Control).visible = false
 		($EscMenu/VBox/GridContainer/UiScale as Control).visible = false
 		($EscMenu/VBox/GridContainer/UiScaleLbl as Control).visible = false
+		($EscMenu/VBox/GridContainer/WorldScaleLbl as Control).visible = true
+		($EscMenu/VBox/GridContainer/WorldScale as Control).visible = true
+		($EscMenu/VBox/GridContainer/WorldDstLbl as Control).visible = true
+		($EscMenu/VBox/GridContainer/WorldDst as Control).visible = true
+		($EscMenu/VBox/GridContainer/WorldHeightLbl as Control).visible = true
+		($EscMenu/VBox/GridContainer/WorldHeight as Control).visible = true
+		($EscMenu/VBox/GridContainer/Rotate as Control).visible = true
+		($EscMenu/VBox/GridContainer/RotateLbl as Control).visible = true
+
 	else:
 		var uiscale: float = Global.config["ui_scale"]
 		get_tree().root.content_scale_factor = uiscale
@@ -181,3 +194,22 @@ func _on_color_self_button_pressed() -> void:
 func _on_color_other_button_pressed() -> void:
 	esc_menu.visible = false
 	picker_other.visible = true
+
+func _on_world_scale_value_changed(value: float) -> void:
+	Global.config["world_scale"] = value
+	if Global.game: Global.game.scale = Vector3.ONE * 0.001 * Global.config["world_scale"]
+
+func _on_rotate_toggled(toggled_on: bool) -> void:
+	Global.config["world_rotate"] = toggled_on
+
+func _on_world_dst_value_changed(value: float) -> void:
+	Global.config["world_distance"] = value
+	var height: float = Global.config["world_height"]
+	var dist: float = Global.config["world_distance"]
+	if Global.game: Global.game.position = Vector3(0, height, -dist)
+
+func _on_world_height_value_changed(value: float) -> void:
+	Global.config["world_height"] = value
+	var height: float = Global.config["world_height"]
+	var dist: float = Global.config["world_distance"]
+	if Global.game: Global.game.position = Vector3(0, height, -dist)

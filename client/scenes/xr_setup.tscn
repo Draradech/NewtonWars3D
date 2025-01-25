@@ -54,7 +54,7 @@ height = 0.01
 radial_segments = 32
 rings = 1
 
-[node name="XRSetup" type="XROrigin3D" node_paths=PackedStringArray("viewport_back_wall", "keyboard", "num_keyboard_hand", "hand_controller", "hand_info_panel", "cam", "laser", "rh_grip")]
+[node name="XRSetup" type="XROrigin3D" node_paths=PackedStringArray("viewport_back_wall", "keyboard", "num_keyboard_hand", "hand_controller", "hand_info_panel", "cam", "laser", "rh_grip", "rh_ctrl", "lh_ctrl")]
 current = true
 script = ExtResource("1_nntj1")
 viewport_back_wall = NodePath("ViewportBackWall")
@@ -65,6 +65,8 @@ hand_info_panel = NodePath("RightHand2/Grip/Node3D/HandInfoPanel")
 cam = NodePath("XRCamera3D")
 laser = NodePath("RightHand/Laser")
 rh_grip = NodePath("RightHand2/Grip")
+rh_ctrl = NodePath("RightHand2")
+lh_ctrl = NodePath("LeftHand")
 
 [node name="XRCamera3D" type="XRCamera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)

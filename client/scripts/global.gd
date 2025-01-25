@@ -17,6 +17,10 @@ var config: Dictionary[String, Variant] = {
 	"msaa": 3,
 	"color_self": Color(1, .5, 0),
 	"color_other": Color(0, .5, 1),
+	"world_scale": 1.0,
+	"world_distance": 0.0,
+	"world_height": 1.0,
+	"world_rotate": false
 }
 
 func _ready() -> void:
