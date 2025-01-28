@@ -1,0 +1,4 @@
+double-scale all dialogs and fonts
+hide wallpanel if no menu is shown
+presets for seated / room-scale vr
+vibrations button feedback

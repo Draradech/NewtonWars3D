@@ -296,6 +296,25 @@ popup/item_2/id = 0
 popup/item_3/text = "8x"
 popup/item_3/id = 0
 
+[node name="RenderScaleLbl" type="Label" parent="EscMenu/VBox/GridContainer"]
+visible = false
+layout_mode = 2
+text = "Render scale"
+
+[node name="RenderScale" type="SpinBox" parent="EscMenu/VBox/GridContainer"]
+visible = false
+layout_mode = 2
+min_value = 0.5
+max_value = 2.0
+step = 0.1
+value = 1.0
+alignment = 2
+
+[node name="RenderResLbl" type="Label" parent="EscMenu/VBox/GridContainer"]
+visible = false
+layout_mode = 2
+text = "Render scale"
+
 [node name="Quit" type="Button" parent="EscMenu/VBox"]
 layout_mode = 2
 text = "Quit"
@@ -507,6 +526,7 @@ script = ExtResource("1_yev5y")
 [connection signal="toggled" from="EscMenu/VBox/GridContainer/Rotate" to="." method="_on_rotate_toggled"]
 [connection signal="toggled" from="EscMenu/VBox/GridContainer/Glow" to="." method="_on_glow_toggled"]
 [connection signal="item_selected" from="EscMenu/VBox/GridContainer/MSAA" to="." method="_on_msaa_item_selected"]
+[connection signal="value_changed" from="EscMenu/VBox/GridContainer/RenderScale" to="." method="_on_render_scale_value_changed"]
 [connection signal="pressed" from="EscMenu/VBox/Quit" to="." method="_on_quit_pressed"]
 [connection signal="pressed" from="EscMenu/VBox/Disconnect" to="." method="_on_disconnect_pressed"]
 [connection signal="pressed" from="EscMenu/VBox/InputHelp" to="." method="_on_input_help_pressed"]

@@ -139,9 +139,9 @@ scene_properties_keys = PackedStringArray("hand_info_panel.gd")
 
 [node name="ViewportBackWall" parent="." instance=ExtResource("2_nntj1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -1.3)
-screen_size = Vector2(0.9, 1.1)
+screen_size = Vector2(0.9, 1.3)
 scene = ExtResource("4_cklhh")
-viewport_size = Vector2(450, 550)
+viewport_size = Vector2(450, 650)
 transparent = 2
 unshaded = true
 scene_properties_keys = PackedStringArray("ui_scene.gd")

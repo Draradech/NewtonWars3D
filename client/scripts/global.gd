@@ -20,7 +20,8 @@ var config: Dictionary[String, Variant] = {
 	"world_scale": 1.0,
 	"world_distance": 0.0,
 	"world_height": 1.0,
-	"world_rotate": false
+	"world_rotate": false,
+	"render_scale": 1.0
 }
 
 func _ready() -> void:

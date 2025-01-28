@@ -10,13 +10,15 @@ var flat_setup:= preload("res://scenes/flat_setup.tscn")
 
 var xr: XRSetup
 var flat: FlatSetup
+var xr_interface: OpenXRInterface
 
 func _ready() -> void:
 	Global.root = self
-	var xr_interface: = XRServer.find_interface("OpenXR")
+	xr_interface = XRServer.find_interface("OpenXR")
 	if xr_interface and xr_interface.is_initialized():
 		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 		get_viewport().use_xr = true
+		xr_interface.render_target_size_multiplier = Global.config["render_scale"]
 		xr = xr_setup.instantiate()
 		add_child(xr)
 	else:

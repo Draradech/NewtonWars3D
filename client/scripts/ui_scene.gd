@@ -15,6 +15,7 @@ extends Control
 @onready var picker_other: PanelContainer = $ColorPickerOtherDialog
 @onready var picker_self_btn: ColorButton = $EscMenu/VBox/GridContainer/ColorSelfButton
 @onready var picker_other_btn: ColorButton = $EscMenu/VBox/GridContainer/ColorOtherButton
+@onready var render_res: Label = $EscMenu/VBox/GridContainer/RenderResLbl
 
 func _ready() -> void:
 	($MainMenu/VBox/Grid/Name as LineEdit).text = Global.config["name"]
@@ -32,11 +33,15 @@ func _ready() -> void:
 	($EscMenu/VBox/GridContainer/WorldDst as SpinBox).value = Global.config["world_distance"]
 	($EscMenu/VBox/GridContainer/WorldHeight as SpinBox).value = Global.config["world_height"]
 	($EscMenu/VBox/GridContainer/Rotate as CheckBox).button_pressed = Global.config["world_rotate"]
+	($EscMenu/VBox/GridContainer/RenderScale as SpinBox).value = Global.config["render_scale"]
 	($EscMenu/VBox/GridContainer/Glow as CheckBox).button_pressed = Global.config["glow"]
 	($EscMenu/VBox/GridContainer/MSAA as OptionButton).selected = Global.config["msaa"]
 	var msaa: RenderingServer.ViewportMSAA = Global.config["msaa"]
 	RenderingServer.viewport_set_msaa_3d(get_tree().root.get_viewport_rid(), msaa)
 	if Global.root.xr:
+		var res: = Global.root.xr_interface.get_render_target_size()
+		render_res.text = "%d x %d" % [res.x, res.y]
+		render_res.visible = true
 		($EscMenu/VBox/InputHelp as Control).visible = false
 		($EscMenu/VBox/GridContainer/Glow as Control).visible = false
 		($EscMenu/VBox/GridContainer/GlowLbl as Control).visible = false
@@ -50,6 +55,8 @@ func _ready() -> void:
 		($EscMenu/VBox/GridContainer/WorldHeight as Control).visible = true
 		($EscMenu/VBox/GridContainer/Rotate as Control).visible = true
 		($EscMenu/VBox/GridContainer/RotateLbl as Control).visible = true
+		($EscMenu/VBox/GridContainer/RenderScale as Control).visible = true
+		($EscMenu/VBox/GridContainer/RenderScaleLbl as Control).visible = true
 
 	else:
 		var uiscale: float = Global.config["ui_scale"]
@@ -213,3 +220,9 @@ func _on_world_height_value_changed(value: float) -> void:
 	var height: float = Global.config["world_height"]
 	var dist: float = Global.config["world_distance"]
 	if Global.game: Global.game.position = Vector3(0, height, -dist)
+
+func _on_render_scale_value_changed(value: float) -> void:
+	Global.config["render_scale"] = value
+	Global.root.xr_interface.render_target_size_multiplier = Global.config["render_scale"]
+	var res: = Global.root.xr_interface.get_render_target_size()
+	render_res.text = "%d x %d" % [res.x, res.y]
