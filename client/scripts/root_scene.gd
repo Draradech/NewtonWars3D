@@ -48,7 +48,10 @@ func _on_disconnect() -> void:
 	remove_child(Global.game)
 	Global.game.queue_free()
 	Global.game = null
-	Global.root.xr.hand_controller.visible = false
+	if xr:
+		xr.hand_controller.visible = false
+		var ctrl_scene: HandController = xr.hand_controller.get_scene_instance()
+		ctrl_scene.player = null
 	if flat: flat.cam.reset_camera()
 
 func _on_quit() -> void:
@@ -76,8 +79,10 @@ func _process(_delta: float) -> void:
 		pt2 = t1
 		phy_running = false
 	def1.call_deferred()
-	if not Global.ui and xr.viewport_back_wall.scene_node:
+	if not Global.ui and xr and xr.viewport_back_wall.scene_node:
 		Global.ui = xr.viewport_back_wall.scene_node
+	if xr and Global.ui:
+		xr.viewport_back_wall.visible = Global.ui.is_menu_open()
 
 func _physics_process(_delta: float) -> void:
 	pt1 = Time.get_ticks_usec() / 1000.0

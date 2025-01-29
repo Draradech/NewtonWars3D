@@ -75,6 +75,9 @@ const DEFAULT_LAYER := 0b0000_0000_0101_0000_0000_0000_0000_0001
 ## Viewport size property
 @export var viewport_size : Vector2 = Vector2(300.0, 200.0): set = set_viewport_size
 
+## Viewport size render scale property
+@export var viewport_size_render_scale : float = 1.0: set = set_viewport_size_render_scale
+
 ## Update Mode property
 @export var update_mode : UpdateMode = UpdateMode.UPDATE_ALWAYS: set = set_update_mode
 
@@ -393,6 +396,14 @@ func set_viewport_size(new_size: Vector2) -> void:
 		_update_render()
 
 
+## Set viewport size render scale property
+func set_viewport_size_render_scale(new_scale: float) -> void:
+	viewport_size_render_scale = new_scale
+	_dirty |= _DIRTY_SIZE
+	if is_ready:
+		_update_render()
+
+
 ## Set update mode property
 func set_update_mode(new_update_mode: UpdateMode) -> void:
 	update_mode = new_update_mode
@@ -535,8 +546,9 @@ func _update_render() -> void:
 		_dirty &= ~_DIRTY_SIZE
 
 		# Set the viewport size
-		$Viewport.size = viewport_size
-		$StaticBody3D.viewport_size = viewport_size
+		$Viewport.size = viewport_size * viewport_size_render_scale
+		$Viewport.size_2d_override = viewport_size
+		$StaticBody3D.viewport_size = viewport_size * viewport_size_render_scale
 
 		# Update our viewport texture, it will have changed
 		_dirty |= _DIRTY_ALBEDO

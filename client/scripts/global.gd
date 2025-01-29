@@ -19,9 +19,10 @@ var config: Dictionary[String, Variant] = {
 	"color_other": Color(0, .5, 1),
 	"world_scale": 1.0,
 	"world_distance": 0.0,
-	"world_height": 1.0,
+	"world_height": 1.1,
 	"world_rotate": false,
-	"render_scale": 1.0
+	"render_scale": 1.0,
+	"vr_preset": 1
 }
 
 func _ready() -> void:
