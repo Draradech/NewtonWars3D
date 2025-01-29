@@ -76,3 +76,12 @@ func update_laser() -> void:
 	var laser_material: ShaderMaterial = laser.laser_material
 	laser_material.set_shader_parameter("full_length", laser_length)
 	laser_material.set_shader_parameter("fade_length", clampf(laser_length, 0, 0.4))
+
+func vibrate_left(t: float) -> void:
+	vibrate("left_hand", t)
+
+func vibrate_right(t: float) -> void:
+	vibrate("right_hand", t)
+
+func vibrate(con: String, t: float) -> void:
+	XRServer.primary_interface.trigger_haptic_pulse("haptic_out", con, 0, 1.0, t, 0)

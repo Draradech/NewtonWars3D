@@ -21,6 +21,7 @@ func _ready() -> void:
 		xr_interface.render_target_size_multiplier = Global.config["render_scale"]
 		xr = xr_setup.instantiate()
 		add_child(xr)
+		connect_vibrations(self)
 	else:
 		flat = flat_setup.instantiate()
 		add_child(flat)
@@ -101,3 +102,16 @@ func def2() -> void:
 	else:
 		Global.ui.stats.cpu = t2 - t1
 		Global.ui.stats.pcpu = pt2 - pt1
+
+func ui_vibrate() -> void:
+	xr.vibrate_right(0.05)
+
+func connect_vibrations(n: Node) -> void:
+	for child in n.get_children(true):
+		connect_vibrations(child)
+		if child is LineEdit and (child as Control).focus_mode != Control.FOCUS_NONE:
+			@warning_ignore("return_value_discarded")
+			(child as Control).mouse_entered.connect(ui_vibrate)
+		if child is Button:
+			@warning_ignore("return_value_discarded")
+			(child as Control).mouse_entered.connect(ui_vibrate)

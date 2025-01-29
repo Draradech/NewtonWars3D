@@ -168,6 +168,7 @@ func process_network(space: Space, delta: float) -> bool:
 	return false
 
 func _on_shoot() -> void:
+	if Global.root.xr: Global.root.xr.vibrate_left(0.1)
 	tcp_client.put_u32(MSG_SHOOT)
 	tcp_client.put_double(Global.game.space.players[Global.game.space.player_id].pitch)
 	tcp_client.put_double(Global.game.space.players[Global.game.space.player_id].yaw)
