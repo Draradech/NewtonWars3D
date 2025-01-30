@@ -17,6 +17,7 @@ signal shoot
 func _on_right_hand_button_pressed(action_name: String) -> void:
 	if action_name == "btna_click":
 		Global.ui.menu_action()
+		vibrate_right(0.05)
 	if action_name == "btnb_touch":
 		if Global.game:
 			for pl: Player in Global.game.space.players.values():
@@ -30,8 +31,13 @@ func _on_right_hand_button_pressed(action_name: String) -> void:
 		else:
 			panel.debug_stats.visible = true
 			panel.player_list.visible = false
+		vibrate_right(0.05)
+	if action_name == "trigger_click":
+		vibrate_right(0.05)
 
 func _on_right_hand_button_released(action_name: String) -> void:
+	if action_name == "trigger_click":
+		vibrate_right(0.05)
 	if action_name == "btnb_touch":
 		if Global.game:
 			for pl: Player in Global.game.space.players.values():
@@ -41,8 +47,10 @@ func _on_left_hand_button_pressed(action_name: String) -> void:
 	if action_name == "trigger_click":
 		shoot.emit()
 	if action_name == "btna_click":
+		vibrate_left(0.05)
 		Global.game.space.clear_shots()
 	if action_name == "btnb_click":
+		vibrate_left(0.05)
 		Global.game.space.reset_aim()
 
 func _process(_delta: float) -> void:
