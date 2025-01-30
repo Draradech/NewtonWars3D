@@ -8,9 +8,6 @@ func _ok_pressed() -> void:
 	closed.emit()
 
 func _ready() -> void:
-	var vbox: VBoxContainer = get_child(0, true).get_child(0, true)
-	var threedot: HBoxContainer = vbox.get_child(5, true)
-	threedot.visible = false
 	var ok_button: = Button.new()
 	ok_button.text = "OK"
 	@warning_ignore("return_value_discarded")
