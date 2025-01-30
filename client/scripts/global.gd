@@ -22,7 +22,8 @@ var config: Dictionary[String, Variant] = {
 	"world_height": 1.1,
 	"world_rotate": false,
 	"render_scale": 1.0,
-	"vr_preset": 1
+	"vr_preset": 1,
+	"vr_passthrough": false,
 }
 
 func _ready() -> void:

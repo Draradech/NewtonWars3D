@@ -56,6 +56,12 @@ func _ready() -> void:
 		Global.root.xr_interface.render_target_size_multiplier = Global.config["render_scale"]
 		var res: = Global.root.xr_interface.get_render_target_size()
 		render_res.text = "%dx%d per eye" % [res.x, res.y]
+		($VrSettingsDialog/VBox/GridContainer/Passthrough as CheckBox).button_pressed = Global.config["vr_passthrough"]
+		if Global.config["vr_passthrough"]:
+			@warning_ignore("return_value_discarded")
+			Global.root.xr_interface.start_passthrough()
+		else:
+			Global.root.xr_interface.stop_passthrough()
 	else:
 		var uiscale: float = Global.config["ui_scale"]
 		get_tree().root.content_scale_factor = uiscale
@@ -266,3 +272,11 @@ func _on_preset_item_selected(index: int) -> void:
 			($VrSettingsDialog/VBox/GridContainer/Rotate as CheckBox).button_pressed = false
 	supress_preset = false
 	Global.config["vr_preset"] = index
+
+func _on_passthrough_toggled(toggled_on: bool) -> void:
+	if toggled_on:
+		@warning_ignore("return_value_discarded")
+		Global.root.xr_interface.start_passthrough()
+	else:
+		Global.root.xr_interface.stop_passthrough()
+	Global.config["vr_passthrough"] = toggled_on
