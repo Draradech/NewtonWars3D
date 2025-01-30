@@ -14,10 +14,10 @@ func update_values(pl: Player) -> void:
 	if not player:
 		Global.root.xr.hand_controller.visible = true
 	player = pl
-	if not digitEd.has_focus(): digitEd.text = "%13.8f" % pow(10, player.digit)
-	if not yawEd.has_focus(): yawEd.text = "%13.8f" % player.yaw
-	if not pitchEd.has_focus(): pitchEd.text = "%13.8f" % player.pitch
-	if not speedEd.has_focus(): speedEd.text = "%13.8f" % player.speed
+	if not digitEd.has_focus(): digitEd.text = "%.8f" % pow(10, player.digit)
+	if not yawEd.has_focus(): yawEd.text = "%.8f" % player.yaw
+	if not pitchEd.has_focus(): pitchEd.text = "%.8f" % player.pitch
+	if not speedEd.has_focus(): speedEd.text = "%.8f" % player.speed
 
 func _on_digit_p_btn_pressed() -> void:
 	player.digit += 1

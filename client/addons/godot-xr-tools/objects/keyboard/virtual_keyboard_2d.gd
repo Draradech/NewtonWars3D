@@ -29,7 +29,7 @@ func is_xr_class(name : String) -> bool:
 	return super(name) or name == "XRToolsVirtualKeyboard2D"
 
 
-# Handle key pressed from VirtualKey
+# Handle key pressed from VirtualKeyChar
 func on_key_pressed(scan_code_text: String, unicode: int, shift: bool):
 	# Find the scan code
 	var scan_code := OS.find_keycode_from_string(scan_code_text)
@@ -51,25 +51,25 @@ func on_key_pressed(scan_code_text: String, unicode: int, shift: bool):
 		_update_visible()
 
 
-func _on_toggle_shift_pressed() -> void:
+func _on_toggle_shift(pressed: bool) -> void:
 	# Update toggle keys
-	_shift_down = not _shift_down
+	_shift_down = pressed
 	_caps_down = false
 	_alt_down = false
 	_update_visible()
 
 
-func _on_toggle_caps_pressed() -> void:
+func _on_toggle_caps(pressed: bool) -> void:
 	# Update toggle keys
-	_caps_down = not _caps_down
+	_caps_down = pressed
 	_shift_down = false
 	_alt_down = false
 	_update_visible()
 
 
-func _on_toggle_alt_pressed() -> void:
+func _on_toggle_alt(pressed: bool) -> void:
 	# Update toggle keys
-	_alt_down = not _alt_down
+	_alt_down = pressed
 	_shift_down = false
 	_caps_down = false
 	_update_visible()
@@ -78,9 +78,9 @@ func _on_toggle_alt_pressed() -> void:
 # Update switching the visible case keys
 func _update_visible() -> void:
 	# Ensure the control buttons are set correctly
-	$Background/Standard/ToggleShift.highlighted = _shift_down
-	$Background/Standard/ToggleCaps.highlighted = _caps_down
-	$Background/Standard/ToggleAlt.highlighted = _alt_down
+	$Background/Standard/ToggleShift.set_toggle_state(_shift_down)
+	$Background/Standard/ToggleCaps.set_toggle_state(_caps_down)
+	$Background/Standard/ToggleAlt.set_toggle_state(_alt_down)
 
 	# Evaluate the new mode
 	var new_mode: int

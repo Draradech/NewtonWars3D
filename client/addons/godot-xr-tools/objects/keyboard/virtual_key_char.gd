@@ -30,16 +30,9 @@ func _ready():
 
 	# Handle button presses
 	pressed.connect(_on_pressed)
-	released.connect(_on_released)
 
 
 # Handler for button pressed
 func _on_pressed() -> void:
-	highlighted = true
 	if _keyboard:
 		_keyboard.on_key_pressed(scan_code_text, unicode, shift_modifier)
-
-
-# Handler for button released
-func _on_released() -> void:
-	highlighted = false

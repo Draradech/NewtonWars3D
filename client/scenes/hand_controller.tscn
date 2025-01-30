@@ -43,6 +43,7 @@ text = "<-"
 custom_minimum_size = Vector2(140, 0)
 layout_mode = 2
 focus_mode = 0
+alignment = 2
 context_menu_enabled = false
 
 [node name="DigitMBtn" type="Button" parent="HandControllerDialog/Grid"]
@@ -60,6 +61,7 @@ text = " - "
 [node name="YawText" type="LineEdit" parent="HandControllerDialog/Grid"]
 custom_minimum_size = Vector2(140, 0)
 layout_mode = 2
+alignment = 2
 context_menu_enabled = false
 
 [node name="YawPBtn" type="Button" parent="HandControllerDialog/Grid"]
@@ -77,6 +79,7 @@ text = " - "
 [node name="PitchText" type="LineEdit" parent="HandControllerDialog/Grid"]
 custom_minimum_size = Vector2(140, 0)
 layout_mode = 2
+alignment = 2
 context_menu_enabled = false
 
 [node name="PitchPBtn" type="Button" parent="HandControllerDialog/Grid"]
@@ -94,6 +97,7 @@ text = " - "
 [node name="SpeedText" type="LineEdit" parent="HandControllerDialog/Grid"]
 custom_minimum_size = Vector2(140, 0)
 layout_mode = 2
+alignment = 2
 context_menu_enabled = false
 
 [node name="SpeedPBtn" type="Button" parent="HandControllerDialog/Grid"]

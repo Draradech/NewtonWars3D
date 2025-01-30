@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://ccd57origbok6" path="res://addons/godot-xr-tools/objects/keyboard/virtual_keyboard_2d.gd" id="1"]
 [ext_resource type="Script" uid="uid://dr4xgtun2lo0j" path="res://addons/godot-xr-tools/objects/keyboard/virtual_key_char.gd" id="2_n0nlg"]
-[ext_resource type="Script" uid="uid://b7ic0hp5q0k0l" path="res://addons/godot-xr-tools/objects/keyboard/virtual_key.gd" id="3_h05ve"]
+[ext_resource type="Script" uid="uid://wvuvnvkw3lto" path="res://addons/godot-xr-tools/objects/keyboard/virtual_key_toggle.gd" id="3_n33kd"]
 
 [node name="VirtualKeyboard2D" type="CanvasLayer"]
 script = ExtResource("1")
@@ -12,13 +12,8 @@ offset_right = 400.0
 offset_bottom = 200.0
 color = Color(0.301961, 0.301961, 0.301961, 1)
 
-[node name="Standard" type="Control" parent="Background"]
-layout_mode = 1
-anchors_preset = 0
-offset_left = 4.0
-offset_top = 4.0
-offset_right = 394.0
-offset_bottom = 149.0
+[node name="Standard" type="Node2D" parent="Background"]
+position = Vector2(4, 4)
 
 [node name="VirtualKey1" type="Node2D" parent="Background/Standard"]
 script = ExtResource("2_n0nlg")
@@ -91,19 +86,19 @@ key_text = "0"
 
 [node name="ToggleShift" type="Node2D" parent="Background/Standard"]
 position = Vector2(0, 120)
-script = ExtResource("3_h05ve")
+script = ExtResource("3_n33kd")
 key_size = Vector2(52, 32)
-key_text = "SHIFT"
+key_text = "SHFT"
 
 [node name="ToggleCaps" type="Node2D" parent="Background/Standard"]
 position = Vector2(0, 160)
-script = ExtResource("3_h05ve")
+script = ExtResource("3_n33kd")
 key_size = Vector2(52, 32)
 key_text = "CAPS"
 
 [node name="ToggleAlt" type="Node2D" parent="Background/Standard"]
 position = Vector2(60, 160)
-script = ExtResource("3_h05ve")
+script = ExtResource("3_n33kd")
 key_size = Vector2(52, 32)
 key_text = "ALT"
 
@@ -134,7 +129,7 @@ position = Vector2(340, 160)
 script = ExtResource("2_n0nlg")
 scan_code_text = "Enter"
 key_size = Vector2(52, 32)
-key_text = "Enter"
+key_text = "ENTR"
 
 [node name="LowerCase" type="Node2D" parent="Background"]
 position = Vector2(4, 44)
@@ -716,6 +711,6 @@ scan_code_text = "Question"
 unicode = 63
 key_text = "?"
 
-[connection signal="pressed" from="Background/Standard/ToggleShift" to="." method="_on_toggle_shift_pressed"]
-[connection signal="pressed" from="Background/Standard/ToggleCaps" to="." method="_on_toggle_caps_pressed"]
-[connection signal="pressed" from="Background/Standard/ToggleAlt" to="." method="_on_toggle_alt_pressed"]
+[connection signal="toggled" from="Background/Standard/ToggleShift" to="." method="_on_toggle_shift"]
+[connection signal="toggled" from="Background/Standard/ToggleCaps" to="." method="_on_toggle_caps"]
+[connection signal="toggled" from="Background/Standard/ToggleAlt" to="." method="_on_toggle_alt"]
